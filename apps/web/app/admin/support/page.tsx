@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetAdminSupportMessagesQuery, useUpdateSupportMessageStatusMutation } from "@/store/apiSlice";
+import { useGetAdminSupportMessagesQuery, useUpdateSupportMessageStatusMutation } from "@/lib/feature/support/supportApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";

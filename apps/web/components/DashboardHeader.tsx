@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store";
-import { logout } from "@/store/authSlice";
+import type { RootState } from "@/lib/redux/store";
+import { logout } from "@/lib/feature/auth/authSlice";
 import { Button } from "@/components/ui/button";
 
 export function DashboardHeader() {

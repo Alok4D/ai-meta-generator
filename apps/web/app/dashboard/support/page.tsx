@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useSubmitSupportMessageMutation } from "@/store/apiSlice";
+import { useSubmitSupportMessageMutation } from "@/lib/feature/support/supportApi";
 
 export default function SupportPage() {
   const [subject, setSubject] = useState("");

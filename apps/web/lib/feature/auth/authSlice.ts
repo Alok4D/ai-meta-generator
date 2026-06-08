@@ -1,19 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { User, AuthState } from '@/lib/types';
 
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  credits: number;
-  role: string;
-  token: string;
-}
-
-interface AuthState {
-  user: User | null;
-}
-
-// Check local storage for initial state
 const getInitialState = (): AuthState => {
   if (typeof window !== 'undefined') {
     const savedUser = localStorage.getItem('user');

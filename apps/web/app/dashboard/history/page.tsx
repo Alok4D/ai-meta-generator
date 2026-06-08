@@ -1,8 +1,8 @@
 "use client";
 
 import { useSelector } from "react-redux";
-import { RootState } from "@/store";
-import { useGetHistoryQuery } from "@/store/apiSlice";
+import type { RootState } from "@/lib/redux/store";
+import { useGetHistoryQuery } from "@/lib/feature/upload/uploadApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetAdminOverviewQuery } from "@/store/apiSlice";
+import { useGetAdminOverviewQuery } from "@/lib/feature/admin/adminApi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Image, Coins } from "lucide-react";
 

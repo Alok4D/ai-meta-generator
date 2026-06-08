@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelector } from "react-redux";
-import { RootState } from "@/store";
+import type { RootState } from "@/lib/redux/store";
 import { User as UserIcon, Lock, Shield } from "lucide-react";
 import { toast } from "sonner";
 

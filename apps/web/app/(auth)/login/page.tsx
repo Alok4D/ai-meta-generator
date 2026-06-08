@@ -11,8 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth, googleProvider } from "@/lib/firebase";
-import { setUser } from "@/store/authSlice";
-import { useLoginMutation, useGoogleLoginMutation } from "@/store/apiSlice";
+import { setUser } from "@/lib/feature/auth/authSlice";
+import { useLoginMutation, useGoogleLoginMutation } from "@/lib/feature/auth/authApi";
 
 export default function Login() {
   

@@ -4,8 +4,8 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store";
-import { logout } from "@/store/authSlice";
+import type { RootState } from "@/lib/redux/store";
+import { logout } from "@/lib/feature/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Users, Image as ImageIcon, BarChart3, Settings, LifeBuoy, LogOut, User as UserIcon } from "lucide-react";
 

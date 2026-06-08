@@ -5,9 +5,9 @@ import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store";
-import { updateCredits } from "@/store/authSlice";
-import { useUploadImageMutation } from "@/store/apiSlice";
+import type { RootState } from "@/lib/redux/store";
+import { updateCredits } from "@/lib/feature/auth/authSlice";
+import { useUploadImageMutation } from "@/lib/feature/upload/uploadApi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,7 +30,7 @@ export default function Dashboard() {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      setFile(acceptedFiles[0]);
+      setFile(acceptedFiles[0] || null);
       setMetadata(null); // clear previous
     }
   }, []);

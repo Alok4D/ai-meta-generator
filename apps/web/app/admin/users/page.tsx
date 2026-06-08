@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useGetAllUsersQuery, useUpdateUserMutation } from "@/store/apiSlice";
+import { useGetAllUsersQuery, useUpdateUserMutation } from "@/lib/feature/admin/adminApi";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
