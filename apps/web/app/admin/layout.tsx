@@ -9,6 +9,7 @@ import { logout } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
+  
   const user = useSelector((state: RootState) => state.auth.user);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -40,11 +41,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Link href="/admin/users" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Users
             </Link>
-            <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              App
+            <Link href="/admin/images" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Images
+            </Link>
+            <Link href="/admin/analytics" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Analytics
+            </Link>
+            <Link href="/admin/settings" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Settings
             </Link>
           </nav>
           <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors hidden sm:inline-block">
+              App
+            </Link>
             <span className="text-sm font-medium hidden sm:inline-block">
               {user.name} (Admin)
             </span>

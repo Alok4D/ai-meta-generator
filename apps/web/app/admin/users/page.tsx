@@ -63,8 +63,12 @@ export default function AdminUsersPage() {
                 <tr>
                   <th className="px-6 py-4 font-medium">Name</th>
                   <th className="px-6 py-4 font-medium">Email</th>
-                  <th className="px-6 py-4 font-medium">Role</th>
+                  <th className="px-6 py-4 font-medium">Plan</th>
+                  <th className="px-6 py-4 font-medium">Images Generated</th>
                   <th className="px-6 py-4 font-medium">Credits</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium">Role</th>
+                  <th className="px-6 py-4 font-medium">Join Date</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
@@ -74,19 +78,11 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4 font-medium">{user.name}</td>
                     <td className="px-6 py-4 text-muted-foreground">{user.email}</td>
                     <td className="px-6 py-4">
-                      <Select 
-                        defaultValue={user.role} 
-                        onValueChange={(val) => handleUpdateRole(user._id, val)}
-                      >
-                        <SelectTrigger className="w-[120px] h-8 text-xs">
-                          <SelectValue placeholder="Role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <span className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
+                        Free
+                      </span>
                     </td>
+                    <td className="px-6 py-4 font-medium">0</td>
                     <td className="px-6 py-4">
                       {editingUserId === user._id ? (
                         <div className="flex items-center gap-2">
@@ -120,8 +116,33 @@ export default function AdminUsersPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right text-xs text-muted-foreground">
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-1 bg-green-500/10 text-green-500 rounded-md text-xs font-medium">
+                        Active
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Select 
+                        defaultValue={user.role} 
+                        onValueChange={(val) => handleUpdateRole(user._id, val)}
+                      >
+                        <SelectTrigger className="w-[100px] h-8 text-xs">
+                          <SelectValue placeholder="Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="px-6 py-4 text-xs text-muted-foreground">
                       {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" className="h-8 text-xs">View</Button>
+                        <Button variant="destructive" size="sm" className="h-8 text-xs">Delete</Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
