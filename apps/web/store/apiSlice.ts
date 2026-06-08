@@ -64,6 +64,23 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Users'],
     }),
+    submitSupportMessage: builder.mutation({
+      query: (data) => ({
+        url: '/support',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    getAdminSupportMessages: builder.query({
+      query: () => '/admin/support',
+    }),
+    updateSupportMessageStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/admin/support/${id}/status`,
+        method: 'PATCH',
+        body: { status },
+      }),
+    }),
   }),
 });
 
@@ -76,4 +93,7 @@ export const {
   useGetAdminOverviewQuery,
   useGetAllUsersQuery,
   useUpdateUserMutation,
+  useSubmitSupportMessageMutation,
+  useGetAdminSupportMessagesQuery,
+  useUpdateSupportMessageStatusMutation,
 } = apiSlice;

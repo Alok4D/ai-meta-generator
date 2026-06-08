@@ -47,6 +47,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Link href="/admin/analytics" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Analytics
             </Link>
+            <Link href="/admin/support" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              Support
+            </Link>
             <Link href="/admin/settings" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               Settings
             </Link>
