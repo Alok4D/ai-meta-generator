@@ -93,7 +93,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button className="w-full text-md h-10" disabled={isLoading}>
+            <Button type="submit" className="w-full text-md h-10" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign in"}
             </Button>
           </form>
