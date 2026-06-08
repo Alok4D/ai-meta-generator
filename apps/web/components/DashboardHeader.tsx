@@ -28,16 +28,30 @@ export function DashboardHeader() {
         </Link>
         <nav className="hidden md:flex gap-6">
           <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
-            Dashboard
+            Generate
           </Link>
           <Link href="/dashboard/history" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             History
           </Link>
+          <Link href="/dashboard/batch" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Batch
+          </Link>
+          <Link href="/dashboard/pricing" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Pricing
+          </Link>
+          <Link href="/dashboard/support" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Support
+          </Link>
         </nav>
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium hidden sm:inline-block">
+          {user?.role === 'admin' && (
+            <Link href="/admin" className="text-sm font-medium text-primary hover:underline hidden sm:inline-block">
+              Admin Portal
+            </Link>
+          )}
+          <Link href="/dashboard/profile" className="text-sm font-medium hidden sm:inline-block hover:text-primary transition-colors">
             {user?.name || "User"}
-          </span>
+          </Link>
           <Button variant="outline" size="sm" onClick={handleLogout}>Log out</Button>
         </div>
       </div>

@@ -10,6 +10,7 @@ import { updateCredits } from "@/store/authSlice";
 import { useUploadImageMutation } from "@/store/apiSlice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Dashboard() {
   
@@ -111,37 +112,111 @@ export default function Dashboard() {
             </Button>
           </CardContent>
         </Card>
-
+// ... existing code in the file until before the Results View card ...
         {/* Results View */}
         <Card className="h-full flex flex-col">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Generated Metadata</CardTitle>
+            {metadata && (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm">Download TXT</Button>
+                <Button variant="outline" size="sm">Download CSV</Button>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="flex-1">
             {metadata ? (
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-sm font-semibold text-muted-foreground mb-1">Title</h4>
-                  <div className="p-3 bg-muted rounded-md text-sm">{metadata.title}</div>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-muted-foreground mb-1">Category</h4>
-                  <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.category}</div>
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-muted-foreground mb-1">Keywords ({metadata.keywords.length})</h4>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {metadata.keywords.map((kw: string, i: number) => (
-                      <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
-                        {kw}
-                      </span>
-                    ))}
+              <Tabs defaultValue="adobe" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="adobe">Adobe Stock</TabsTrigger>
+                  <TabsTrigger value="shutterstock">Shutterstock</TabsTrigger>
+                  <TabsTrigger value="seo">SEO Mode</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="adobe" className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-end mb-1">
+                      <h4 className="text-sm font-semibold text-muted-foreground">Title</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.title)}>Copy</Button>
+                    </div>
+                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title}</div>
                   </div>
-                </div>
-                <Button variant="outline" className="w-full" onClick={() => navigator.clipboard.writeText(metadata.keywords.join(', '))}>
-                  Copy All Keywords
-                </Button>
-              </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-1">Category</h4>
+                    <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.category}</div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-end mb-1">
+                      <h4 className="text-sm font-semibold text-muted-foreground">Keywords ({metadata.keywords?.length || 49})</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.keywords.join(', '))}>Copy</Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {metadata.keywords.map((kw: string, i: number) => (
+                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <Button variant="outline" className="w-full">
+                    Regenerate
+                  </Button>
+                </TabsContent>
+                
+                <TabsContent value="shutterstock" className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-end mb-1">
+                      <h4 className="text-sm font-semibold text-muted-foreground">Title</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.title)}>Copy</Button>
+                    </div>
+                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title}</div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-1">Description</h4>
+                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title} - A high quality image perfect for your projects.</div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-end mb-1">
+                      <h4 className="text-sm font-semibold text-muted-foreground">Keywords</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.keywords.join(', '))}>Copy</Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {metadata.keywords.map((kw: string, i: number) => (
+                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="seo" className="space-y-6">
+                  <div>
+                    <div className="flex justify-between items-end mb-1">
+                      <h4 className="text-sm font-semibold text-muted-foreground">SEO Title</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.title)}>Copy</Button>
+                    </div>
+                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title}</div>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-1">SEO Description</h4>
+                    <div className="p-3 bg-muted rounded-md text-sm">Download this amazing image of {metadata.title}. Perfect for web design, marketing, and commercial use.</div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-end mb-1">
+                      <h4 className="text-sm font-semibold text-muted-foreground">Tags</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.keywords.slice(0, 15).join(', '))}>Copy</Button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {metadata.keywords.slice(0, 15).map((kw: string, i: number) => (
+                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-4 py-12">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="opacity-20"><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>

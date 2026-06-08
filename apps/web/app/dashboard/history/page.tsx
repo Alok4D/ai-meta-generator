@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useGetHistoryQuery } from "@/store/apiSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function HistoryPage() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -27,40 +28,55 @@ export default function HistoryPage() {
           No history found. Generate some metadata first!
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {history.map((item) => (
-            <Card key={item._id} className="overflow-hidden flex flex-col">
-              <div className="aspect-video w-full overflow-hidden bg-muted">
-                <img 
-                  src={item.imageUrl} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover transition-transform hover:scale-105"
-                />
-              </div>
-              <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-lg line-clamp-1">{item.title}</CardTitle>
-                <p className="text-xs text-muted-foreground capitalize">{item.category}</p>
-              </CardHeader>
-              <CardContent className="p-4 pt-0 flex-1 flex flex-col">
-                <div className="flex flex-wrap gap-1 mt-2 mb-4">
-                  {item.keywords.slice(0, 5).map((kw: string, i: number) => (
-                    <span key={i} className="px-2 py-0.5 bg-primary/10 text-primary rounded-md text-[10px] font-medium">
-                      {kw}
-                    </span>
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
+                  <tr>
+                    <th className="px-6 py-4 font-medium">Image</th>
+                    <th className="px-6 py-4 font-medium">Title</th>
+                    <th className="px-6 py-4 font-medium">Category</th>
+                    <th className="px-6 py-4 font-medium">Date</th>
+                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {history?.map((item: any) => (
+                    <tr key={item._id} className="bg-card hover:bg-muted/30 transition-colors">
+                      <td className="px-6 py-4">
+                        {item.imageUrl ? (
+                          <div className="w-16 h-16 rounded-md overflow-hidden bg-muted">
+                            <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                          </div>
+                        ) : (
+                          <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center">
+                            <span className="text-xs text-muted-foreground">No Image</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 font-medium max-w-xs truncate" title={item.title}>
+                        {item.title}
+                      </td>
+                      <td className="px-6 py-4 capitalize">{item.category}</td>
+                      <td className="px-6 py-4 text-xs text-muted-foreground">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" className="h-8 px-2 text-xs">View</Button>
+                          <Button variant="outline" size="sm" className="h-8 px-2 text-xs">Copy</Button>
+                          <Button variant="outline" size="sm" className="h-8 px-2 text-xs">Download</Button>
+                          <Button variant="destructive" size="sm" className="h-8 px-2 text-xs">Delete</Button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                  {item.keywords.length > 5 && (
-                    <span className="px-2 py-0.5 bg-muted text-muted-foreground rounded-md text-[10px] font-medium">
-                      +{item.keywords.length - 5} more
-                    </span>
-                  )}
-                </div>
-                <div className="mt-auto text-[10px] text-muted-foreground">
-                  {new Date(item.createdAt).toLocaleDateString()}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

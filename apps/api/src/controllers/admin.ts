@@ -60,3 +60,41 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ error: 'Server error updating user' });
   }
 };
+
+import SupportMessage from '../models/SupportMessage';
+
+export const getAllSupportMessages = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const messages = await SupportMessage.find()
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error fetching support messages' });
+  }
+};
+
+export const updateSupportMessageStatus = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const message = await SupportMessage.findById(id);
+
+    if (!message) {
+      res.status(404).json({ error: 'Message not found' });
+      return;
+    }
+
+    if (status) message.status = status;
+
+    const updatedMessage = await message.save();
+    
+    // populate user before returning
+    await updatedMessage.populate('user', 'name email');
+
+    res.json(updatedMessage);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error updating message status' });
+  }
+};

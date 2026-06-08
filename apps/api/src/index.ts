@@ -21,6 +21,7 @@ app.use(express.json());
 import authRoutes from './routes/auth';
 import uploadRoutes from './routes/upload';
 import adminRoutes from './routes/admin';
+import supportRoutes from './routes/support';
 import fs from 'fs';
 
 // Create uploads directory if it doesn't exist
@@ -31,6 +32,7 @@ if (!fs.existsSync('uploads')) {
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/support', supportRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Welcome to AI Meta Generator API' });
