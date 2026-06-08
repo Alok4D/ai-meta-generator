@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/store";
 import { logout } from "@/store/authSlice";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Users, Image as ImageIcon, BarChart3, Settings, LifeBuoy, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, Image as ImageIcon, BarChart3, Settings, LifeBuoy, LogOut, User as UserIcon } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -33,6 +33,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/admin/images", label: "Images", icon: ImageIcon },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/admin/support", label: "Support", icon: LifeBuoy },
+    { href: "/admin/profile", label: "Profile", icon: UserIcon },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ];
 
@@ -103,10 +104,24 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Mobile Header (optional, simple version) */}
-        <header className="h-16 bg-background border-b flex items-center justify-between px-4 md:hidden">
-          <div className="font-bold">Admin Portal</div>
-          <Button variant="ghost" size="sm" onClick={() => router.push("/dashboard")}>App</Button>
+        {/* Header */}
+        <header className="h-16 bg-background border-b flex items-center justify-between px-4 md:px-8">
+          <div className="font-bold text-lg hidden md:block">Admin Dashboard</div>
+          <div className="font-bold md:hidden">Admin Portal</div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")} className="hidden md:flex">
+              Go to App
+            </Button>
+            <div className="flex items-center gap-3 pl-4 border-l">
+              <div className="flex flex-col text-right hidden sm:flex">
+                <span className="text-sm font-medium leading-none">{user.name}</span>
+                <span className="text-xs text-muted-foreground mt-1 capitalize">{user.role}</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase">
+                {user.name.charAt(0)}
+              </div>
+            </div>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">

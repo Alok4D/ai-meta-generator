@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { User as UserIcon, Lock, Shield } from "lucide-react";
 
-export default function ProfilePage() {
+export default function AdminProfilePage() {
   const user = useSelector((state: RootState) => state.auth.user);
   
   if (!user) return null;
@@ -18,8 +18,8 @@ export default function ProfilePage() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">My Profile</h2>
-        <p className="text-muted-foreground">Manage your personal information and security.</p>
+        <h2 className="text-3xl font-bold tracking-tight">Admin Profile</h2>
+        <p className="text-muted-foreground">Manage your admin account information and security.</p>
       </div>
 
       <Tabs defaultValue="profile" className="w-full flex-col">
@@ -38,7 +38,7 @@ export default function ProfilePage() {
             <Lock className="h-4 w-4" />
             Change Password
           </TabsTrigger>
-
+        
         </TabsList>
 
         <TabsContent value="profile" className="mt-0">
