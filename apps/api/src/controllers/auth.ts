@@ -110,3 +110,33 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ error: 'Server error' });
   }
 };
+
+export const updatePassword = async (req: Request, res: Response): Promise<void> => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.user?._id;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user || !user.password) {
+      res.status(404).json({ error: 'User not found or using OAuth' });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      res.status(400).json({ error: 'Incorrect current password' });
+      return;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error updating password' });
+  }
+};
