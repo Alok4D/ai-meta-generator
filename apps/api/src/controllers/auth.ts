@@ -69,6 +69,39 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const googleLogin = async (req: Request, res: Response): Promise<void> => {
+  const { email, name } = req.body;
+
+  try {
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create user if not exists
+      const randomPassword = Math.random().toString(36).slice(-10);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+
+      user = await User.create({
+        name,
+        email,
+        password: hashedPassword,
+        credits: 100, // Default credits for new Google users
+      });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      credits: user.credits,
+      role: user.role,
+      token: generateToken(user._id as string),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error during Google Login' });
+  }
+};
+
 export const getMe = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await User.findById(req.user?._id).select('-password');
