@@ -13,7 +13,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['History'],
+  tagTypes: ['History', 'Users'],
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -48,6 +48,22 @@ export const apiSlice = createApi({
       query: () => '/upload/history',
       providesTags: ['History'],
     }),
+    getAdminOverview: builder.query({
+      query: () => '/admin/overview',
+      providesTags: ['Users'],
+    }),
+    getAllUsers: builder.query({
+      query: () => '/admin/users',
+      providesTags: ['Users'],
+    }),
+    updateUser: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/admin/users/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Users'],
+    }),
   }),
 });
 
@@ -57,4 +73,7 @@ export const {
   useGoogleLoginMutation,
   useUploadImageMutation,
   useGetHistoryQuery,
+  useGetAdminOverviewQuery,
+  useGetAllUsersQuery,
+  useUpdateUserMutation,
 } = apiSlice;

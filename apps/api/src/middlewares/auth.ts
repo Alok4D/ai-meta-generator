@@ -22,3 +22,11 @@ export const protect = async (req: Request, res: Response, next: NextFunction): 
     res.status(401).json({ error: 'Not authorized to access this route' });
   }
 };
+
+export const admin = (req: Request, res: Response, next: NextFunction): void => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ error: 'Not authorized as an admin' });
+  }
+};

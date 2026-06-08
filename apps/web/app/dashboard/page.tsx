@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Dashboard() {
+  
   const [file, setFile] = useState<File | null>(null);
   const [metadata, setMetadata] = useState<any>(null);
-  
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const router = useRouter();
