@@ -18,6 +18,18 @@ app.use(cors({
 }));
 app.use(express.json());
 
+import authRoutes from './routes/auth';
+import uploadRoutes from './routes/upload';
+import fs from 'fs';
+
+// Create uploads directory if it doesn't exist
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
+
+app.use('/api/auth', authRoutes);
+app.use('/api/upload', uploadRoutes);
+
 app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'Welcome to AI Meta Generator API' });
 });
