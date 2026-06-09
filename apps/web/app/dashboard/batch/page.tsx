@@ -207,7 +207,7 @@ export default function BatchUploadPage() {
               <Button onClick={startProcessing}>Start Processing</Button>
             )}
             {isProcessing && (
-              <Button variant="destructive" onClick={() => { isProcessingRef.current = false; setIsProcessing(false); toast.info("Processing stopped"); }}>Stop Processing</Button>
+              <Button variant="secondary" onClick={() => { isProcessingRef.current = false; setIsProcessing(false); toast.info("Processing stopped"); }}>Stop Processing</Button>
             )}
             <Button variant="outline" onClick={() => setItems([])} disabled={isProcessing}>Clear All</Button>
             {completedCount > 0 && (
