@@ -7,12 +7,6 @@ import sendEmail from '../utils/sendEmail';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
     expiresIn: '30d',
@@ -242,6 +236,13 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     if (phone) user.phone = phone;
 
     if (req.file) {
+      // Configure cloudinary with env vars (which are available here)
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET,
+      });
+
       // Upload to Cloudinary
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: 'ai-meta-generator/avatars',
@@ -267,6 +268,6 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     });
   } catch (error) {
     console.error('Update Profile Error:', error);
-    res.status(500).json({ error: 'Server error updating profile' });
+    res.status(500).json({ error: `Server error updating profile: ${error.message || error}` });
   }
 };

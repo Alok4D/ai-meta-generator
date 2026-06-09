@@ -5,11 +5,6 @@ import fs from 'fs';
 import MetaData from '../models/MetaData';
 import User from '../models/User';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'dummy_key_to_prevent_crash_on_startup',
@@ -27,6 +22,13 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       res.status(403).json({ error: 'Not enough credits' });
       return;
     }
+
+    // Configure cloudinary with env vars (which are available here)
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
 
     // 1. Upload to Cloudinary
     const result = await cloudinary.uploader.upload(req.file.path, {

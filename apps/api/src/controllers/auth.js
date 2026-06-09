@@ -3,12 +3,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resetPassword = exports.forgotPassword = exports.updatePassword = exports.getMe = exports.googleLogin = exports.loginUser = exports.registerUser = void 0;
+exports.updateProfile = exports.resetPassword = exports.forgotPassword = exports.updatePassword = exports.getMe = exports.googleLogin = exports.loginUser = exports.registerUser = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const crypto_1 = __importDefault(require("crypto"));
 const sendEmail_1 = __importDefault(require("../utils/sendEmail"));
+const cloudinary_1 = require("cloudinary");
+const fs_1 = __importDefault(require("fs"));
+cloudinary_1.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 const generateToken = (id) => {
     return jsonwebtoken_1.default.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: '30d',
@@ -201,4 +208,43 @@ const resetPassword = async (req, res) => {
     }
 };
 exports.resetPassword = resetPassword;
+const updateProfile = async (req, res) => {
+    try {
+        const user = await User_1.default.findById(req.user?._id);
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+        const { name, phone } = req.body;
+        if (name)
+            user.name = name;
+        if (phone)
+            user.phone = phone;
+        if (req.file) {
+            // Upload to Cloudinary
+            const result = await cloudinary_1.v2.uploader.upload(req.file.path, {
+                folder: 'ai-meta-generator/avatars',
+            });
+            // Remove local file
+            fs_1.default.unlinkSync(req.file.path);
+            user.avatar = result.secure_url;
+        }
+        await user.save();
+        res.json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            credits: user.credits,
+            role: user.role,
+            avatar: user.avatar,
+            phone: user.phone,
+            token: generateToken(user._id),
+        });
+    }
+    catch (error) {
+        console.error('Update Profile Error:', error);
+        res.status(500).json({ error: 'Server error updating profile' });
+    }
+};
+exports.updateProfile = updateProfile;
 //# sourceMappingURL=auth.js.map
