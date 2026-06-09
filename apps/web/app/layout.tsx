@@ -33,7 +33,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background`}>
         <StoreProvider>
           {children}
-          <Toaster />
+          <Toaster position="top-right" />
         </StoreProvider>
       </body>
     </html>
