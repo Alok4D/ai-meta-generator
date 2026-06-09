@@ -60,7 +60,8 @@ export default function Dashboard() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.svg', '.webp']
+      'image/*': ['.jpeg', '.jpg', '.png', '.svg', '.webp'],
+      'application/postscript': ['.eps']
     },
     maxFiles: 1
   });
@@ -157,7 +158,7 @@ export default function Dashboard() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="font-semibold text-lg">Click to upload or drag and drop</h3>
-                  <p className="text-sm text-muted-foreground">SVG, PNG, JPG or WEBP (max. 10MB)</p>
+                  <p className="text-sm text-muted-foreground">JPG, PNG, SVG, WEBP or EPS (max. 10MB)</p>
                 </div>
               </div>
             ) : (

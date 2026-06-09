@@ -36,6 +36,12 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     // Remove local file
     fs.unlinkSync(req.file.path);
 
+    // Convert EPS to JPG for AI Vision and Browser Rendering
+    let aiImageUrl = result.secure_url;
+    if (aiImageUrl.toLowerCase().endsWith('.eps')) {
+      aiImageUrl = aiImageUrl.substring(0, aiImageUrl.lastIndexOf('.')) + '.jpg';
+    }
+
     // 2. Process with OpenAI Vision API (or OpenRouter)
     const apiKey = process.env.OPENAI_API_KEY || 'dummy_key_to_prevent_crash_on_startup';
     const isOpenRouter = apiKey.startsWith('sk-or-');
@@ -60,7 +66,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
             {
               type: "image_url",
               image_url: {
-                url: result.secure_url,
+                url: aiImageUrl,
               },
             },
           ],
@@ -82,7 +88,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     // 3. Save to MongoDB
     const metaDataDoc = await MetaData.create({
       user: req.user?._id,
-      imageUrl: result.secure_url,
+      imageUrl: aiImageUrl, // Save rasterized JPG for EPS files so browser can render
       title: metadata.title,
       category: metadata.category,
       keywords: metadata.keywords,
@@ -108,5 +114,22 @@ export const getHistory = async (req: Request, res: Response): Promise<void> => 
     res.status(200).json(history);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch history' });
+  }
+};
+
+export const deleteHistory = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const historyItem = await MetaData.findOne({ _id: id, user: req.user?._id });
+    
+    if (!historyItem) {
+      res.status(404).json({ error: 'History item not found' });
+      return;
+    }
+
+    await MetaData.deleteOne({ _id: id });
+    res.status(200).json({ message: 'History item deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete history item' });
   }
 };

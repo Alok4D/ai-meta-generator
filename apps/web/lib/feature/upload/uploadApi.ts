@@ -14,6 +14,13 @@ export const uploadApi = baseApi.injectEndpoints({
       query: () => '/upload/history',
       providesTags: ['History'],
     }),
+    deleteHistory: builder.mutation({
+      query: (id) => ({
+        url: `/upload/history/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['History'],
+    }),
   }),
   overrideExisting: true,
 });
@@ -21,4 +28,5 @@ export const uploadApi = baseApi.injectEndpoints({
 export const {
   useUploadImageMutation,
   useGetHistoryQuery,
+  useDeleteHistoryMutation,
 } = uploadApi;
