@@ -186,7 +186,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent className="flex-1">
             {metadata ? (
-              <Tabs defaultValue="adobe" className="w-full">
+              <Tabs defaultValue="adobe" className="w-full flex-col">
                 <TabsList className="grid w-full grid-cols-3 mb-6">
                   <TabsTrigger value="adobe">Adobe Stock</TabsTrigger>
                   <TabsTrigger value="shutterstock">Shutterstock</TabsTrigger>
