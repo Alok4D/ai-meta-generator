@@ -255,11 +255,11 @@ export default function Dashboard() {
           <CardContent className="flex-1">
             {metadata ? (
               <Tabs defaultValue="adobe" className="w-full flex-col">
-                <TabsList className="grid w-full grid-cols-3 mb-6">
+                {/* <TabsList className="grid w-full grid-cols-3 mb-6">
                   <TabsTrigger value="adobe">Adobe Stock</TabsTrigger>
                   <TabsTrigger value="shutterstock">Shutterstock</TabsTrigger>
                   <TabsTrigger value="seo">SEO Mode</TabsTrigger>
-                </TabsList>
+                </TabsList> */}
                 
                 <TabsContent value="adobe" className="space-y-6">
                   <div>
