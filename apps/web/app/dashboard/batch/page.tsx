@@ -240,7 +240,7 @@ export default function BatchUploadPage() {
           {items.map((item, index) => (
             <Card key={item.id} className={`overflow-hidden border-border/40 shadow-sm transition-all duration-300 ${item.status === 'processing' ? 'border-primary/50 ring-1 ring-primary/20 shadow-md' : ''}`}>
               <div className="flex flex-col md:flex-row">
-                <div className="w-full md:w-56 bg-muted relative flex-shrink-0 flex items-center justify-center min-h-[14rem]">
+                <div className="w-full md:w-64 bg-muted relative flex-shrink-0 flex items-center justify-center min-h-[14rem]">
                   {item.metadata?.imageUrl ? (
                     <img src={item.metadata.imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
                   ) : (item.file.type === 'application/postscript' || item.file.name.toLowerCase().endsWith('.eps')) ? (
