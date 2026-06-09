@@ -260,14 +260,14 @@ export default function BatchUploadPage() {
                   }}
                 >
                   {item.metadata?.imageUrl ? (
-                    <img src={item.metadata.imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[2]" />
+                    <img src={item.metadata.imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-[2]" />
                   ) : (item.file.type === 'application/postscript' || item.file.name.toLowerCase().endsWith('.eps')) ? (
-                    <div className="text-center p-4 relative z-10">
+                    <div className="text-center p-4 relative z-10 w-full h-full flex flex-col items-center justify-center">
                       <svg className="mx-auto text-primary opacity-50 mb-2 transition-transform duration-300 ease-out group-hover:scale-125" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
                       <p className="text-xs font-medium text-muted-foreground">EPS File</p>
                     </div>
                   ) : (
-                    <img src={item.previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[2]" />
+                    <img src={item.previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-[2]" />
                   )}
                 </div>
                 
@@ -347,14 +347,14 @@ export default function BatchUploadPage() {
                               </button>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
-                              {item.metadata.keywords.slice(0, 10).map((kw: string, i: number) => (
+                              {item.metadata.keywords.slice(0, 18).map((kw: string, i: number) => (
                                 <span key={i} className="px-2 py-1 bg-background border shadow-sm text-foreground rounded text-[11px] font-medium">
                                   {kw}
                                 </span>
                               ))}
-                              {item.metadata.keywords.length > 10 && (
+                              {item.metadata.keywords.length > 18 && (
                                 <span className="px-2 py-1 bg-primary/10 text-primary border border-primary/10 rounded text-[11px] font-semibold">
-                                  +{item.metadata.keywords.length - 10} more
+                                  +{item.metadata.keywords.length - 18} more
                                 </span>
                               )}
                             </div>
