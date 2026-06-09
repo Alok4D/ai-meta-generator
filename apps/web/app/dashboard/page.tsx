@@ -84,6 +84,43 @@ export default function Dashboard() {
     }
   };
 
+  const handleDownloadTXT = () => {
+    if (!metadata) return;
+    
+    const content = `Title:\n${metadata.title}\n\nCategory:\n${metadata.category}\n\nKeywords:\n${metadata.keywords.join(", ")}`;
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${file?.name?.split('.')[0] || 'metadata'}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadCSV = () => {
+    if (!metadata) return;
+    
+    // Format for typical stock sites: Filename, Description, Keywords, Categories
+    const filename = file?.name || 'image.jpg';
+    // Escape double quotes inside title by doubling them
+    const safeTitle = metadata.title.replace(/"/g, '""');
+    const safeKeywords = metadata.keywords.join(",").replace(/"/g, '""');
+    
+    const csvContent = `Filename,Title,Keywords,Category\n"${filename}","${safeTitle}","${safeKeywords}","${metadata.category}"`;
+    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${file?.name?.split('.')[0] || 'metadata'}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   if (!user) return null;
 
   return (
@@ -195,8 +232,8 @@ export default function Dashboard() {
             <CardTitle>Generated Metadata</CardTitle>
             {metadata && (
               <div className="flex gap-2">
-                <Button variant="outline" size="sm">Download TXT</Button>
-                <Button variant="outline" size="sm">Download CSV</Button>
+                <Button variant="outline" size="sm" onClick={handleDownloadTXT}>Download TXT</Button>
+                <Button variant="outline" size="sm" onClick={handleDownloadCSV}>Download CSV</Button>
               </div>
             )}
           </CardHeader>
