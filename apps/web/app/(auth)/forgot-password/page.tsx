@@ -7,23 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { sendPasswordResetEmail } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { useForgotPasswordMutation } from "@/lib/feature/auth/authApi";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
-  const handleReset = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email);
-      toast.success("Password reset email sent!");
+      const data = await forgotPassword({ email }).unwrap();
+      toast.success(data.message || "Email sent successfully");
+      setEmail("");
     } catch (error: any) {
-      toast.error(error.message || "Failed to send reset email");
-    } finally {
-      setIsLoading(false);
+      toast.error(error.data?.error || "Failed to send reset email");
     }
   };
 
@@ -31,13 +28,13 @@ export default function ForgotPassword() {
     <div className="flex items-center justify-center min-h-screen p-4 bg-muted/30">
       <Card className="w-full max-w-md shadow-lg rounded-2xl border-muted/50">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight text-center">Reset Password</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight text-center">Forgot Password</CardTitle>
           <CardDescription className="text-center">
-            Enter your email to receive a password reset link
+            Enter your email address and we will send you a link to reset your password.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <form onSubmit={handleReset} className="space-y-4">
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input 
@@ -54,7 +51,7 @@ export default function ForgotPassword() {
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col space-y-4 pt-4 border-t">
           <div className="text-sm text-center text-muted-foreground">
             Remember your password?{" "}
             <Link href="/login" className="text-primary hover:underline font-medium">

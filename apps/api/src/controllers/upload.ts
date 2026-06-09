@@ -56,7 +56,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       max_tokens: 500,
     });
 
-    const aiResponse = response.choices[0].message.content || '{}';
+    const aiResponse = response.choices[0]?.message?.content || '{}';
     let metadata;
     try {
       metadata = JSON.parse(aiResponse);
@@ -68,7 +68,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
 
     // 3. Save to MongoDB
     const metaDataDoc = await MetaData.create({
-      user: user._id,
+      user: req.user?._id,
       imageUrl: result.secure_url,
       title: metadata.title,
       category: metadata.category,

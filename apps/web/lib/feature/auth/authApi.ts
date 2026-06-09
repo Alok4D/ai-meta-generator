@@ -23,6 +23,27 @@ export const authApi = baseApi.injectEndpoints({
         body: userData,
       }),
     }),
+    forgotPassword: builder.mutation({
+      query: (data) => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: ({ token, password }) => ({
+        url: `/auth/reset-password/${token}`,
+        method: 'PUT',
+        body: { password },
+      }),
+    }),
+    updateProfile: builder.mutation({
+      query: (formData) => ({
+        url: '/auth/profile',
+        method: 'PUT',
+        body: formData,
+      }),
+    }),
   }),
   overrideExisting: true,
 });
@@ -31,4 +52,7 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useGoogleLoginMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useUpdateProfileMutation,
 } = authApi;
