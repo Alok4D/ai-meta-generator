@@ -240,22 +240,35 @@ export default function BatchUploadPage() {
           {items.map((item, index) => (
             <Card key={item.id} className={`overflow-hidden border-border/40 shadow-sm transition-all duration-300 ${item.status === 'processing' ? 'border-primary/50 ring-1 ring-primary/20 shadow-md' : ''}`}>
               <div className="flex flex-col md:flex-row">
-                <div className="w-full md:w-64 bg-muted relative flex-shrink-0 flex items-center justify-center min-h-[14rem]">
+                <div 
+                  className="w-full md:w-64 bg-muted relative flex-shrink-0 flex items-center justify-center min-h-[14rem] overflow-hidden group cursor-zoom-in"
+                  onMouseMove={(e) => {
+                    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+                    const x = ((e.clientX - left) / width) * 100;
+                    const y = ((e.clientY - top) / height) * 100;
+                    const img = e.currentTarget.querySelector('img');
+                    if (img) {
+                      img.style.transformOrigin = `${x}% ${y}%`;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    const img = e.currentTarget.querySelector('img');
+                    if (img) {
+                      // Add a small delay so it doesn't snap back instantly while scaling down
+                      setTimeout(() => { img.style.transformOrigin = 'center center'; }, 300);
+                    }
+                  }}
+                >
                   {item.metadata?.imageUrl ? (
-                    <img src={item.metadata.imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={item.metadata.imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[2]" />
                   ) : (item.file.type === 'application/postscript' || item.file.name.toLowerCase().endsWith('.eps')) ? (
                     <div className="text-center p-4 relative z-10">
-                      <svg className="mx-auto text-primary opacity-50 mb-2" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
+                      <svg className="mx-auto text-primary opacity-50 mb-2 transition-transform duration-300 ease-out group-hover:scale-125" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
                       <p className="text-xs font-medium text-muted-foreground">EPS File</p>
                     </div>
                   ) : (
-                    <img src={item.previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover" />
+                    <img src={item.previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-[2]" />
                   )}
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity z-20">
-                    <span className="text-white text-xs font-mono px-2 py-1 bg-black/60 rounded truncate max-w-[90%]">
-                      {item.file.name}
-                    </span>
-                  </div>
                 </div>
                 
                 <div className="flex-1 p-5 flex flex-col overflow-hidden">
