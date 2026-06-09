@@ -34,7 +34,7 @@ export default function Dashboard() {
     if (acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0];
       setFile(selectedFile);
-      setMetadata(null); // clear previous
+      setMetadata(null);
 
       const objectUrl = URL.createObjectURL(selectedFile);
       setPreviewUrl(objectUrl);
