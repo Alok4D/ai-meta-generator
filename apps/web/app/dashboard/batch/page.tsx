@@ -264,9 +264,11 @@ export default function BatchUploadPage() {
                   {item.metadata?.imageUrl ? (
                     <img src={item.metadata.imageUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-[2]" />
                   ) : (item.file.type === 'application/postscript' || item.file.name.toLowerCase().endsWith('.eps')) ? (
-                    <div className="text-center p-4 relative z-10 w-full h-full flex flex-col items-center justify-center">
-                      <svg className="mx-auto text-primary opacity-50 mb-2 transition-transform duration-300 ease-out group-hover:scale-125" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
-                      <p className="text-xs font-medium text-muted-foreground">EPS File</p>
+                    <div className="text-center p-6 relative z-10 w-full h-full flex flex-col items-center justify-center bg-muted/30">
+                      <svg className="mx-auto text-foreground/80 mb-3 transition-transform duration-300 ease-out group-hover:scale-110" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
+                      <h4 className="text-sm font-semibold text-foreground mb-1">EPS File</h4>
+                      <p className="text-[13px] text-muted-foreground mb-1">Preview unavailable</p>
+                      <p className="text-[11px] text-muted-foreground/70">Will be processed by AI after upload</p>
                     </div>
                   ) : (
                     <img src={item.previewUrl} alt="Preview" className="absolute inset-0 w-full h-full object-contain transition-transform duration-300 ease-out group-hover:scale-[2]" />
