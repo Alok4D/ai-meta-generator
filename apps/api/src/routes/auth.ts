@@ -1,8 +1,8 @@
 import express from 'express';
-import multer from 'multer';
 import path from 'path';
-import { registerUser, loginUser, getMe, googleLogin, updatePassword, forgotPassword, resetPassword, updateProfile } from '../controllers/auth';
 import { protect } from '../app/middlewares/auth';
+import { forgotPassword, getMe, googleLogin, loginUser, registerUser, resetPassword, updatePassword, updateProfile } from '../app/modules/auth/auth.controller';
+import multer = require('multer');
 
 
 const router = express.Router();
