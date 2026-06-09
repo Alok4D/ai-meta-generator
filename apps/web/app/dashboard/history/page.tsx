@@ -90,7 +90,7 @@ export default function HistoryPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 font-medium max-w-xs truncate" title={item.title}>
+                      <td className="px-6 py-4 font-medium min-w-[300px]" title={item.title}>
                         {item.title}
                       </td>
                       <td className="px-6 py-4 capitalize">{item.category}</td>
