@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { Check, Edit2, Trash2, Plus, X } from "lucide-react";
 
 export default function SubscriptionsManagement() {
+
   const { data: plans = [], isLoading } = useGetSubscriptionsQuery(undefined);
   const [createPlan] = useCreateSubscriptionMutation();
   const [updatePlan] = useUpdateSubscriptionMutation();
