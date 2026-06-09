@@ -39,12 +39,17 @@ export default function Dashboard() {
       const objectUrl = URL.createObjectURL(selectedFile);
       setPreviewUrl(objectUrl);
 
-      // Get image dimensions
-      const img = new Image();
-      img.onload = () => {
-        setImageDimensions({ width: img.width, height: img.height });
-      };
-      img.src = objectUrl;
+      // Get image dimensions (skip for EPS as browsers can't render it in Image)
+      const isEps = selectedFile.type === 'application/postscript' || selectedFile.name.toLowerCase().endsWith('.eps');
+      if (!isEps) {
+        const img = new Image();
+        img.onload = () => {
+          setImageDimensions({ width: img.width, height: img.height });
+        };
+        img.src = objectUrl;
+      } else {
+        setImageDimensions({ width: 0, height: 0 });
+      }
     }
   }, []);
 
@@ -128,21 +133,11 @@ export default function Dashboard() {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Welcome, {user.name}</h2>
+          <h2 className="text-3xl font-medium tracking-tight">Welcome, {user.name}</h2>
           <p className="text-muted-foreground">Upload an image to generate SEO metadata.</p>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Credits Remaining</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{user.credits}</div>
-          </CardContent>
-        </Card>
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <Card className="border-dashed border-2 bg-muted/10 h-full relative overflow-hidden">
@@ -164,7 +159,22 @@ export default function Dashboard() {
             ) : (
               <div className="w-full flex flex-col items-center justify-between h-full space-y-4">
                 <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-black/5 flex items-center justify-center group">
-                  {previewUrl && <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />}
+                  {metadata && metadata.imageUrl ? (
+                    <img src={metadata.imageUrl} alt="Generated Preview" className="max-w-full max-h-full object-contain" />
+                  ) : (file.type === 'application/postscript' || file.name.toLowerCase().endsWith('.eps')) ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-muted/10">
+                      <div className="p-4 bg-primary/10 rounded-full text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">EPS File</p>
+                        <p className="text-sm text-muted-foreground mt-1">Preview unavailable</p>
+                        <p className="text-xs text-muted-foreground mt-1">Will be processed by AI after upload</p>
+                      </div>
+                    </div>
+                  ) : (
+                    previewUrl && <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
+                  )}
                   <button 
                     onClick={() => {
                       setFile(null);
@@ -190,7 +200,11 @@ export default function Dashboard() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-muted-foreground text-xs uppercase tracking-wider">Dimensions</span>
-                    <span className="font-medium mt-0.5">{imageDimensions ? `${imageDimensions.width} x ${imageDimensions.height}` : 'Calculating...'}</span>
+                    <span className="font-medium mt-0.5">
+                      {imageDimensions 
+                        ? (imageDimensions.width === 0 && imageDimensions.height === 0 ? 'Vector Graphic' : `${imageDimensions.width} x ${imageDimensions.height}`) 
+                        : 'Calculating...'}
+                    </span>
                   </div>
                 </div>
 
