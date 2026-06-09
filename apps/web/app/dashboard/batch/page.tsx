@@ -1,8 +1,8 @@
 "use client";
 
+import { toast } from "sonner";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
@@ -283,11 +283,22 @@ export default function BatchUploadPage() {
                       <span className="truncate">{item.file.name}</span>
                     </h3>
                     
-                    <div className="flex-shrink-0">
-                      {item.status === 'success' && <span className="px-2 py-1 bg-green-500/10 text-green-600 rounded-md text-xs font-medium border border-green-500/20">Complete</span>}
-                      {item.status === 'pending' && <span className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-xs font-medium border">Pending</span>}
-                      {item.status === 'error' && <span className="px-2 py-1 bg-red-500/10 text-red-600 rounded-md text-xs font-medium border border-red-500/20">Failed</span>}
-                      {item.status === 'processing' && <span className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium border border-primary/20 flex items-center gap-1.5"><svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing</span>}
+                    <div className="flex-shrink-0 flex items-center gap-3">
+                      {!isProcessing && (
+                        <button 
+                          onClick={() => setItems(prev => prev.filter(i => i.id !== item.id))}
+                          className="text-foreground/70 hover:text-red-500 transition-colors"
+                          title="Remove image"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        </button>
+                      )}
+                      <div>
+                        {item.status === 'success' && <span className="px-2 py-1 bg-green-500/10 text-green-600 rounded-md text-xs font-medium border border-green-500/20">Complete</span>}
+                        {item.status === 'pending' && <span className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-xs font-medium border">Pending</span>}
+                        {item.status === 'error' && <span className="px-2 py-1 bg-red-500/10 text-red-600 rounded-md text-xs font-medium border border-red-500/20">Failed</span>}
+                        {item.status === 'processing' && <span className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium border border-primary/20 flex items-center gap-1.5"><svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing</span>}
+                      </div>
                     </div>
                   </div>
 
