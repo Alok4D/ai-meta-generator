@@ -36,9 +36,9 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     // Remove local file
     fs.unlinkSync(req.file.path);
 
-    // Convert EPS to JPG for AI Vision and Browser Rendering
+    // Convert EPS and AVIF to JPG for AI Vision and Browser Rendering
     let aiImageUrl = result.secure_url;
-    if (aiImageUrl.toLowerCase().endsWith('.eps')) {
+    if (aiImageUrl.toLowerCase().endsWith('.eps') || aiImageUrl.toLowerCase().endsWith('.avif')) {
       aiImageUrl = aiImageUrl.substring(0, aiImageUrl.lastIndexOf('.')) + '.jpg';
     }
 
@@ -62,7 +62,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
         {
           role: "user",
           content: [
-            { type: "text", text: "Analyze this image and return a JSON object with exactly three fields: 'title' (a highly descriptive SEO friendly title), 'category' (a single relevant category word), and 'keywords' (an array of EXACTLY 49 highly relevant comma-separated keywords for stock photography). Do not include markdown formatting or extra text." },
+            { type: "text", text: "Analyze this image and return a JSON object with exactly three fields: 'title', 'category', and 'keywords'. Follow these rules:\n1. 'title': An Adobe Stock optimized title with exactly 20 words, descriptive, natural, and SEO-friendly.\n2. 'category': A single relevant category word.\n3. 'keywords': An array of exactly 45 SEO-optimized strings (15 single-word, 15 two-word, 15 three-word keywords). Rank them from most important to least important. Avoid trademarked names, brand names, copyrighted terms, and irrelevant keywords.\n4. Ensure all titles and keywords are highly relevant to the image and suitable for Adobe Stock search optimization.\nDo not include markdown formatting or extra text." },
             {
               type: "image_url",
               image_url: {
