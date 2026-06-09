@@ -49,8 +49,15 @@ export function DashboardHeader() {
               Admin Portal
             </Link>
           )}
-          <Link href="/dashboard/profile" className="text-sm font-medium hidden sm:inline-block hover:text-primary transition-colors">
-            {user?.name || "User"}
+          <Link href="/dashboard/profile" className="flex items-center gap-2 text-sm font-medium hidden sm:flex hover:text-primary transition-colors">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                user?.name?.charAt(0) || "U"
+              )}
+            </div>
+            <span>{user?.name || "User"}</span>
           </Link>
           <Button variant="outline" size="sm" onClick={handleLogout}>Log out</Button>
         </div>

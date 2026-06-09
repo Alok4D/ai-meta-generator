@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User, AuthState } from '@/lib/types';
 
 const getInitialState = (): AuthState => {
+  
   if (typeof window !== 'undefined') {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {

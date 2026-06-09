@@ -73,8 +73,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         <div className="p-4 border-t space-y-4">
           <div className="flex items-center gap-3 px-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase">
-              {user.name.charAt(0)}
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
+              {user.avatar ? (
+                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                user.name.charAt(0)
+              )}
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium leading-none">{user.name}</span>
@@ -117,8 +121,12 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 <span className="text-sm font-medium leading-none">{user.name}</span>
                 <span className="text-xs text-muted-foreground mt-1 capitalize">{user.role}</span>
               </div>
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase">
-                {user.name.charAt(0)}
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  user.name.charAt(0)
+                )}
               </div>
             </div>
           </div>

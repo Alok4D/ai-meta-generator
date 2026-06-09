@@ -1,9 +1,8 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { registerUser, loginUser, getMe, googleLogin, updatePassword, forgotPassword, resetPassword, updateProfile } from '../controllers/auth';
-import { protect } from '../app/middlewares/auth';
-
+import { registerUser, loginUser, getMe, googleLogin, updatePassword, forgotPassword, resetPassword, updateProfile } from './auth.controller';
+import { protect } from '../../middlewares/auth';
 
 const router = express.Router();
 
