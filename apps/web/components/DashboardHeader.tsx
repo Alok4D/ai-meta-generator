@@ -6,11 +6,17 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import { logout } from "@/lib/feature/auth/authSlice";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 export function DashboardHeader() {
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -44,21 +50,30 @@ export function DashboardHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-4">
-          {user?.role === 'admin' && (
+          {mounted && user?.role === 'admin' && (
             <Link href="/admin" className="text-sm font-medium text-primary hover:underline hidden sm:inline-block">
               Admin Portal
             </Link>
           )}
-          <Link href="/dashboard/profile" className="flex items-center gap-2 text-sm font-medium hidden sm:flex hover:text-primary transition-colors">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
-              {user?.avatar ? (
-                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                user?.name?.charAt(0) || "U"
-              )}
+          {mounted ? (
+            <Link href="/dashboard/profile" className="flex items-center gap-2 text-sm font-medium hidden sm:flex hover:text-primary transition-colors">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  user?.name?.charAt(0) || "U"
+                )}
+              </div>
+              <span>{user?.name || "User"}</span>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2 text-sm font-medium hidden sm:flex">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
+                U
+              </div>
+              <span>User</span>
             </div>
-            <span>{user?.name || "User"}</span>
-          </Link>
+          )}
           <Button variant="outline" size="sm" onClick={handleLogout}>Log out</Button>
         </div>
       </div>

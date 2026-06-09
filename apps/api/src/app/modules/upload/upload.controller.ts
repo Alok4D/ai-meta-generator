@@ -6,9 +6,7 @@ import MetaData from './metaData.model';
 import User from '../auth/user.model';
 
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'dummy_key_to_prevent_crash_on_startup',
-});
+// Remove global instantiation
 
 export const uploadImage = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -38,14 +36,27 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     // Remove local file
     fs.unlinkSync(req.file.path);
 
-    // 2. Process with OpenAI Vision API
+    // 2. Process with OpenAI Vision API (or OpenRouter)
+    const apiKey = process.env.OPENAI_API_KEY || 'dummy_key_to_prevent_crash_on_startup';
+    const isOpenRouter = apiKey.startsWith('sk-or-');
+    
+    const openai = new OpenAI({
+      apiKey: apiKey,
+      baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+      defaultHeaders: isOpenRouter ? {
+        "HTTP-Referer": "http://localhost:3000", // Required by OpenRouter
+        "X-Title": "AI Meta Generator", // Required by OpenRouter
+      } : undefined,
+    });
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4-vision-preview",
+      model: isOpenRouter ? "openai/gpt-4o" : "gpt-4o",
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "user",
           content: [
-            { type: "text", text: "Analyze this image and generate strict JSON output with no markdown blocks or extra text. Format: { \"title\": \"SEO friendly title\", \"category\": \"Relevant category\", \"keywords\": [\"keyword1\", \"keyword2\", ..., \"keyword49\"] }." },
+            { type: "text", text: "Analyze this image and return a JSON object with exactly three fields: 'title' (a highly descriptive SEO friendly title), 'category' (a single relevant category word), and 'keywords' (an array of EXACTLY 49 highly relevant comma-separated keywords for stock photography). Do not include markdown formatting or extra text." },
             {
               type: "image_url",
               image_url: {
@@ -55,7 +66,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
           ],
         },
       ],
-      max_tokens: 500,
+      max_tokens: 1000,
     });
 
     const aiResponse = response.choices[0]?.message?.content || '{}';

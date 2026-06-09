@@ -15,6 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function Dashboard() {
   
   const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageDimensions, setImageDimensions] = useState<{width: number, height: number} | null>(null);
   const [metadata, setMetadata] = useState<any>(null);
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
@@ -30,10 +32,30 @@ export default function Dashboard() {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      setFile(acceptedFiles[0] || null);
+      const selectedFile = acceptedFiles[0];
+      setFile(selectedFile);
       setMetadata(null); // clear previous
+
+      const objectUrl = URL.createObjectURL(selectedFile);
+      setPreviewUrl(objectUrl);
+
+      // Get image dimensions
+      const img = new Image();
+      img.onload = () => {
+        setImageDimensions({ width: img.width, height: img.height });
+      };
+      img.src = objectUrl;
     }
   }, []);
+
+  // Cleanup object URL
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
     onDrop,
@@ -85,34 +107,72 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="border-dashed border-2 bg-muted/10 h-full">
-          <CardContent className="flex flex-col items-center justify-center h-full min-h-64 text-center space-y-4 p-6">
-            <div 
-              {...getRootProps()} 
-              className={`w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-colors ${isDragActive ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}
-            >
-              <input {...getInputProps()} />
-              <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+        <Card className="border-dashed border-2 bg-muted/10 h-full relative overflow-hidden">
+          <CardContent className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-6">
+            {!file ? (
+              <div 
+                {...getRootProps()} 
+                className={`w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-colors ${isDragActive ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}
+              >
+                <input {...getInputProps()} />
+                <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-lg">Click to upload or drag and drop</h3>
+                  <p className="text-sm text-muted-foreground">SVG, PNG, JPG or WEBP (max. 10MB)</p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <h3 className="font-semibold text-lg">
-                  {file ? file.name : "Click to upload or drag and drop"}
-                </h3>
-                <p className="text-sm text-muted-foreground">SVG, PNG, JPG or WEBP (max. 10MB)</p>
+            ) : (
+              <div className="w-full flex flex-col items-center justify-between h-full space-y-4">
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-black/5 flex items-center justify-center group">
+                  {previewUrl && <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />}
+                  <button 
+                    onClick={() => {
+                      setFile(null);
+                      setPreviewUrl(null);
+                      setImageDimensions(null);
+                      setMetadata(null);
+                    }}
+                    className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground p-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-destructive hover:text-destructive-foreground"
+                    title="Remove Image"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </div>
+                
+                <div className="w-full grid grid-cols-2 gap-4 text-left text-sm p-4 bg-muted/50 rounded-lg">
+                  <div className="col-span-2 flex justify-between items-center border-b pb-2">
+                    <span className="font-medium text-foreground truncate mr-2">{file.name}</span>
+                    <span className="text-muted-foreground whitespace-nowrap">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Type</span>
+                    <span className="font-medium mt-0.5">{file.type.split('/')[1]?.toUpperCase() || 'IMAGE'}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Dimensions</span>
+                    <span className="font-medium mt-0.5">{imageDimensions ? `${imageDimensions.width} x ${imageDimensions.height}` : 'Calculating...'}</span>
+                  </div>
+                </div>
+
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  disabled={uploading} 
+                  onClick={handleUpload}
+                >
+                  {uploading ? (
+                    <div className="flex items-center gap-2">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      Analyzing Image with AI...
+                    </div>
+                  ) : "Generate Metadata"}
+                </Button>
               </div>
-            </div>
-            
-            <Button 
-              className="w-full mt-4" 
-              disabled={!file || uploading} 
-              onClick={handleUpload}
-            >
-              {uploading ? "Analyzing Image..." : "Generate Metadata"}
-            </Button>
+            )}
           </CardContent>
         </Card>
-// ... existing code in the file until before the Results View card ...
         {/* Results View */}
         <Card className="h-full flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between">
