@@ -179,11 +179,13 @@ export default function BatchUploadPage() {
     
     return (
       <div className="font-mono text-sm space-y-2 bg-muted/30 p-4 rounded-lg border">
-        <div className="flex items-center gap-3 text-base">
+        <div className="flex flex-wrap items-center gap-y-2 gap-x-3 text-base">
           <span className="font-semibold">Progress:</span>
-          <span className="tracking-[0.1em] text-primary">{filledStr}</span>
-          <span className="tracking-[0.1em] text-muted-foreground/30">{emptyStr}</span>
-          <span className="font-semibold ml-2">{percentage}%</span>
+          <div className="whitespace-nowrap flex items-center">
+            <span className="tracking-[0.1em] text-primary">{filledStr}</span>
+            <span className="tracking-[0.1em] text-muted-foreground/30">{emptyStr}</span>
+          </div>
+          <span className="font-semibold ml-auto sm:ml-0">{percentage}%</span>
         </div>
         <div className="text-muted-foreground">{completedCount}/{totalCount} Completed</div>
       </div>
