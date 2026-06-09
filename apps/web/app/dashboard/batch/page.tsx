@@ -243,7 +243,7 @@ export default function BatchUploadPage() {
             <Card key={item.id} className={`overflow-hidden border-border/40 shadow-sm transition-all duration-300 ${item.status === 'processing' ? 'border-primary/50 ring-1 ring-primary/20 shadow-md' : ''}`}>
               <div className="flex flex-col md:flex-row">
                 <div 
-                  className="w-full md:w-64 bg-muted relative flex-shrink-0 flex items-center justify-center min-h-[14rem] overflow-hidden group cursor-zoom-in"
+                  className="w-full md:w-64 relative flex-shrink-0 flex items-center justify-center min-h-[14rem] overflow-hidden group cursor-zoom-in"
                   onMouseMove={(e) => {
                     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
                     const x = ((e.clientX - left) / width) * 100;
