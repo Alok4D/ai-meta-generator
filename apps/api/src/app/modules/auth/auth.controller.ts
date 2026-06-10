@@ -156,74 +156,143 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
-      res.status(404).json({ error: 'There is no user with that email' });
+      res.status(404).json({ success: false, errorMessages: [{ message: 'There is no user with that email' }] });
       return;
     }
 
-    // Get reset token
-    const resetToken = user.getResetPasswordToken();
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // For simple verification we can just store the plain text or hashed.
+    // Following user's simpler flow: Just store it hashed for security.
+    user.resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
+    user.resetPasswordExpire = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
     await user.save({ validateBeforeSave: false });
 
-    // Create reset url
-    const clientUrl = process.env.CLIENT_URL || 'http://localhost:3000';
-    const resetUrl = `${clientUrl}/reset-password?token=${resetToken}`;
+    const message = `Hello,\n\nYour verification code is:\n\n${otp}\n\nThis code will expire in 5 minutes.\n\nIf you did not request a password reset, please ignore this email.\n\nMeta Generator Team`;
 
-    const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please go to: \n\n ${resetUrl}`;
+    console.log(`[DEV] OTP for ${user.email} is ${otp}`);
 
     try {
       await sendEmail({
         email: user.email,
-        subject: 'Password reset token',
+        subject: 'Password Reset Verification Code',
         message,
       });
-
-      res.status(200).json({ success: true, message: 'Email sent' });
     } catch (err) {
-      user.resetPasswordToken = undefined;
-      user.resetPasswordExpire = undefined;
-
-      await user.save({ validateBeforeSave: false });
-
-      res.status(500).json({ error: 'Email could not be sent' });
+      console.error('Email sending failed. Please check SMTP settings. OTP is printed in console for dev.');
     }
+
+    res.status(200).json({ success: true, message: 'OTP sent to your email' });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ success: false, errorMessages: [{ message: 'Server error' }] });
+  }
+};
+
+export const resendOTP = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(404).json({ success: false, errorMessages: [{ message: 'User not found' }] });
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetPasswordToken = crypto.createHash('sha256').update(otp).digest('hex');
+    user.resetPasswordExpire = new Date(Date.now() + 5 * 60 * 1000);
+
+    await user.save({ validateBeforeSave: false });
+
+    const message = `Hello,\n\nYour new verification code is:\n\n${otp}\n\nThis code will expire in 5 minutes.\n\nIf you did not request a password reset, please ignore this email.\n\nMeta Generator Team`;
+    console.log(`[DEV] New OTP for ${user.email} is ${otp}`);
+
+    try {
+      await sendEmail({
+        email: user.email,
+        subject: 'New Password Reset Verification Code',
+        message,
+      });
+    } catch (err) {
+      console.error('Email sending failed. Please check SMTP settings. OTP is printed in console for dev.');
+    }
+
+    res.status(200).json({ success: true, message: 'OTP resent to your email' });
+  } catch (error) {
+    res.status(500).json({ success: false, errorMessages: [{ message: 'Server error' }] });
+  }
+};
+
+export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(400).json({ success: false, errorMessages: [{ message: 'Invalid user details' }] });
+      return;
+    }
+
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+    if (
+      !user.resetPasswordToken ||
+      user.resetPasswordToken !== hashedOtp ||
+      !user.resetPasswordExpire ||
+      user.resetPasswordExpire.getTime() < Date.now()
+    ) {
+      res.status(400).json({ success: false, errorMessages: [{ message: 'Invalid or expired OTP' }] });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP verified successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, errorMessages: [{ message: 'Server error' }] });
   }
 };
 
 export const resetPassword = async (req: Request, res: Response): Promise<void> => {
   try {
-    // Get hashed token
-    const resetPasswordToken = crypto
-      .createHash('sha256')
-      .update(req.params.token as string)
-      .digest('hex');
+    const { email, otp, newPassword } = req.body;
 
-    const user = await User.findOne({
-      resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() },
-    });
+    const user = await User.findOne({ email });
 
     if (!user) {
-      res.status(400).json({ error: 'Invalid or expired token' });
+      res.status(404).json({ success: false, errorMessages: [{ message: 'User not found' }] });
       return;
     }
 
-    // Set new password
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+
+    if (
+      !user.resetPasswordToken ||
+      user.resetPasswordToken !== hashedOtp ||
+      !user.resetPasswordExpire ||
+      user.resetPasswordExpire.getTime() < Date.now()
+    ) {
+      res.status(400).json({ success: false, errorMessages: [{ message: 'Invalid or expired OTP' }] });
+      return;
+    }
+
     const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(req.body.password, salt);
+    user.password = await bcrypt.hash(newPassword, salt);
+    
+    // Clear the OTP fields
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
-
     await user.save();
 
     res.status(200).json({
       success: true,
-      token: generateToken(user._id as unknown as string)
+      message: 'Password updated successfully'
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ success: false, errorMessages: [{ message: 'Server error' }] });
   }
 };
 

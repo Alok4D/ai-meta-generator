@@ -8,33 +8,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useResetPasswordMutation } from "@/lib/feature/auth/authApi";
+import { resetPassword } from "@/actions/auth";
 
 function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
-  
-  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const email = searchParams.get("email");
+  const otp = searchParams.get("otp");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) {
-      toast.error("Invalid or missing reset token.");
+    if (!email || !otp) {
+      toast.error("Invalid or missing parameters.");
       return;
     }
     if (password !== confirmPassword) {
       toast.error("Passwords do not match.");
       return;
     }
+    setIsLoading(true);
     try {
-      await resetPassword({ token, password }).unwrap();
-      toast.success("Password reset successfully. Please log in.");
-      router.push("/login");
+      const data = await resetPassword({ email, otp, newPassword: password });
+      if (data.success) {
+        toast.success(data.message || "Password reset successfully. Please log in.");
+        router.push("/login");
+      } else {
+        toast.error(data.message || "Failed to reset password");
+      }
     } catch (error: any) {
-      toast.error(error.data?.error || "Failed to reset password");
+      toast.error(error.message || "Failed to reset password");
+    } finally {
+      setIsLoading(false);
     }
   };
 

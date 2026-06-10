@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { registerUser, loginUser, getMe, googleLogin, updatePassword, forgotPassword, resetPassword, updateProfile } from './auth.controller';
+import { registerUser, loginUser, getMe, googleLogin, updatePassword, forgotPassword, resetPassword, updateProfile, verifyOTP, resendOTP } from './auth.controller';
 import { protect } from '../../middlewares/auth';
 
 const router = express.Router();
@@ -23,7 +23,9 @@ router.post('/google', googleLogin);
 router.get('/me', protect, getMe);
 router.put('/password', protect, updatePassword);
 router.post('/forgot-password', forgotPassword);
-router.put('/reset-password/:token', resetPassword);
+router.post('/resend-otp', resendOTP);
+router.post('/verify-otp', verifyOTP);
+router.post('/reset-password', resetPassword);
 router.put('/profile', protect, upload.single('avatar'), updateProfile);
 
 export default router;

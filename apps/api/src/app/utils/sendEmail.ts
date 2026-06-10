@@ -7,16 +7,21 @@ interface EmailOptions {
 }
 
 const sendEmail = async (options: EmailOptions) => {
-  // If SMTP is not configured, use Ethereal for testing
   let transporter;
   
-  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+  const host = process.env.EMAIL_HOST || process.env.SMTP_HOST;
+  const user = process.env.EMAIL_USER || process.env.SMTP_USER;
+  const pass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
+  const port = Number(process.env.EMAIL_PORT || process.env.SMTP_PORT) || 587;
+  
+  if (host && user && pass) {
     transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
+      host: host,
+      port: port,
+      secure: port === 465, // true for port 465
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: user,
+        pass: pass,
       },
     });
   } else {
@@ -34,17 +39,17 @@ const sendEmail = async (options: EmailOptions) => {
   }
 
   const message = {
-    from: `${process.env.FROM_NAME || 'Meta Generator'} <${process.env.FROM_EMAIL || 'noreply@metagenerator.com'}>`,
+    from: process.env.EMAIL_FROM || `${process.env.FROM_NAME || 'Meta Generator'} <${process.env.FROM_EMAIL || 'noreply@metagenerator.com'}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
-    html: `<p>${options.message}</p>`,
+    html: `<p>${options.message.replace(/\n/g, '<br/>')}</p>`,
   };
 
   const info = await transporter.sendMail(message);
 
   console.log("Message sent: %s", info.messageId);
-  if (info.messageId && !process.env.SMTP_HOST) {
+  if (info.messageId && !host) {
       console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   }
 };

@@ -2,25 +2,34 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useForgotPasswordMutation } from "@/lib/feature/auth/authApi";
+import { forgotPassword } from "@/actions/auth";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
-      const data = await forgotPassword({ email }).unwrap();
-      toast.success(data.message || "Email sent successfully");
-      setEmail("");
+      const data = await forgotPassword({ email });
+      if (data.success) {
+        toast.success(data.message || "Email sent successfully");
+        router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+      } else {
+        toast.error(data.message || "Failed to send reset email");
+      }
     } catch (error: any) {
-      toast.error(error.data?.error || "Failed to send reset email");
+      toast.error(error.message || "Failed to send reset email");
+    } finally {
+      setIsLoading(false);
     }
   };
 
