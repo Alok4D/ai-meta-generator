@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import { logout } from "@/lib/feature/auth/authSlice";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEffect, useState } from "react";
 
 export function DashboardHeader() {
@@ -56,23 +57,35 @@ export function DashboardHeader() {
             </Link>
           )}
           {mounted ? (
-            <Link href="/dashboard/profile" className="flex items-center gap-2 text-sm font-medium hidden sm:flex hover:text-primary transition-colors">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  user?.name?.charAt(0) || "U"
-                )}
-              </div>
-              <span>{user?.name || "User"}</span>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/dashboard/profile" className="flex items-center gap-2 text-sm font-medium hidden sm:flex hover:text-primary transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs uppercase overflow-hidden relative">
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      user?.name?.charAt(0) || "U"
+                    )}
+                  </div>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>{user?.name || "User"}</p>
+              </TooltipContent>
+            </Tooltip>
           ) : (
-            <div className="flex items-center gap-2 text-sm font-medium hidden sm:flex">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
-                U
-              </div>
-              <span>User</span>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-2 text-sm font-medium hidden sm:flex">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
+                    U
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p>User</p>
+              </TooltipContent>
+            </Tooltip>
           )}
           <Button variant="outline" size="sm" onClick={handleLogout}>Log out</Button>
         </div>
