@@ -33,8 +33,32 @@ export default function PricingPage() {
 
           {/* Pricing Grid */}
           {isLoading ? (
-            <div className="flex justify-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#14181F]"></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start max-w-5xl mx-auto">
+              {[1, 2, 3].map((_, index) => (
+                <div key={index} className="bg-white rounded-2xl p-8 flex flex-col relative shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-gray-100 animate-pulse">
+                  <div className="mb-8">
+                    <div className="h-7 bg-slate-200 rounded-md w-1/2 mb-4"></div>
+                    <div className="h-4 bg-slate-200 rounded-md w-full mb-2"></div>
+                    <div className="h-4 bg-slate-200 rounded-md w-4/5"></div>
+                  </div>
+
+                  <div className="mb-8 flex items-baseline gap-2">
+                    <div className="h-12 bg-slate-200 rounded-md w-24"></div>
+                    <div className="h-4 bg-slate-200 rounded-md w-12"></div>
+                  </div>
+
+                  <ul className="space-y-4 mb-10 flex-1">
+                    {[1, 2, 3, 4, 5].map((_, fIndex) => (
+                      <li key={fIndex} className="flex items-center gap-3">
+                        <div className="shrink-0 w-5 h-5 rounded-full bg-slate-200"></div>
+                        <div className="h-4 bg-slate-200 rounded-md w-3/4"></div>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="w-full h-14 rounded-full bg-slate-200"></div>
+                </div>
+              ))}
             </div>
           ) : plans.length === 0 ? (
             <div className="text-center py-20 text-slate-500 font-sans">
