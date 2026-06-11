@@ -32,7 +32,7 @@ export default function Dashboard() {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
-      const selectedFile = acceptedFiles[0];
+      const selectedFile = acceptedFiles[0]!;
       setFile(selectedFile);
       setMetadata(null);
 
