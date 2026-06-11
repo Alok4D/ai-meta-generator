@@ -33,9 +33,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside className="w-64 bg-background border-r flex flex-col hidden md:flex shrink-0">
         <div className="h-16 flex items-center px-6 border-b shrink-0">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#18181B] flex items-center justify-center text-primary-foreground font-bold overflow-hidden">
-              <img src="/logo.png" alt="MetaGen AI Logo" className="w-full h-full object-contain p-1" />
+          <Link href="/" className="flex items-center gap-2">
+            <div className=" flex justify-center text-primary-foreground font-bold overflow-hidden">
+              <img src="/logo.png" alt="MetaGen AI Logo" className="w-10 h-10 object-contain" />
             </div>
             <span className="text-xl font-bold tracking-tight">MetaGen AI</span>
           </Link>

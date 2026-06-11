@@ -60,10 +60,10 @@ export default function Hero() {
           <div className="hidden md:flex w-64 flex-col gap-6 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
             <div className="flex items-center justify-between px-2">
               <div className="flex items-center gap-2">
-                <div className="bg-[#18181B] w-7 h-7 rounded flex items-center justify-center overflow-hidden">
+                <div className=" w-8 h-8 flex items-center justify-center overflow-hidden">
                   <img src="/logo.png" alt="MetaGen AI" className="w-full h-full object-contain p-0.5" />
                 </div>
-                <span className="text-gray-900 font-bold text-sm tracking-tight">MetaGen AI</span>
+                <span className="text-gray-900 font-medium text-sm tracking-tight">MetaGen AI</span>
               </div>
               <span className="text-[9px] font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">PRO</span>
             </div>
