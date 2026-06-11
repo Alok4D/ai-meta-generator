@@ -16,7 +16,7 @@ export default function LandingPage() {
       <Stats />
       <Features limit={6} />
       <HowItWorks variant="landing" />
-      <Testimonials/>
+      <Testimonials variant="landing" />
       <CTA/>
       <Footer/>
     </>

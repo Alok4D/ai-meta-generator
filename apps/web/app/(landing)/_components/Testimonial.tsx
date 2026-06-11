@@ -1,82 +1,93 @@
 "use client";
 
-import React from 'react';
 import { Star, ArrowRight } from 'lucide-react';
 import { Space_Grotesk } from 'next/font/google';
+import Link from 'next/link';
 
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
-export default function Testimonials() {
+interface TestimonialsProps {
+  variant?: 'landing' | 'full';
+}
+
+export default function Testimonials({ variant = 'full' }: TestimonialsProps) {
   const reviews = [
     {
-      text: "\"MetaGen AI cut my metadata workflow from 4 hours to 15 minutes. Absolutely game-changing for my stock portfolio. I used to dread uploading days, now I actually look forward to them.\"",
+      text: "\"CSVNest cut my metadata workflow from 4 hours to 15 minutes. Absolutely game-changing.\"",
       name: "Sarah Chen",
       role: "Stock Photographer",
       initial: "S",
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
     },
     {
-      text: "\"The AI understands my illustrations perfectly. Keywords are spot-on and my sales have increased 40% since switching. The batch processing alone saves me an entire day every week.\"",
+      text: "\"The AI understands my illustrations perfectly. My sales have increased 40% since switching.\"",
       name: "Marcus Reid",
       role: "Digital Artist",
       initial: "M",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
     },
     {
-      text: "\"Finally a tool that handles video metadata too. The batch processing is incredibly fast and reliable. I've recommended MetaGen AI to every creator I know.\"",
+      text: "\"Finally a tool that handles video metadata too. The batch processing is incredibly fast and reliable.\"",
       name: "Anika Patel",
       role: "Video Creator",
       initial: "A",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
     },
     {
-      text: "\"I was skeptical about AI-generated keywords but MetaGen AI proved me wrong. The quality is consistently high, and the platform-specific formatting saves me so much time.\"",
+      text: "\"I was skeptical about AI keywords, but the quality is consistently high. It saves me so much time.\"",
       name: "James Whitfield",
       role: "Freelance Photographer",
       initial: "J",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     },
     {
-      text: "\"As someone with 10,000+ vectors on multiple platforms, MetaGen AI is a lifesaver. The multi-platform export feature alone is worth it. My workflow is 10x faster now.\"",
+      text: "\"As someone with 10,000+ vectors, the multi-platform export is a lifesaver. My workflow is 10x faster.\"",
       name: "Lina Yamamoto",
       role: "Vector Illustrator",
       initial: "L",
+      image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face",
     },
     {
-      text: "\"The prefix and suffix features are brilliant for maintaining brand consistency across my portfolio. And the negative keywords option ensures I never get irrelevant tags.\"",
+      text: "\"The prefix/suffix features are brilliant for brand consistency, and negative keywords ensure relevant tags.\"",
       name: "David Okafor",
       role: "Stock Contributor",
       initial: "D",
+      image: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=150&h=150&fit=crop&crop=face",
     }
   ];
 
   return (
-    <section className={`w-full bg-[#F3F5F7] py-24 md:py-32 ${space.className}`}>
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+    <section className={`w-full bg-[#F3F5F7] py-20 md:py-20 ${space.className}`}>
+      <div className="max-w-6xl mx-auto px-4 md:px-0">
         
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-20">
-          <h2 className="text-[12px] font-bold tracking-[0.15em] text-slate-500 uppercase mb-4">
+            <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
             TESTIMONIALS
           </h2>
+         
           <h3 className="text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight text-[#14181F] mb-6">
-            Loved by creators <br className="hidden md:block" />
-            around the world
+            {variant === 'landing' ? (
+              "Loved by creators"
+            ) : (
+              <>Loved by creators <br className="hidden md:block" />around the world</>
+            )}
           </h3>
-          <p className="text-[16px] md:text-[17px] text-slate-500 font-sans max-w-xl mx-auto">
-            Hear from stock contributors who transformed their metadata workflow with MetaGen AI.
-          </p>
+          {variant !== 'landing' && (
+            <p className="text-[16px] md:text-[17px] text-slate-500 font-sans max-w-xl mx-auto">
+              Hear from stock contributors who transformed their metadata workflow with MetaGen AI.
+            </p>
+          )}
         </div>
 
         {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
-          {reviews.map((review, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 items-stretch mt-8">
+          {(variant === 'landing' ? reviews.slice(0, 3) : reviews).map((review, index) => (
             <div 
               key={index} 
-              className="bg-white rounded-2xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col transition-transform hover:-translate-y-1 duration-300 relative"
+              className="bg-white rounded-xl p-8 border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col h-full transition-transform hover:-translate-y-1 duration-300 relative"
             >
-              {/* Quote Icon SVG */}
-              <svg className="w-10 h-10 text-slate-100 absolute top-6 left-8 mb-4" fill="currentColor" viewBox="0 0 32 32" aria-hidden="true">
-                <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-              </svg>
-
-              <div className="pt-8">
+              <div className="flex flex-col h-full">
                 {/* Stars */}
                 <div className="flex items-center gap-1.5 mb-5">
                   {[...Array(5)].map((_, i) => (
@@ -85,30 +96,40 @@ export default function Testimonials() {
                 </div>
                 
                 {/* Review Text */}
-                <p className="text-[15px] text-[#14181F] leading-[1.6] font-medium font-sans">
+                <p className="text-[14px] text-[#14181F] leading-[23px] font-normal mb-8 flex-1">
                   {review.text}
                 </p>
                 
-                <div className="mt-8 flex items-center gap-3.5">
-                  {/* Avatar */}
-                  <div className="w-10 h-10 rounded-full bg-[#EEF0F2] flex items-center justify-center text-[#14181F] font-bold text-[14px]">
-                    {review.initial}
+                {/* User Info */}
+                <div className="flex items-center gap-3.5 mt-auto">
+                  <div className="w-10 h-10 rounded-full bg-[#EEF0F2] flex items-center justify-center text-[#14181F] font-bold text-[14px] overflow-hidden shrink-0">
+                    {review.image ? (
+                      <img src={review.image} alt={review.name} className="w-full h-full object-cover" />
+                    ) : (
+                      review.initial
+                    )}
                   </div>
-                  
-                  {/* Author Info */}
                   <div className="flex flex-col font-sans">
-                    <span className="text-[15px] font-bold text-[#14181F] leading-tight">
-                      {review.name}
-                    </span>
-                    <span className="text-[12px] text-slate-500 mt-0.5">
-                      {review.role}
-                    </span>
+                    <span className="text-[15px] font-bold text-[#14181F] leading-tight">{review.name}</span>
+                    <span className="text-[12px] text-slate-500 mt-0.5">{review.role}</span>
                   </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
+      {/* View All Features Link */}
+        {variant === 'landing' && (
+          <div className="mt-16 flex justify-center">
+            <Link 
+              href="/testimonials" 
+              className="inline-flex items-center gap-2 text-[14px] font-semibold text-[#14181F] hover:text-[#6A7181] transition-colors"
+            >
+              Read more testimonials
+              <ArrowRight size={16} strokeWidth={2} />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );
