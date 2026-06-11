@@ -62,6 +62,11 @@ function VerifyOtpForm() {
 
   return (
     <Card className="w-full max-w-md shadow-lg rounded-2xl border-muted/50">
+      <div className="flex justify-center pt-8 pb-2">
+        <Link href="/">
+          <img src="/auth-logo.png" alt="MetaGen AI" className="h-24 w-auto object-contain" />
+        </Link>
+      </div>
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold tracking-tight text-center">Verify OTP</CardTitle>
         <CardDescription className="text-center">

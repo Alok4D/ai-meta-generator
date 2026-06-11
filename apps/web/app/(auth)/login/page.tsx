@@ -59,6 +59,11 @@ export default function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-muted/30">
       <Card className="w-full max-w-md shadow-lg rounded-2xl border-muted/50">
+        <div className="flex justify-center pt-8 pb-2">
+          <Link href="/">
+            <img src="/auth-logo.png" alt="MetaGen AI" className="h-24 w-auto object-contain" />
+          </Link>
+        </div>
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold tracking-tight text-center">Log in to your account</CardTitle>
           <CardDescription className="text-center">
