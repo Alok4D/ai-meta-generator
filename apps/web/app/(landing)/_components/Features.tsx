@@ -55,7 +55,7 @@ export default function Features({ limit }: FeaturesProps) {
   const displayFeatures = limit ? features.slice(0, limit) : features;
 
   return (
-    <section className={`w-full bg-[#F3F5F7] py-15 md:py-20 ${space.className}`}>
+    <section className={`w-full bg-[#F3F5F7] py-20 md:py-20 ${space.className}`}>
       <div className="max-w-6xl mx-auto px-4 md:px-0">
         
         {/* Section Header */}
