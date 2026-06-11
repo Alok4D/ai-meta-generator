@@ -15,6 +15,7 @@ import { setUser } from "@/lib/feature/auth/authSlice";
 import { useRegisterMutation, useGoogleLoginMutation } from "@/lib/feature/auth/authApi";
 
 export default function Register() {
+  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +31,11 @@ export default function Register() {
       const data = await register({ name, email, password }).unwrap();
       dispatch(setUser(data));
       toast.success("Account created successfully!");
-      router.push("/dashboard");
+      if (data.role === 'admin') {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       toast.error(error.data?.error || "Failed to register");
     }
@@ -48,7 +53,11 @@ export default function Register() {
 
       dispatch(setUser(data));
       toast.success("Account created with Google!");
-      router.push("/dashboard");
+      if (data.role === 'admin') {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       toast.error(error.message || error.data?.error || "Google registration failed");
     }

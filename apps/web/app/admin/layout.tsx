@@ -118,16 +118,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <LogOut className={`h-4 w-4 shrink-0 ${isCollapsed ? "" : "mr-2"}`} />
             {!isCollapsed && "Log out"}
           </Button>
-          <Button
-            variant="ghost"
-            size={isCollapsed ? "icon" : "default"}
-            title={isCollapsed ? "User Dashboard" : undefined}
-            className="w-full justify-center text-muted-foreground"
-            onClick={() => router.push("/dashboard")}
-          >
-            <LayoutDashboard className={`h-4 w-4 shrink-0 ${isCollapsed ? "" : "mr-2"}`} />
-            {!isCollapsed && "Go to User App"}
-          </Button>
         </div>
       </aside>
 
@@ -186,16 +176,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       <LogOut className="h-4 w-4 mr-2" />
                       Log out
                     </Button>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start text-muted-foreground"
-                      onClick={() => {
-                        setOpen(false);
-                        router.push("/dashboard");
-                      }}
-                    >
-                      Go to User App
-                    </Button>
                   </div>
                 </div>
               </SheetContent>
@@ -205,13 +185,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
               <span className="sr-only">Toggle sidebar</span>
             </Button>
             <div className="font-bold text-lg hidden md:block">Admin Dashboard</div>
-            <div className="font-bold md:hidden">Admin Portal</div>
+            <div className="font-bold md:hidden">{user.name}</div>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")} className="hidden md:flex">
-              Go to App
-            </Button>
-            <div className="flex items-center gap-3 pl-4 border-l">
+            <div className="flex items-center gap-3 pl-4">
               <div className="flex flex-col text-right hidden sm:flex">
                 <span className="text-sm font-medium leading-none">{user.name}</span>
                 <span className="text-xs text-muted-foreground mt-1 capitalize">{user.role}</span>

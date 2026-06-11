@@ -32,7 +32,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
-  if (!user) {
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      router.push("/admin");
+    }
+  }, [user, router]);
+
+  if (!user || user.role === 'admin') {
     return null;
   }
 
@@ -111,18 +117,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <LogOut className={`h-4 w-4 shrink-0 ${isCollapsed ? "" : "mr-2"}`} />
             {!isCollapsed && "Log out"}
           </Button>
-          {user.role === 'admin' && (
-            <Button
-              variant="ghost"
-              size={isCollapsed ? "icon" : "default"}
-              title={isCollapsed ? "Admin Portal" : undefined}
-              className="w-full justify-center text-muted-foreground"
-              onClick={() => router.push("/admin")}
-            >
-              <LayoutDashboard className={`h-4 w-4 shrink-0 ${isCollapsed ? "" : "mr-2"}`} />
-              {!isCollapsed && "Admin Portal"}
-            </Button>
-          )}
         </div>
       </aside>
 
@@ -184,18 +178,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                       <LogOut className="h-4 w-4 mr-2" />
                       Log out
                     </Button>
-                    {user.role === 'admin' && (
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-muted-foreground"
-                        onClick={() => {
-                          setOpen(false);
-                          router.push("/admin");
-                        }}
-                      >
-                        Go to Admin Portal
-                      </Button>
-                    )}
                   </div>
                 </div>
               </SheetContent>
@@ -208,12 +190,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div className="font-bold md:hidden">{user.name}</div>
           </div>
           <div className="flex items-center gap-4">
-            {user.role === 'admin' && (
-              <Button variant="outline" size="sm" onClick={() => router.push("/admin")} className="hidden md:flex">
-                Admin Portal
-              </Button>
-            )}
-            <div className="flex items-center gap-3 pl-4 border-l">
+            <div className="flex items-center gap-3 pl-4">
               <div className="flex flex-col text-right hidden sm:flex">
                 <span className="text-sm font-medium leading-none">{user.name}</span>
                 <span className="text-xs text-muted-foreground mt-1 capitalize">{user.role || 'user'}</span>

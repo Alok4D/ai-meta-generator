@@ -30,7 +30,11 @@ export default function Login() {
       const data = await login({ email, password }).unwrap();
       dispatch(setUser(data));
       toast.success("Logged in successfully!");
-      router.push("/dashboard");
+      if (data.role === 'admin') {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       toast.error(error.data?.error || "Failed to log in");
     }
@@ -48,7 +52,11 @@ export default function Login() {
 
       dispatch(setUser(data));
       toast.success("Logged in with Google!");
-      router.push("/dashboard");
+      if (data.role === 'admin') {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error: any) {
       toast.error(error.message || error.data?.error || "Google Login failed");
     }
