@@ -1,7 +1,6 @@
 
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
-import Benefits from "./_components/Benefits";
 import HowItWorks from "./_components/HowItWorks";
 import Testimonials from "./_components/Testimonial";
 import Pricing from "./_components/Pricing";
@@ -20,7 +19,7 @@ export default function LandingPage() {
       <Stats />
       <Features/>
       <HowItWorks/>
-      {/* <Testimonials/> */}
+      <Testimonials/>
       <Pricing/>
       <Comparison/>
       <FAQ/>

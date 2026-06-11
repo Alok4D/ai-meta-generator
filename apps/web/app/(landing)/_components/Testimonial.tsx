@@ -1,110 +1,97 @@
 "use client";
 
 import React from 'react';
-import { Quote, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Autoplay } from 'swiper/modules';
+import { Star, ArrowRight } from 'lucide-react';
+import { Space_Grotesk } from 'next/font/google';
 
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
+const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
-const Testimonials = () => {
+export default function Testimonials() {
   const reviews = [
     {
-      text: "The AI descriptions and SEO tags are spot-on. My listings finally look consistent and professional.",
-      name: "Mark L.",
-      role: "Multi-vendor Store Owner",
+      text: "\"CSVNest cut my metadata workflow from 4 hours to 15 minutes. Absolutely game-changing.\"",
+      name: "Sarah Chen",
+      role: "Stock Photographer",
+      initial: "S",
     },
     {
-      text: "Loved the accuracy. Images, videos, keywords — everything generated perfectly.",
-      name: "Helena J.",
-      role: "Fashion Retailer",
+      text: "\"The AI understands my illustrations perfectly. My sales have increased 40% since switching.\"",
+      name: "Marcus Reid",
+      role: "Digital Artist",
+      initial: "M",
     },
     {
-      text: "One photo in → complete listing out. This tool removed 90% of my manual work.",
-      name: "Sarah M.",
-      role: "Shopify Store Owner",
-    },
-    {
-      text: "The speed is incredible. I can now launch 50 products in the time it used to take for one.",
-      name: "David K.",
-      role: "E-com Director",
+      text: "\"Finally a tool that handles video metadata too. The batch processing is incredibly fast.\"",
+      name: "Anika Patel",
+      role: "Video Creator",
+      initial: "A",
     },
   ];
 
   return (
-    <section className="w-full py-24 bg-[#F9FFF8] overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4">
+    <section className={`w-full bg-[#F3F5F7] py-24 md:py-32 ${space.className}`}>
+      <div className="max-w-6xl mx-auto px-4 md:px-8">
         
-        {/* Header Section */}
-        <div className="text-center mb-16">
-          <h2 className="text-[#00A64C] text-4xl md:text-5xl font-bold mb-4">What Our Customer Say</h2>
-          <div className="inline-block bg-[#E3F9EC] text-[#00A64C] text-[12px] font-bold px-4 py-1.5 rounded-full mb-6 border border-[#C1F1D6]">
-            Trusted by 10,000+ E-commerce Sellers
-          </div>
-          <p className="text-gray-500 max-w-xl mx-auto text-sm leading-relaxed">
-            Real users who streamlined their workflow, saved hours, and scaled their stores with AI-powered product uploads.
-          </p>
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-20">
+          <h2 className="text-[12px] font-bold tracking-[0.15em] text-slate-500 uppercase mb-4">
+            TESTIMONIALS
+          </h2>
+          <h3 className="text-[36px] md:text-[48px] font-bold leading-[1] md:leading-[48px] tracking-tight text-[#14181F]">
+            Loved by creators
+          </h3>
         </div>
 
-        {/* Swiper Slider */}
-        <div className="relative px-12">
-          <Swiper
-            modules={[Navigation, Autoplay]}
-            spaceBetween={30}
-            slidesPerView={1}
-            centeredSlides={true}
-            loop={true}
-            autoplay={{ delay: 3000 }}
-            navigation={{
-              nextEl: '.next-btn',
-              prevEl: '.prev-btn',
-            }}
-            breakpoints={{
-              640: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
-            className="testimonial-swiper !overflow-visible"
-          >
-            {reviews.map((review, index) => (
-              <SwiperSlide key={index}>
-                <div 
-                  className={`
-                    bg-[#EAF9F0] p-8 rounded-[32px] min-h-[320px] flex flex-col justify-between transition-transform duration-500
-                    ${index % 2 === 0 ? 'rotate-[-3deg]' : 'rotate-[3deg]'} 
-                    hover:rotate-0 hover:scale-105 border border-[#D5F2E1]
-                  `}
-                >
-                  <div>
-                    <Quote className="text-[#4ADE80] mb-6 fill-[#4ADE80] opacity-50" size={40} />
-                    <p className="text-[#1A1A1A] text-xl font-semibold leading-snug">
-                      &quot;{review.text}&quot;
-                    </p>
-                  </div>
-                  
-                  <div className="mt-8">
-                    <p className="text-[#1A1A1A] font-bold text-sm">{review.name}</p>
-                    <p className="text-gray-500 text-[12px]">{review.role}</p>
-                  </div>
+        {/* Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-start">
+          {reviews.map((review, index) => (
+            <div 
+              key={index} 
+              className="bg-white rounded-2xl p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col transition-transform hover:-translate-y-1 duration-300"
+            >
+              {/* Stars */}
+              <div className="flex items-center gap-1.5 mb-5">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={18} className="fill-[#F59E0B] text-[#F59E0B]" />
+                ))}
+              </div>
+              
+              {/* Review Text */}
+              <p className="text-[15px] text-[#14181F] leading-[1.6] font-medium">
+                {review.text}
+              </p>
+              
+              <div className="mt-8 flex items-center gap-3.5">
+                {/* Avatar */}
+                <div className="w-10 h-10 rounded-full bg-[#EEF0F2] flex items-center justify-center text-[#14181F] font-bold text-[14px]">
+                  {review.initial}
                 </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                
+                {/* Author Info */}
+                <div className="flex flex-col">
+                  <span className="text-[15px] font-bold text-[#14181F] leading-tight">
+                    {review.name}
+                  </span>
+                  <span className="text-[12px] text-slate-500 mt-0.5">
+                    {review.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
 
-          {/* Custom Navigation Buttons */}
-          <div className="flex justify-center gap-4 mt-12">
-            <button className="prev-btn w-12 h-12 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-[#00A64C] hover:text-white hover:border-[#00A64C] transition-all">
-              <ChevronLeft size={24} />
-            </button>
-            <button className="next-btn w-12 h-12 rounded-full border border-[#00A64C] flex items-center justify-center text-[#00A64C] hover:bg-[#00A64C] hover:text-white transition-all">
-              <ChevronRight size={24} />
-            </button>
-          </div>
+        {/* Read More Link */}
+        <div className="mt-16 flex justify-center">
+          <a 
+            href="#" 
+            className="flex items-center gap-2 text-[15px] font-bold text-[#14181F] hover:text-slate-600 transition-colors duration-200"
+          >
+            Read more testimonials
+            <ArrowRight size={18} strokeWidth={2.5} />
+          </a>
         </div>
       </div>
     </section>
   );
-};
-
-export default Testimonials;
+}

@@ -1,107 +1,78 @@
 import React from 'react';
-import { Upload, Wand2, PenTool, ShoppingCart } from 'lucide-react';
+import { Upload, Sparkles, Globe, ArrowRight } from 'lucide-react';
 
-const HowItWorks = () => {
+const HowItWorks = () =>{
   const steps = [
     {
-      number: 1,
-      title: "Upload Your Product Image",
-      description: "Just choose or drag-and-drop a product photo. Our AI instantly analyzes the object, category, style, material, and key details.",
-      icon: <Upload size={48} className="text-[#89D6AE]" />,
-      align: "left",
+      step: "STEP 01",
+      title: "Upload your files",
+      description: "Drag and drop your images, videos, SVGs, or EPS files. Process up to 500 files at once.",
+      icon: <Upload size={20} className="text-white" />,
     },
     {
-      number: 2,
-      title: "AI Generates Your Full Product Listing",
-      description: "In seconds, AI prepares everything your store needs:",
-      list: [
-        "Product title",
-        "Long & short descriptions",
-        "SEO-optimized meta tags",
-        "High-quality images suggestions",
-        "Relevant video recommendations",
-      ],
-      icon: <Wand2 size={48} className="text-[#89D6AE]" />,
-      align: "right",
+      step: "STEP 02",
+      title: "AI generates metadata",
+      description: "Our AI analyzes each file and generates optimized titles, descriptions, and keywords.",
+      icon: <Sparkles size={20} className="text-white" />,
     },
     {
-      number: 3,
-      title: "Review & Customize (Optional)",
-      description: "Make quick edits if you want:",
-      list: [
-        "Tone of description",
-        "Keywords",
-        "Title length",
-        "Media selection",
-      ],
-      icon: <PenTool size={48} className="text-[#89D6AE]" />,
-      align: "left",
-    },
-    {
-      number: 4,
-      title: "Publish to Your e-Commerce Store",
-      description: "Your Shopify or WooCommerce store and publish in.",
-      icon: <ShoppingCart size={48} className="text-[#89D6AE]" />,
-      align: "right",
-    },
+      step: "STEP 03",
+      title: "Export & upload",
+      description: "Download your CSV file and upload directly to your stock platform of choice.",
+      icon: <Globe size={20} className="text-white" />,
+    }
   ];
 
   return (
-    <section className="w-full py-24 bg-white relative overflow-hidden">
-      {/* Background grid effect (Subtle) */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-           style={{ backgroundImage: 'linear-gradient(#00A64C 1px, transparent 1px), linear-gradient(90deg, #00A64C 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
-      </div>
-
-      <div className="max-w-5xl mx-auto px-4 relative">
-        {/* Header */}
-        <div className="text-center mb-20">
-          <h2 className="text-[#00A64C] text-4xl md:text-5xl font-bold mb-4">How It Works</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto text-sm">
-            Upload your product image and let our AI handle everything — from description to SEO-ready content — with just a single click.
-          </p>
+    <section className="w-full bg-white py-24 md:py-32">
+      <div className="max-w-6xl mx-auto px-4 md:px-8">
+        
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-20">
+          <h2 className="text-[12px] md:text-[13px] font-bold tracking-[0.15em] text-slate-400 uppercase mb-4">
+            HOW IT WORKS
+          </h2>
+          <h3 className="text-[36px] md:text-[44px] font-bold leading-[1.15] tracking-tight text-[#111827]">
+            Three simple steps
+          </h3>
         </div>
 
-        {/* Timeline Container */}
-        <div className="relative">
-          {/* Central Vertical Line */}
-          <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-gray-100 hidden md:block"></div>
-
-          <div className="space-y-24">
-            {steps.map((step, index) => (
-              <div key={index} className={`flex flex-col md:flex-row items-center gap-12 md:gap-0 ${step.align === 'right' ? 'md:flex-row-reverse' : ''}`}>
-                
-                {/* Content Side */}
-                <div className="w-full md:w-1/2 flex flex-col px-4 md:px-12">
-                  <div className={`flex flex-col ${step.align === 'left' ? 'items-start text-left' : 'items-start text-left'}`}>
-                    <div className="w-10 h-10 rounded-full bg-[#89D6AE] text-white flex items-center justify-center font-bold mb-6">
-                      {step.number}
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-4">{step.title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-4">{step.description}</p>
-                    
-                    {step.list && (
-                      <ul className="space-y-1">
-                        {step.list.map((item, i) => (
-                          <li key={i} className="text-gray-500 text-sm flex items-start gap-2">
-                            <span className="mt-1.5 w-1 h-1 rounded-full bg-gray-400 shrink-0"></span>
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                </div>
-
-                {/* Icon Side */}
-                <div className="w-full md:w-1/2 flex justify-center items-center px-4">
-                  <div className="p-8 rounded-full border-2 border-gray-50 bg-white shadow-sm">
-                    {step.icon}
-                  </div>
-                </div>
+        {/* Steps Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 px-4 md:px-0">
+          {steps.map((item, index) => (
+            <div key={index} className="flex flex-col items-center text-center">
+              {/* Icon Container */}
+              <div className="w-[60px] h-[60px] bg-[#18181B] rounded-[18px] flex items-center justify-center shadow-md mb-8 transition-transform hover:scale-105 duration-300">
+                {item.icon}
               </div>
-            ))}
-          </div>
+              
+              {/* Step Label */}
+              <div className="text-[11px] font-bold tracking-[0.15em] text-slate-400 uppercase mb-3">
+                {item.step}
+              </div>
+              
+              {/* Title */}
+              <h4 className="text-[19px] font-bold text-[#111827] mb-3">
+                {item.title}
+              </h4>
+              
+              {/* Description */}
+              <p className="text-[15px] text-slate-500 leading-[1.6] max-w-[280px]">
+                {item.description}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Learn More Link */}
+        <div className="mt-16 md:mt-20 flex justify-center">
+          <a 
+            href="#" 
+            className="flex items-center gap-2 text-[15px] font-bold text-[#111827] hover:text-slate-600 transition-colors duration-200"
+          >
+            Learn more
+            <ArrowRight size={18} strokeWidth={2.5} />
+          </a>
         </div>
       </div>
     </section>
