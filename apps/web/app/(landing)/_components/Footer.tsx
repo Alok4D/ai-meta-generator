@@ -1,4 +1,3 @@
-import React from "react";
 import Link from "next/link";
 import { Space_Grotesk } from "next/font/google";
 
@@ -37,10 +36,24 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Spacer */}
+          <div className="hidden md:block md:col-span-1"></div>
+
           {/* Links Columns Container */}
-          <div className="md:col-span-6 grid grid-cols-2 gap-8">
+          <div className="md:col-span-6 flex justify-center flex-wrap gap-12 md:flex-nowrap md:justify-between">
             
-            {/* Links Column 1 */}
+            {/* Links Column 1: Resources */}
+            <div className="flex flex-col">
+              <h4 className="text-[16px] font-bold text-white mb-6">Resources</h4>
+              <div className="flex flex-col gap-4">
+                <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Keyword Tool</Link>
+                <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Templates</Link>
+                <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Agencies</Link>
+                <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Help Center</Link>
+              </div>
+            </div>
+
+            {/* Links Column 2: Product */}
             <div className="flex flex-col">
               <h4 className="text-[16px] font-bold text-white mb-6">Product</h4>
               <div className="flex flex-col gap-4">
@@ -51,7 +64,7 @@ export default function Footer() {
               </div>
             </div>
 
-            {/* Links Column 2 */}
+            {/* Links Column 3: Company */}
             <div className="flex flex-col">
               <h4 className="text-[16px] font-bold text-white mb-6">Company</h4>
               <div className="flex flex-col gap-4">
