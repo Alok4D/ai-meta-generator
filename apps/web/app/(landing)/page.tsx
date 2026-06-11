@@ -18,7 +18,7 @@ export default function LandingPage() {
       <Stats />
       <Features/>
 
-      <Testimonials/>
+
       <CTA/>
       <Footer/>
     </>
