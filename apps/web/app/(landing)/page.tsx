@@ -9,14 +9,14 @@ import Comparison from "./_components/Comparison";
 import FAQ from "./_components/FAQ";
 import CTA from "./_components/CTA";
 
-export default function page() {
+export default function LandingPage() {
   return (
     <>
       <Navbar />
       <Intro />
       <Benefits/>
       <HowItWorks/>
-      <Testimonials/>
+      {/* <Testimonials/> */}
       <Pricing/>
       <Comparison/>
       <FAQ/>
