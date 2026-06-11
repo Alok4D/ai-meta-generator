@@ -8,7 +8,7 @@ import type { RootState } from "@/lib/redux/store";
 import { logout } from "@/lib/feature/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette } from "lucide-react";
+import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   
@@ -46,11 +46,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const routes = [
     { href: "/dashboard", label: "Overview", icon: Home },
     { href: "/dashboard/generator", label: "Generator", icon: Wand2 },
-    { href: "/dashboard/color-palette", label: "Color Palette", icon: Palette },
     { href: "/dashboard/batch", label: "Batch", icon: Layers },
     { href: "/dashboard/history", label: "Generation History", icon: History },
     { href: "/dashboard/pricing", label: "Pricing", icon: CreditCard },
     { href: "/dashboard/events", label: "Events", icon: Calendar },
+    { href: "/dashboard/color-palette", label: "Color Palette", icon: Palette },
+    { href: "/dashboard/image-converter", label: "Image Converter", icon: ImageIcon },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
     { href: "/dashboard/support", label: "Support", icon: LifeBuoy },
   ];
