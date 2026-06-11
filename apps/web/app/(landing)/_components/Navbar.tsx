@@ -2,9 +2,12 @@
 
 import React, { useState } from "react";
 import { Moon, ArrowRight, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const navLinks = [
     { name: "Features", href: "/features" },
@@ -19,24 +22,31 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-[72px]">
           
           {/* Logo Section */}
+        <Link href={"/"}>
           <div className="flex items-center gap-3 cursor-pointer">
             <img src="/logo.png" alt="MetaGen AI Logo" className="w-10 h-10 object-contain" />
             <span className="text-gray-900 font-bold text-lg tracking-tight">
               MetaGen AI
             </span>
           </div>
+        </Link>
 
           {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className="text-slate-500 hover:text-slate-900 text-[15px] font-medium transition-colors duration-200"
-              >
-                {link.name}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`text-[15px] transition-colors duration-200 ${
+                    isActive ? "text-gray-900 font-bold" : "text-slate-500 font-medium hover:text-slate-900"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right Section: Dark Mode & Action Button */}
@@ -75,15 +85,22 @@ export default function Navbar() {
         }`}
       >
         <div className="px-4 pt-2 pb-6 space-y-1 bg-[#F3F5F6] shadow-lg">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="block px-3 py-3 rounded-md text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 transition-colors"
-            >
-              {link.name}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`block px-3 py-3 rounded-md text-base transition-colors ${
+                  isActive 
+                    ? "font-bold text-gray-900 bg-slate-200/50" 
+                    : "font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
           <div className="pt-4 px-3">
             <button className="w-full bg-[#18181B] hover:bg-black text-white px-5 py-3.5 rounded-full flex items-center justify-center gap-2 text-base font-medium transition-colors">
               Get Started
