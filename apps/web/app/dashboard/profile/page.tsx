@@ -8,8 +8,8 @@ const ProfilePage = () => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">My Profile</h2>
-        <p className="text-muted-foreground">Manage your personal information and security.</p>
+        <h2 className="text-3xl font-medium tracking-tight">My Profile</h2>
+        <p className="text-muted-foreground pt-2">Manage your personal information and security.</p>
       </div>
 
       <Tabs defaultValue="profile" className="w-full flex-col">
