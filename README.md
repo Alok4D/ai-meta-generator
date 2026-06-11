@@ -1,159 +1,107 @@
-# Turborepo starter
+# AI Meta Generator ✨
 
-This Turborepo starter is maintained by the Turborepo core team.
+Welcome to **AI Meta Generator** — a powerful, modern, and feature-rich monorepo application designed to streamline image processing, AI generation, and asset management for creators, marketers, and developers.
 
-## Using this example
+Built with cutting-edge web technologies, this platform offers a stunning **Glassmorphism UI** with seamless interactions and enterprise-grade architecture.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## 🚀 Key Features
+
+### 🎨 Creative Tools
+* **AI Meta/Image Generator**: Leverage advanced AI models (Vision/LLMs via OpenRouter/Gemini) to analyze images and generate high-quality metadata, captions, and descriptions.
+* **Batch Image Converter**: A powerful, 100% offline client-side converter. Upload multiple images and instantly convert them between `JPG`, `PNG`, `WEBP`, `AVIF`, and `PDF`.
+* **Trace to Vector (SVG)**: Convert raster images (JPG/PNG) into pure mathematical SVG vectors using advanced geometric tracing algorithms—all happening locally in your browser.
+* **Color Palette Extractor**: Instantly extract beautiful, harmonious color palettes and HEX codes from any uploaded image using intelligent color sampling.
+
+### 📊 Management & Dashboard
+* **Marketing Events Calendar**: Stay ahead of the curve with a built-in calendar tracking important global and marketing events.
+* **Generation History**: A dedicated log to track, manage, and re-download all your previously generated assets and AI responses.
+* **Batch Processing**: Handle multiple assets simultaneously to drastically improve your workflow efficiency.
+
+### 🔐 Security & User Management
+* **Secure Authentication**: Robust JWT-based Login and Registration system with encrypted password management.
+* **Role-Based Access Control (RBAC)**: 
+  * **User Dashboard**: A personalized space for clients to generate and manage their assets.
+  * **Admin Panel**: A restricted, secure layout for administrators to manage users and platform metrics.
+* **Cloud Storage Integration**: Seamless connection with Cloudinary for fast, reliable, and optimized image hosting.
+
+---
+
+## 🛠️ Technology Stack
+
+This project is structured as a highly scalable **Turborepo Monorepo**, ensuring maximum performance and code reusability.
+
+**Frontend (`apps/web`)**
+* **Framework**: Next.js 14+ (App Router)
+* **Styling**: Tailwind CSS & Vanilla CSS
+* **UI Components**: Shadcn UI & Radix UI primitives
+* **Animations**: Framer Motion & Tailwind Animate
+* **State Management**: Redux Toolkit (RTK) & RTK Query
+* **Icons**: Lucide React
+
+**Backend (`apps/api`)**
+* **Runtime**: Node.js & Express.js
+* **Database**: MongoDB (Mongoose)
+* **Authentication**: JWT (JSON Web Tokens)
+* **Email Service**: Hostinger SMTP Integration
+
+**Tooling & Shared Packages**
+* **Monorepo**: Turborepo
+* **Language**: 100% TypeScript
+* **Linting/Formatting**: ESLint & Prettier
+* **Shared UI**: `@repo/ui` package for cross-app components
+
+---
+
+## 💻 Getting Started
+
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/) installed.
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd ai-meta-generator
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
+
+3. **Set up Environment Variables:**
+   Configure your `.env` file in the `apps/api` and `apps/web` directories (Database URIs, JWT Secrets, AI API Keys, Cloudinary credentials).
+
+4. **Run the Development Server:**
+   ```bash
+   pnpm run dev
+   ```
+   * The Frontend will be available at `http://localhost:3000`
+   * The Backend API will be available at `http://localhost:5000`
+
+---
+
+## 📁 Project Structure
+
+```text
+ai-meta-generator/
+├── apps/
+│   ├── web/               # Next.js Frontend Application
+│   │   ├── app/           # App Router (Dashboard, Admin, Auth, Landing)
+│   │   ├── components/    # Reusable UI components
+│   │   └── lib/           # Redux slices, RTK Query API, Utilities
+│   └── api/               # Node.js Express Backend
+│       ├── src/           # Controllers, Routes, Models, Middleware
+│       └── .env           # Server configuration
+├── packages/
+│   ├── ui/                # Shared React components library
+│   ├── eslint-config/     # Shared linting rules
+│   └── typescript-config/ # Shared TS configurations
+└── turbo.json             # Turborepo pipeline configuration
 ```
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+---
+*Designed with ❤️ for a modern, premium web experience.*
