@@ -1,4 +1,4 @@
-import Intro from "./_components/Intro";
+
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
 import Benefits from "./_components/Benefits";
@@ -8,13 +8,17 @@ import Pricing from "./_components/Pricing";
 import Comparison from "./_components/Comparison";
 import FAQ from "./_components/FAQ";
 import CTA from "./_components/CTA";
+import Hero from "./_components/Intro";
+import Stats from "./_components/Stats";
+import Features from "./_components/Features";
 
 export default function LandingPage() {
   return (
     <>
       <Navbar />
-      <Intro />
-      <Benefits/>
+      <Hero />
+      <Stats />
+      <Features/>
       <HowItWorks/>
       {/* <Testimonials/> */}
       <Pricing/>

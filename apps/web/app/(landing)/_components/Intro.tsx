@@ -1,53 +1,104 @@
-import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
+"use client";
 
-const Hero = () => {
+import React from "react";
+import { Sparkles, ArrowRight, AppWindow, Upload, Image as ImageIcon } from "lucide-react";
+
+export default function Hero() {
   return (
-    <section className="relative w-full pt-32 pb-20 px-4 flex flex-col items-center" style={{ background: 'linear-gradient(to bottom, #56FF9D, #FFFFFF)' }}>
+    <section className="w-full bg-[#EFF2F4] pt-20 pb-24 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden">
       
-      {/* Badge */}
-      <div className="flex items-center gap-2 bg-white/60 text-[#006B32] px-4 py-2 mt-[50px] rounded-full mb-8 border border-[#00A64C]/30 backdrop-blur-sm">
-        <ShoppingBag size={18} />
-        <span className="text-sm font-semibold tracking-wide uppercase">
-          AI-Powered E-commerce Creation
+      {/* Top Badge */}
+      <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 mb-8 shadow-sm">
+        <Sparkles size={14} className="text-slate-500" />
+        <span className="text-[13px] text-slate-600 font-medium">
+          AI-powered stock metadata generation
         </span>
       </div>
 
-      {/* Main Heading */}
-      <div className="max-w-6xl text-center mb-6">
-        <h1 className="text-4xl md:text-[72px] font-semibold text-[#181818] leading-[1.15] tracking-tight">
-          Upload a product image and let AI <br className="hidden md:block" />
-          <span className="text-[#00A64C]">create everything you need.</span>
+      {/* Hero Headings */}
+      <div className="text-center max-w-4xl mx-auto mb-6">
+        <h1 className="text-[40px] leading-[1.1] md:text-[64px] font-bold tracking-tight text-[#18181B]">
+          Generate Stock <br className="hidden md:block" />
+          <span className="text-slate-600">Metadata in Seconds</span>
         </h1>
       </div>
 
-      {/* Subtext */}
-      <div className="max-w-2xl text-center mb-10">
-        <p className="text-gray-700 text-base md:text-lg leading-relaxed">
-          Upload a single product photo and let AI create everything for you — descriptions, 
-          images, videos, and SEO tags — all ready to publish in seconds.
-        </p>
+      <p className="text-base md:text-lg text-slate-500 text-center max-w-2xl mb-10 leading-relaxed px-4">
+        Upload your images, videos, and vectors — CSVNest uses AI to generate titles, descriptions, and keywords optimized for every major stock platform.
+      </p>
+
+      {/* CTA Buttons */}
+      <div className="flex flex-col sm:flex-row items-center gap-4 mb-20 w-full sm:w-auto px-4">
+        <button className="w-full sm:w-auto bg-[#18181B] hover:bg-black text-white px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200">
+          Start for Free
+          <ArrowRight size={18} strokeWidth={2} />
+        </button>
+        <button className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm">
+          <AppWindow size={18} strokeWidth={2} />
+          Chrome Extension
+        </button>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
-        <button className="bg-[#00A64C] text-white px-8 py-4 rounded-full flex items-center gap-2 font-bold text-lg hover:bg-[#008f41] transition-all shadow-md active:scale-95">
-          Join Early Access
-          <ArrowRight size={20} />
-        </button>
+      {/* App Mockup Window */}
+      <div className="w-full max-w-[1000px] bg-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-200 flex flex-col overflow-hidden">
         
-        <button className="bg-white/80 border-2 border-[#00A64C] text-[#00A64C] px-8 py-4 rounded-full font-bold text-lg hover:bg-white transition-all shadow-sm active:scale-95">
-          See Benefits
-        </button>
-      </div>
+        {/* Mockup Header (Mac-style) */}
+        <div className="h-12 border-b border-gray-100 flex items-center px-4 relative bg-white">
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+            <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
+          </div>
+          <div className="absolute left-1/2 -translate-x-1/2 bg-[#EFF2F4] px-4 py-1.5 rounded-full text-[11px] text-slate-500 font-medium">
+            csvnest.com/app
+          </div>
+        </div>
 
-      {/* Trust Text */}
-      <div className="flex items-center gap-2 text-gray-600 text-sm italic">
-        <Sparkles size={14} className="text-[#00A64C]" />
-        <p>Join our early access program and be among the first to experience eComSnap</p>
-      </div>
+        {/* Mockup Body */}
+        <div className="flex p-4 md:p-6 gap-6 bg-[#FAFAFA] min-h-[400px]">
+          
+          {/* Sidebar (Hidden on small screens) */}
+          <div className="hidden md:flex w-64 flex-col gap-6 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-2">
+                <div className="bg-[#18181B] w-7 h-7 rounded flex items-center justify-center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.5 2C21.5 2 18.5 3 16 5.5C13.5 8 11.5 10 11.5 10L9 9.5L10 12.5L5 16L7.5 14L4 21L10.5 15.5L13 18L13 13.5C13 13.5 16.5 12.5 19 9.5C21.5 6.5 21.5 2 21.5 2Z" />
+                  </svg>
+                </div>
+                <span className="text-gray-900 font-bold text-sm tracking-tight">CSVNest</span>
+              </div>
+              <span className="text-[9px] font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">PRO</span>
+            </div>
 
+            <nav className="flex flex-col gap-1">
+              <a href="#" className="bg-[#18181B] text-white text-[13px] font-medium px-3 py-2 rounded-lg">
+                Generator
+              </a>
+              <a href="#" className="text-slate-500 hover:bg-gray-50 text-[13px] font-medium px-3 py-2 rounded-lg transition-colors">
+                Events
+              </a>
+              <a href="#" className="text-slate-500 hover:bg-gray-50 text-[13px] font-medium px-3 py-2 rounded-lg transition-colors mt-4">
+                Pricing
+              </a>
+            </nav>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 bg-white rounded-xl border border-gray-100 p-6 shadow-sm flex flex-col">
+            <div className="flex items-center gap-2 mb-4 text-slate-700">
+              <Upload size={16} strokeWidth={2} />
+              <h2 className="text-[13px] font-semibold">Upload Files</h2>
+            </div>
+            
+            <div className="flex-1 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer min-h-[250px]">
+              <ImageIcon size={32} className="mb-3 text-slate-300" strokeWidth={1.5} />
+              <p className="text-[13px] font-medium text-slate-500">Drag & drop files here</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </section>
   );
-};
-
-export default Hero;
+}
