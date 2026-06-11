@@ -20,8 +20,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export const metadata: Metadata = {
-  title: "AI Meta Generator - SaaS",
-  description: "AI-powered metadata generator for images",
+  title: "MetaGen AI - AI Metadata Generator",
+  description: "AI Metadata Generator for Images & Stock Content",
 };
 
 export default function RootLayout({

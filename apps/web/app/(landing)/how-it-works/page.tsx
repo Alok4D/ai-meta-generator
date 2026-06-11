@@ -10,7 +10,7 @@ export default function HowItWorksPage() {
       <HowItWorks />
       <CTA 
         title="Simple enough? Let's get started."
-        subtitle="Try CSVNest for free — no credit card required."
+        subtitle="Try MetaGen AI for free — no credit card required."
         buttonText="Start for Free"
       />
       <Footer />

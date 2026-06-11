@@ -73,7 +73,7 @@ export default function HowItWorks() {
             in four simple steps
           </h3>
           <p className="text-[16px] md:text-[17px] text-slate-500 font-sans max-w-xl mx-auto">
-            CSVNest makes generating stock metadata effortless. Here's exactly how it works.
+            MetaGen AI makes generating stock metadata effortless. Here's exactly how it works.
           </p>
         </div>
 

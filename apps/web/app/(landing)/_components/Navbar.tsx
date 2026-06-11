@@ -20,20 +20,9 @@ export default function Navbar() {
           
           {/* Logo Section */}
           <div className="flex items-center gap-3 cursor-pointer">
-            <div className="bg-[#18181B] w-9 h-9 rounded-lg flex items-center justify-center">
-              {/* Custom SVG to match the specific bird logo in the design */}
-              <svg 
-                width="20" 
-                height="20" 
-                viewBox="0 0 24 24" 
-                fill="white" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M21.5 2C21.5 2 18.5 3 16 5.5C13.5 8 11.5 10 11.5 10L9 9.5L10 12.5L5 16L7.5 14L4 21L10.5 15.5L13 18L13 13.5C13 13.5 16.5 12.5 19 9.5C21.5 6.5 21.5 2 21.5 2Z" />
-              </svg>
-            </div>
+            <img src="/logo.png" alt="MetaGen AI Logo" className="w-10 h-10 object-contain" />
             <span className="text-gray-900 font-bold text-lg tracking-tight">
-              CSVNest
+              MetaGen AI
             </span>
           </div>
 

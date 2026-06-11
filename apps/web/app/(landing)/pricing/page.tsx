@@ -103,7 +103,7 @@ export default function PricingPage() {
 
       <CTA 
         title="Start generating metadata today"
-        subtitle={<>Try CSVNest for free with 150 daily credits. No credit card <br className="hidden sm:block" />required.</>}
+        subtitle={<>Try MetaGen AI for free with 150 daily credits. No credit card <br className="hidden sm:block" />required.</>}
         buttonText="Get Started Free"
       />
       <Footer />

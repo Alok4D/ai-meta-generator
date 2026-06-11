@@ -9,7 +9,7 @@ const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', 
 export default function Testimonials() {
   const reviews = [
     {
-      text: "\"CSVNest cut my metadata workflow from 4 hours to 15 minutes. Absolutely game-changing for my stock portfolio. I used to dread uploading days, now I actually look forward to them.\"",
+      text: "\"MetaGen AI cut my metadata workflow from 4 hours to 15 minutes. Absolutely game-changing for my stock portfolio. I used to dread uploading days, now I actually look forward to them.\"",
       name: "Sarah Chen",
       role: "Stock Photographer",
       initial: "S",
@@ -21,19 +21,19 @@ export default function Testimonials() {
       initial: "M",
     },
     {
-      text: "\"Finally a tool that handles video metadata too. The batch processing is incredibly fast and reliable. I've recommended CSVNest to every creator I know.\"",
+      text: "\"Finally a tool that handles video metadata too. The batch processing is incredibly fast and reliable. I've recommended MetaGen AI to every creator I know.\"",
       name: "Anika Patel",
       role: "Video Creator",
       initial: "A",
     },
     {
-      text: "\"I was skeptical about AI-generated keywords but CSVNest proved me wrong. The quality is consistently high, and the platform-specific formatting saves me so much time.\"",
+      text: "\"I was skeptical about AI-generated keywords but MetaGen AI proved me wrong. The quality is consistently high, and the platform-specific formatting saves me so much time.\"",
       name: "James Whitfield",
       role: "Freelance Photographer",
       initial: "J",
     },
     {
-      text: "\"As someone with 10,000+ vectors on multiple platforms, CSVNest is a lifesaver. The multi-platform export feature alone is worth it. My workflow is 10x faster now.\"",
+      text: "\"As someone with 10,000+ vectors on multiple platforms, MetaGen AI is a lifesaver. The multi-platform export feature alone is worth it. My workflow is 10x faster now.\"",
       name: "Lina Yamamoto",
       role: "Vector Illustrator",
       initial: "L",
@@ -60,7 +60,7 @@ export default function Testimonials() {
             around the world
           </h3>
           <p className="text-[16px] md:text-[17px] text-slate-500 font-sans max-w-xl mx-auto">
-            Hear from stock contributors who transformed their metadata workflow with CSVNest.
+            Hear from stock contributors who transformed their metadata workflow with MetaGen AI.
           </p>
         </div>
 

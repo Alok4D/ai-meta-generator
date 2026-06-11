@@ -12,7 +12,7 @@ interface CTAProps {
 
 export default function CTA({ 
   title = "Ready to automate your workflow?", 
-  subtitle = <>Join thousands of stock contributors who save hours <br className="hidden sm:block" />every week with CSVNest.</>,
+  subtitle = <>Join thousands of stock contributors who save hours <br className="hidden sm:block" />every week with MetaGen AI.</>,
   buttonText = "Get Started Free"
 }: CTAProps) {
   return (

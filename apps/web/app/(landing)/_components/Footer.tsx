@@ -16,23 +16,16 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
           
-          {/* Logo Section */}
-          <div className="flex items-center gap-3">
-            <div className="bg-[#18181B] w-8 h-8 rounded-lg flex items-center justify-center">
-              {/* Same custom bird SVG as the Navbar */}
-              <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 24 24" 
-                fill="white" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M21.5 2C21.5 2 18.5 3 16 5.5C13.5 8 11.5 10 11.5 10L9 9.5L10 12.5L5 16L7.5 14L4 21L10.5 15.5L13 18L13 13.5C13 13.5 16.5 12.5 19 9.5C21.5 6.5 21.5 2 21.5 2Z" />
-              </svg>
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2.5 mb-6">
+              <img src="/logo.png" alt="MetaGen AI Logo" className="w-8 h-8 object-contain" />
+              <span className="text-[#14181F] font-bold text-[19px] tracking-tight">
+                MetaGen AI
+              </span>
             </div>
-            <span className="text-gray-900 font-bold text-[17px] tracking-tight">
-              CSVNest
-            </span>
+            <p className="text-[15px] text-slate-500 font-sans leading-[1.6]">
+              The smartest way to generate stock metadata and manage your creative portfolio.
+            </p>
           </div>
 
           {/* Links Section */}
@@ -50,7 +43,7 @@ export default function Footer() {
 
           {/* Copyright Section */}
           <div className="text-slate-500 text-[14px]">
-            © 2026 CSVNest. All rights reserved.
+            © 2026 MetaGen AI. All rights reserved.
           </div>
 
         </div>

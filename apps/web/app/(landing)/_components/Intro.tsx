@@ -17,15 +17,14 @@ export default function Hero() {
 
       {/* Hero Headings */}
       <div className="text-center max-w-4xl mx-auto mb-6">
-        <h1 className="text-[40px] leading-[1.1] md:text-[64px] font-bold tracking-tight text-[#18181B]">
-          Generate Stock <br className="hidden md:block" />
-          <span className="text-slate-600">Metadata in Seconds</span>
+        <h1 className="text-[44px] md:text-[68px] font-bold text-[#111827] leading-[1.05] tracking-tight max-w-4xl mx-auto mb-6">
+          Generate SEO-Optimized Titles, Categories & Keywords in Seconds
         </h1>
+        {/* Subheading / Description */}
+        <p className="text-[17px] md:text-[19px] text-[#4B5563] mb-10 max-w-2xl mx-auto font-medium font-sans leading-[1.6]">
+          AI Metadata Generator for Images & Stock Content. Upload your images, videos, and vectors — MetaGen AI uses AI to generate titles, descriptions, and keywords optimized for every major stock platform.
+        </p>
       </div>
-
-      <p className="text-base md:text-lg text-slate-500 text-center max-w-2xl mb-10 leading-relaxed px-4">
-        Upload your images, videos, and vectors — CSVNest uses AI to generate titles, descriptions, and keywords optimized for every major stock platform.
-      </p>
 
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-20 w-full sm:w-auto px-4">
@@ -40,17 +39,17 @@ export default function Hero() {
       </div>
 
       {/* App Mockup Window */}
-      <div className="w-full max-w-[1000px] bg-white rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-200 flex flex-col overflow-hidden">
+      <div className="bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full h-[600px] flex flex-col mt-4">
         
         {/* Mockup Header (Mac-style) */}
-        <div className="h-12 border-b border-gray-100 flex items-center px-4 relative bg-white">
-          <div className="flex gap-2">
+        <div className="h-12 bg-[#F9FAFB] border-b border-gray-100 flex items-center px-4 gap-2 shrink-0">
+          <div className="flex gap-1.5">
             <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
             <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
             <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
           </div>
-          <div className="absolute left-1/2 -translate-x-1/2 bg-[#EFF2F4] px-4 py-1.5 rounded-full text-[11px] text-slate-500 font-medium">
-            csvnest.com/app
+          <div className="mx-auto bg-white border border-gray-200 rounded text-[11px] font-medium text-gray-500 px-24 py-1 flex items-center justify-center font-sans tracking-wide">
+            metagenai.com/app
           </div>
         </div>
 
@@ -66,7 +65,7 @@ export default function Hero() {
                     <path d="M21.5 2C21.5 2 18.5 3 16 5.5C13.5 8 11.5 10 11.5 10L9 9.5L10 12.5L5 16L7.5 14L4 21L10.5 15.5L13 18L13 13.5C13 13.5 16.5 12.5 19 9.5C21.5 6.5 21.5 2 21.5 2Z" />
                   </svg>
                 </div>
-                <span className="text-gray-900 font-bold text-sm tracking-tight">CSVNest</span>
+                <span className="text-gray-900 font-bold text-sm tracking-tight">MetaGen AI</span>
               </div>
               <span className="text-[9px] font-bold bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">PRO</span>
             </div>
