@@ -10,18 +10,18 @@ export default function Hero() {
       {/* Top Badge */}
       <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 mb-8 shadow-sm">
         <Sparkles size={14} className="text-slate-500" />
-        <span className="text-[13px] text-slate-600 font-medium">
+        <span className="text-[14px] text-[#6A7181] font-normal leading-[20px] py-0.5">
           AI-powered stock metadata generation
         </span>
       </div>
 
       {/* Hero Headings */}
       <div className="text-center max-w-4xl mx-auto mb-6">
-        <h1 className="text-[44px] md:text-[68px] font-bold text-[#111827] leading-[1.05] tracking-tight max-w-4xl mx-auto mb-6">
-          Generate SEO-Optimized Titles, Categories & Keywords in Seconds
+        <h1 className="text-[44px] md:text-[72px] font-bold text-[#111827] leading-tight md:leading-[1] tracking-tight max-w-4xl mx-auto mb-6">
+          Generate SEO-Optimized Metadata in Seconds
         </h1>
         {/* Subheading / Description */}
-        <p className="text-[17px] md:text-[19px] text-[#4B5563] mb-10 max-w-2xl mx-auto font-medium font-sans leading-[1.6]">
+        <p className="text-[18px] text-[#6A7181] leading-[28px] font-normal mb-10 max-w-2xl mx-auto">
           AI Metadata Generator for Images & Stock Content. Upload your images, videos, and vectors — MetaGen AI uses AI to generate titles, descriptions, and keywords optimized for every major stock platform.
         </p>
       </div>
@@ -39,7 +39,7 @@ export default function Hero() {
       </div>
 
       {/* App Mockup Window */}
-      <div className="bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full h-[600px] flex flex-col mt-4">
+      <div className="bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex flex-col mt-4">
         
         {/* Mockup Header (Mac-style) */}
         <div className="h-12 bg-[#F9FAFB] border-b border-gray-100 flex items-center px-4 gap-2 shrink-0">
@@ -60,10 +60,8 @@ export default function Hero() {
           <div className="hidden md:flex w-64 flex-col gap-6 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
             <div className="flex items-center justify-between px-2">
               <div className="flex items-center gap-2">
-                <div className="bg-[#18181B] w-7 h-7 rounded flex items-center justify-center">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21.5 2C21.5 2 18.5 3 16 5.5C13.5 8 11.5 10 11.5 10L9 9.5L10 12.5L5 16L7.5 14L4 21L10.5 15.5L13 18L13 13.5C13 13.5 16.5 12.5 19 9.5C21.5 6.5 21.5 2 21.5 2Z" />
-                  </svg>
+                <div className="bg-[#18181B] w-7 h-7 rounded flex items-center justify-center overflow-hidden">
+                  <img src="/logo.png" alt="MetaGen AI" className="w-full h-full object-contain p-0.5" />
                 </div>
                 <span className="text-gray-900 font-bold text-sm tracking-tight">MetaGen AI</span>
               </div>
@@ -84,16 +82,38 @@ export default function Hero() {
           </div>
 
           {/* Main Content Area */}
-          <div className="flex-1 bg-white rounded-xl border border-gray-100 p-6 shadow-sm flex flex-col">
-            <div className="flex items-center gap-2 mb-4 text-slate-700">
-              <Upload size={16} strokeWidth={2} />
-              <h2 className="text-[13px] font-semibold">Upload Files</h2>
-            </div>
+          <div className="flex-1 flex flex-col gap-4">
             
-            <div className="flex-1 border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer min-h-[250px]">
-              <ImageIcon size={32} className="mb-3 text-slate-300" strokeWidth={1.5} />
-              <p className="text-[13px] font-medium text-slate-500">Drag & drop files here</p>
+            {/* Upload Section */}
+            <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm flex flex-col">
+              <div className="flex items-center gap-2 mb-3 text-slate-700">
+                <Upload size={14} strokeWidth={2.5} />
+                <h2 className="text-[13px] font-semibold">Upload Files</h2>
+              </div>
+              <div className="h-[110px] border-2 border-dashed border-gray-200 rounded-xl flex flex-col items-center justify-center text-slate-400 bg-white">
+                <ImageIcon size={28} className="mb-2 text-slate-300" strokeWidth={1.5} />
+                <p className="text-[12px] font-medium text-slate-500">Drag & drop files here</p>
+              </div>
             </div>
+
+            {/* Generated Results Section */}
+            <div className="flex-1 bg-white rounded-xl border border-gray-100 p-5 shadow-sm flex flex-col">
+              <div className="flex items-center gap-2 mb-4 text-slate-700">
+                <Sparkles size={14} strokeWidth={2.5} />
+                <h2 className="text-[13px] font-semibold">Generated Results</h2>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 flex-1">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="flex flex-col gap-2 p-3 bg-[#F9FAFB] border border-gray-100 rounded-xl">
+                    <div className="h-[140px] bg-[#EAECEE] rounded-lg w-full"></div>
+                    <div className="h-2.5 bg-[#EAECEE] rounded-full w-[90%] mt-2"></div>
+                    <div className="h-2.5 bg-[#EAECEE] rounded-full w-[60%]"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
 
         </div>

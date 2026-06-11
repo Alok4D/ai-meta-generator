@@ -18,7 +18,7 @@ export default function Navbar() {
 
   return (
     <nav className="w-full bg-[#F3F5F6] sticky top-0 z-50 border-b border-gray-200/50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-0">
         <div className="flex justify-between items-center h-[72px]">
           
           {/* Logo Section */}
@@ -51,16 +51,13 @@ export default function Navbar() {
 
           {/* Right Section: Dark Mode & Action Button */}
           <div className="hidden md:flex items-center gap-6">
-            <button 
-              className="text-slate-500 hover:text-slate-900 transition-colors duration-200"
-              aria-label="Toggle dark mode"
-            >
-              <Moon size={20} strokeWidth={2} />
-            </button>
+           
+            <Link href={"/login"}>
             <button className="bg-[#18181B] hover:bg-black text-white px-5 py-2.5 rounded-full flex items-center gap-2 text-[15px] font-medium transition-colors duration-200">
               Get Started
               <ArrowRight size={18} strokeWidth={2} />
             </button>
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
