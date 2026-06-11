@@ -102,8 +102,8 @@ export default function PricingPage() {
       </section>
 
       <CTA 
-        title="Ready to automate your workflow?"
-        subtitle="Join thousands of stock contributors who save hours every week with CSVNest."
+        title="Start generating metadata today"
+        subtitle={<>Try CSVNest for free with 150 daily credits. No credit card <br className="hidden sm:block" />required.</>}
         buttonText="Get Started Free"
       />
       <Footer />
