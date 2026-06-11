@@ -17,10 +17,10 @@ export default function Stats() {
               key={index} 
               className="flex flex-col items-center justify-center text-center"
             >
-              <h3 className="text-[40px] md:text-[48px] font-bold text-[#18181B] tracking-tight leading-none mb-2 md:mb-3">
+              <h3 className="text-[36px] font-bold text-[#14181F] leading-[40px] tracking-tight mb-2 md:mb-3">
                 {stat.value}
               </h3>
-              <p className="text-[14px] md:text-[15px] text-slate-500 font-medium">
+              <p className="text-[14px] font-normal text-[#6A7181] leading-[20px]">
                 {stat.label}
               </p>
             </div>
