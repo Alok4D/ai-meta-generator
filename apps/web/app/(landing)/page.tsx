@@ -14,7 +14,7 @@ export default function LandingPage() {
       <Navbar />
       <Hero />
       <Stats />
-      <Features/>
+      <Features limit={6} />
       <HowItWorks/>
       <Testimonials/>
       <CTA/>

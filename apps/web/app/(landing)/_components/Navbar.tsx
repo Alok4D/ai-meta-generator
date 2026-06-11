@@ -61,10 +61,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <div className="md:hidden flex items-center gap-4">
-            <button className="text-slate-500 hover:text-slate-900 transition-colors">
-              <Moon size={20} strokeWidth={2} />
-            </button>
+          <div className="md:hidden flex items-center gap-4"> 
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="text-slate-800 hover:text-black focus:outline-none"
