@@ -141,10 +141,10 @@ export function UserProfileForm() {
           </div>
         </CardContent>
         <CardFooter className="gap-2 border-t pt-6 mt-4">
-          <Button onClick={handleProfileUpdate} disabled={isProfileLoading}>
+          <Button className="rounded-[5px] px-6 py-5" size={"lg"} onClick={handleProfileUpdate} disabled={isProfileLoading}>
             {isProfileLoading ? "Saving..." : "Save Changes"}
           </Button>
-          <Button variant="outline" onClick={() => {
+          <Button variant="outline" size={'lg'} className="rounded-[5px] px-6 py-5" onClick={() => {
             const nameParts = user.name.split(" ");
             setFirstName(nameParts[0] || "");
             setLastName(nameParts.slice(1).join(" ") || "");

@@ -95,7 +95,7 @@ export function PasswordUpdateForm() {
           </div>
         </CardContent>
         <CardFooter className="border-t pt-6 mt-4">
-          <Button onClick={handlePasswordUpdate} disabled={loading}>
+          <Button size={'lg'} className="rounded-[5px] px-5 py-5" onClick={handlePasswordUpdate} disabled={loading}>
             {loading ? "Updating..." : "Update password"}
           </Button>
         </CardFooter>
