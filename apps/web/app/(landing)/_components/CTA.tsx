@@ -1,30 +1,31 @@
+import React from "react";
+import { ArrowRight } from "lucide-react";
 
-const CTA = () => {
+export default function CTA() {
   return (
-    <section className="w-full py-24 bg-[#E9F9EF] px-4">
-      <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+    <section className="w-full bg-[#F3F5F6] py-20 md:py-28">
+      <div className="max-w-6xl mx-auto px-4 md:px-0">
         
-        {/* Heading */}
-        <h2 className="text-3xl md:text-6xl font-bold text-[#111827] leading-tight mb-8">
-          Ready to <span className="text-[#00A64C]">Improve Your</span> <br />
-          <span className="text-[#00A64C]">E-commerce Inventory</span> Faster?
-        </h2>
-
-        {/* Subtext */}
-        <p className="text-gray-500 text-sm md:text-base max-w-2xl mb-10 leading-relaxed">
-          Improve your e-commerce workflow with AI that creates product photos, descriptions, 
-          specs, and metadata instantly. No more manual typing, editing, or searching — 
-          just upload an image and get a full, ready-to-publish product listing in seconds.
-        </p>
-
-        {/* Primary Button */}
-        <button className="bg-[#00A64C] text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-[#008f41] transition-all shadow-md active:scale-95">
-          Join Early Access
-        </button>
-
+        {/* CTA Card */}
+        <div className="bg-[#18181B] rounded-[32px] px-6 py-16 md:py-20 flex flex-col items-center text-center shadow-lg">
+          
+          <h2 className="text-[32px] md:text-[44px] font-bold text-white mb-5 tracking-tight leading-tight">
+            Ready to automate your workflow?
+          </h2>
+          
+          <p className="text-slate-400 text-[16px] md:text-[17px] max-w-xl mx-auto mb-10 leading-relaxed font-medium">
+            Join thousands of stock contributors who save hours <br className="hidden sm:block" />
+            every week with CSVNest.
+          </p>
+          
+          <button className="bg-white hover:bg-gray-100 text-[#18181B] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 text-[15px] font-bold transition-all duration-200 hover:scale-105">
+            Get Started Free
+            <ArrowRight size={18} strokeWidth={2.5} />
+          </button>
+          
+        </div>
+        
       </div>
     </section>
   );
-};
-
-export default CTA;
+}

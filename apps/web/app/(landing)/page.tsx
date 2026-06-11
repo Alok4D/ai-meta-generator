@@ -4,7 +4,6 @@ import Footer from "./_components/Footer";
 import HowItWorks from "./_components/HowItWorks";
 import Testimonials from "./_components/Testimonial";
 import Pricing from "./_components/Pricing";
-import Comparison from "./_components/Comparison";
 import FAQ from "./_components/FAQ";
 import CTA from "./_components/CTA";
 import Hero from "./_components/Intro";
@@ -20,10 +19,7 @@ export default function LandingPage() {
       <Features/>
       <HowItWorks/>
       <Testimonials/>
-      <Pricing/>
-      <Comparison/>
-      <FAQ/>
-      <CTA/>  
+      <CTA/>
       <Footer/>
     </>
   );
