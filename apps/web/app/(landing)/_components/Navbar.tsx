@@ -23,9 +23,9 @@ export default function Navbar() {
           
           {/* Logo Section */}
         <Link href={"/"}>
-          <div className="flex items-center gap-3 cursor-pointer">
+          <div className="flex items-center gap-1 cursor-pointer">
             <img src="/logo.png" alt="MetaGen AI Logo" className="w-10 h-10 object-contain" />
-            <span className="text-gray-900 font-bold text-lg tracking-tight">
+            <span className="text-gray-900 font-bold text-xl tracking-tight">
               MetaGen AI
             </span>
           </div>
