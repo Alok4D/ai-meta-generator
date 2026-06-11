@@ -13,7 +13,7 @@ interface TestimonialsProps {
 export default function Testimonials({ variant = 'full' }: TestimonialsProps) {
   const reviews = [
     {
-      text: "\"CSVNest cut my metadata workflow from 4 hours to 15 minutes. Absolutely game-changing.\"",
+      text: "\"MetaGen AI cut my metadata workflow from 4 hours to 15 minutes. Absolutely game-changing.\"",
       name: "Sarah Chen",
       role: "Stock Photographer",
       initial: "S",
