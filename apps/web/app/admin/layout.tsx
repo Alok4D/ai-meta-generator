@@ -127,11 +127,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <header className="h-16 bg-background border-b flex items-center justify-between px-4 md:px-8">
           <div className="flex items-center gap-4">
             <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden shrink-0">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
+              <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden shrink-0" />}>
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
                 <div className="h-16 flex items-center px-6 border-b shrink-0">
@@ -205,7 +203,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-6xl mx-auto w-full">
+          <div className="w-full">
             {children}
           </div>
         </main>

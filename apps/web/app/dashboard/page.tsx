@@ -1,28 +1,44 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
-import { toast } from "sonner";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
-import { updateCredits } from "@/lib/feature/auth/authSlice";
-import { useUploadImageMutation } from "@/lib/feature/upload/uploadApi";
+import { useGetHistoryQuery } from "@/lib/feature/upload/uploadApi";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Wand2, User as UserIcon, Zap, History } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-export default function Dashboard() {
+export default function DashboardOverview() {
   
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [imageDimensions, setImageDimensions] = useState<{width: number, height: number} | null>(null);
-  const [metadata, setMetadata] = useState<any>(null);
   const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch();
   const router = useRouter();
 
-  const [uploadImage, { isLoading: uploading }] = useUploadImageMutation();
+  const { data: history = [], isLoading } = useGetHistoryQuery({});
+
+  const chartData = useMemo(() => {
+    const data = [];
+    const today = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+      
+      const count = history.filter((item: any) => {
+        if (!item.createdAt) return false;
+        const itemDate = new Date(item.createdAt);
+        return itemDate.getDate() === d.getDate() && 
+               itemDate.getMonth() === d.getMonth() && 
+               itemDate.getFullYear() === d.getFullYear();
+      }).length;
+      
+      data.push({ name: dayName, generations: count });
+    }
+    return data;
+  }, [history]);
 
   useEffect(() => {
     if (!user) {
@@ -30,327 +46,162 @@ export default function Dashboard() {
     }
   }, [user, router]);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      const selectedFile = acceptedFiles[0];
-      setFile(selectedFile);
-      setMetadata(null);
-
-      const objectUrl = URL.createObjectURL(selectedFile);
-      setPreviewUrl(objectUrl);
-
-      // Get image dimensions (skip for EPS as browsers can't render it in Image)
-      const isEps = selectedFile.type === 'application/postscript' || selectedFile.name.toLowerCase().endsWith('.eps');
-      if (!isEps) {
-        const img = new Image();
-        img.onload = () => {
-          setImageDimensions({ width: img.width, height: img.height });
-        };
-        img.src = objectUrl;
-      } else {
-        setImageDimensions({ width: 0, height: 0 });
-      }
-    }
-  }, []);
-
-  // Cleanup object URL
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
-    onDrop,
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.svg', '.webp', '.avif'],
-      'application/postscript': ['.eps']
-    },
-    maxFiles: 1
-  });
-
-  const handleUpload = async () => {
-    if (!file) return;
-    if (!user) return;
-    
-    const formData = new FormData();
-    formData.append("image", file);
-
-    try {
-      const data = await uploadImage(formData).unwrap();
-      
-      toast.success("Metadata generated successfully!");
-      setMetadata(data.metadata);
-      dispatch(updateCredits(data.creditsRemaining));
-      // Do not clear the file so the preview remains visible
-    } catch (error: any) {
-      toast.error(error.data?.error || "Upload failed");
-    }
-  };
-
-  const handleDownloadTXT = () => {
-    if (!metadata) return;
-    
-    const content = `Title:\n${metadata.title}\n\nCategory:\n${metadata.category}\n\nKeywords:\n${metadata.keywords.join(", ")}`;
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${file?.name?.split('.')[0] || 'metadata'}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleDownloadCSV = () => {
-    if (!metadata) return;
-    
-    // Format for typical stock sites: Filename, Description, Keywords, Categories
-    const filename = file?.name || 'image.jpg';
-    // Escape double quotes inside title by doubling them
-    const safeTitle = metadata.title.replace(/"/g, '""');
-    const safeKeywords = metadata.keywords.join(",").replace(/"/g, '""');
-    
-    const csvContent = `Filename,Title,Keywords,Category\n"${filename}","${safeTitle}","${safeKeywords}","${metadata.category}"`;
-    
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${file?.name?.split('.')[0] || 'metadata'}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   if (!user) return null;
 
-  return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-medium tracking-tight">Welcome, {user.name}</h2>
-          <p className="text-muted-foreground">Upload an image to generate SEO metadata.</p>
+  if (isLoading) {
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500 w-full">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-[200px]" />
+            <Skeleton className="h-4 w-[300px]" />
+          </div>
+          <Skeleton className="h-10 w-[180px]" />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card><CardContent className="p-6"><Skeleton className="h-4 w-24 mb-4" /><Skeleton className="h-8 w-16 mb-2" /><Skeleton className="h-3 w-32" /></CardContent></Card>
+          <Card><CardContent className="p-6"><Skeleton className="h-4 w-24 mb-4" /><Skeleton className="h-8 w-24 mb-2" /><Skeleton className="h-3 w-32" /></CardContent></Card>
+          <Card><CardContent className="p-6"><Skeleton className="h-4 w-32 mb-4" /><Skeleton className="h-8 w-12 mb-2" /><Skeleton className="h-3 w-24" /></CardContent></Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card className="lg:col-span-2"><CardContent className="p-6"><Skeleton className="h-6 w-48 mb-2" /><Skeleton className="h-4 w-64 mb-6" /><Skeleton className="h-[300px] w-full" /></CardContent></Card>
+          <Card><CardContent className="p-6"><Skeleton className="h-6 w-32 mb-2" /><Skeleton className="h-4 w-48 mb-6" />
+            <div className="flex items-center gap-4 mb-6">
+              <Skeleton className="h-16 w-16 rounded-full" />
+              <div className="space-y-2"><Skeleton className="h-5 w-32" /><Skeleton className="h-4 w-40" /></div>
+            </div>
+            <div className="space-y-3 pt-4 border-t">
+               <Skeleton className="h-4 w-full" />
+               <Skeleton className="h-4 w-full" />
+            </div>
+            <Skeleton className="h-10 w-full mt-6" />
+          </CardContent></Card>
         </div>
       </div>
+    );
+  }
 
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-medium tracking-tight">Overview</h2>
+          <p className="text-muted-foreground">Welcome back, {user.name}. Here's what's happening today.</p>
+        </div>
+        <Button onClick={() => router.push("/dashboard/generator")} className="gap-2">
+          <Wand2 className="h-4 w-4" />
+          Generate Metadata
+        </Button>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="border-dashed border-2 bg-muted/10 h-full relative overflow-hidden">
-          <CardContent className="flex flex-col items-center justify-center h-full min-h-[400px] text-center p-6">
-            {!file ? (
-              <div 
-                {...getRootProps()} 
-                className={`w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-colors ${isDragActive ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}
-              >
-                <input {...getInputProps()} />
-                <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-lg">Click to upload or drag and drop</h3>
-                  <p className="text-sm text-muted-foreground">JPG, PNG, SVG, WEBP, AVIF or EPS (max. 10MB)</p>
-                </div>
-              </div>
-            ) : (
-              <div className="w-full flex flex-col items-center justify-between h-full space-y-4">
-                <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-black/5 flex items-center justify-center group">
-                  {metadata && metadata.imageUrl ? (
-                    <img src={metadata.imageUrl} alt="Generated Preview" className="max-w-full max-h-full object-contain" />
-                  ) : (file.type === 'application/postscript' || file.name.toLowerCase().endsWith('.eps')) ? (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-muted/10">
-                      <div className="p-4 bg-primary/10 rounded-full text-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="2"/><path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/></svg>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">EPS File</p>
-                        <p className="text-sm text-muted-foreground mt-1">Preview unavailable</p>
-                        <p className="text-xs text-muted-foreground mt-1">Will be processed by AI after upload</p>
-                      </div>
-                    </div>
-                  ) : (
-                    previewUrl && <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
-                  )}
-                  <button 
-                    onClick={() => {
-                      setFile(null);
-                      setPreviewUrl(null);
-                      setImageDimensions(null);
-                      setMetadata(null);
-                    }}
-                    className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground p-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-destructive hover:text-destructive-foreground"
-                    title="Remove Image"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                  </button>
-                </div>
-                
-                <div className="w-full grid grid-cols-2 gap-4 text-left text-sm p-4 bg-muted/50 rounded-lg">
-                  <div className="col-span-2 flex justify-between items-center border-b pb-2">
-                    <span className="font-medium text-foreground truncate mr-2">{file.name}</span>
-                    <span className="text-muted-foreground whitespace-nowrap">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Type</span>
-                    <span className="font-medium mt-0.5">{file.type.split('/')[1]?.toUpperCase() || 'IMAGE'}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-muted-foreground text-xs uppercase tracking-wider">Dimensions</span>
-                    <span className="font-medium mt-0.5">
-                      {imageDimensions 
-                        ? (imageDimensions.width === 0 && imageDimensions.height === 0 ? 'Vector Graphic' : `${imageDimensions.width} x ${imageDimensions.height}`) 
-                        : 'Calculating...'}
-                    </span>
-                  </div>
-                </div>
-
-                {!metadata ? (
-                  <Button 
-                    className="w-full" 
-                    size="lg"
-                    disabled={uploading} 
-                    onClick={handleUpload}
-                  >
-                    {uploading ? (
-                      <div className="flex items-center gap-2">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        Analyzing Image with AI...
-                      </div>
-                    ) : "Generate Metadata"}
-                  </Button>
-                ) : (
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    size="lg"
-                    onClick={() => {
-                      setFile(null);
-                      setPreviewUrl(null);
-                      setImageDimensions(null);
-                      setMetadata(null);
-                    }}
-                  >
-                    Upload New Image
-                  </Button>
-                )}
-              </div>
-            )}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="bg-primary/5 border-primary/20">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Available Credits</CardTitle>
+            <Zap className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{user.credits}</div>
+            <p className="text-xs text-muted-foreground mt-1">Credits remaining in your account</p>
           </CardContent>
         </Card>
-        {/* Results View */}
-        <Card className="h-full flex flex-col">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Generated Metadata</CardTitle>
-            {metadata && (
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleDownloadTXT}>Download TXT</Button>
-                <Button variant="outline" size="sm" onClick={handleDownloadCSV}>Download CSV</Button>
-              </div>
-            )}
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Account Plan</CardTitle>
+            <UserIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="flex-1">
-            {metadata ? (
-              <Tabs defaultValue="adobe" className="w-full flex-col">
-                {/* <TabsList className="grid w-full grid-cols-3 mb-6">
-                  <TabsTrigger value="adobe">Adobe Stock</TabsTrigger>
-                  <TabsTrigger value="shutterstock">Shutterstock</TabsTrigger>
-                  <TabsTrigger value="seo">SEO Mode</TabsTrigger>
-                </TabsList> */}
-                
-                <TabsContent value="adobe" className="space-y-6">
-                  <div>
-                    <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">Title</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.title)}>Copy</Button>
-                    </div>
-                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title}</div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-1">Category</h4>
-                    <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.category}</div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">Keywords ({metadata.keywords?.length || 49})</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.keywords.join(', '))}>Copy</Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {metadata.keywords.map((kw: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full">
-                    Regenerate
-                  </Button>
-                </TabsContent>
-                
-                <TabsContent value="shutterstock" className="space-y-6">
-                  <div>
-                    <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">Title</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.title)}>Copy</Button>
-                    </div>
-                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title}</div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-1">Description</h4>
-                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title} - A high quality image perfect for your projects.</div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">Keywords</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.keywords.join(', '))}>Copy</Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {metadata.keywords.map((kw: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </TabsContent>
+          <CardContent>
+            <div className="text-2xl font-bold capitalize">{user.role || 'Free'} Plan</div>
+            <p className="text-xs text-muted-foreground mt-1">Upgrade for more credits</p>
+          </CardContent>
+        </Card>
 
-                <TabsContent value="seo" className="space-y-6">
-                  <div>
-                    <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">SEO Title</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.title)}>Copy</Button>
-                    </div>
-                    <div className="p-3 bg-muted rounded-md text-sm">{metadata.title}</div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-1">SEO Description</h4>
-                    <div className="p-3 bg-muted rounded-md text-sm">Download this amazing image of {metadata.title}. Perfect for web design, marketing, and commercial use.</div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">Tags</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.keywords.slice(0, 15).join(', '))}>Copy</Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {metadata.keywords.slice(0, 15).map((kw: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
-                          {kw}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-muted-foreground space-y-4 py-12">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="opacity-20"><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/><circle cx="9" cy="9" r="2"/><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
-                <p>Upload an image to see results here</p>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium">Recent Generations</CardTitle>
+            <History className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{history.length}</div>
+            <p className="text-xs text-muted-foreground mt-1">Total metadata generated</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Generation Activity</CardTitle>
+            <CardDescription>Your metadata generation history over the last 7 days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorGenerations" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
+                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
+                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="generations" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorGenerations)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Profile Details</CardTitle>
+            <CardDescription>Your account information</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl uppercase overflow-hidden">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  user.name.charAt(0)
+                )}
               </div>
-            )}
+              <div>
+                <div className="font-semibold">{user.name}</div>
+                <div className="text-sm text-muted-foreground">{user.email}</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3 pt-4 border-t">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Status:</span>
+                <span className="font-medium text-green-500">Active</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Role:</span>
+                <span className="font-medium capitalize">{user.role || 'User'}</span>
+              </div>
+            </div>
+            
+            <Button variant="outline" className="w-full" onClick={() => router.push("/dashboard/profile")}>
+              Edit Profile
+            </Button>
           </CardContent>
         </Card>
       </div>

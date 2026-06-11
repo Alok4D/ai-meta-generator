@@ -8,9 +8,10 @@ import type { RootState } from "@/lib/redux/store";
 import { logout } from "@/lib/feature/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard } from "lucide-react";
+import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
+  
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -44,9 +45,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const routes = [
     { href: "/dashboard", label: "Overview", icon: Home },
-    { href: "/dashboard/history", label: "History", icon: History },
+    { href: "/dashboard/generator", label: "Generator", icon: Wand2 },
     { href: "/dashboard/batch", label: "Batch", icon: Layers },
+    { href: "/dashboard/history", label: "Generation History", icon: History },
     { href: "/dashboard/pricing", label: "Pricing", icon: CreditCard },
+    { href: "/dashboard/events", label: "Events", icon: Calendar },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
     { href: "/dashboard/support", label: "Support", icon: LifeBuoy },
   ];
@@ -126,11 +129,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <header className="h-16 bg-background border-b flex items-center justify-between px-4 md:px-8 shrink-0">
           <div className="flex items-center gap-4">
             <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden shrink-0">
-                  <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
+              <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden shrink-0" />}>
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
                 <div className="h-16 flex items-center px-6 border-b shrink-0">
@@ -207,7 +208,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="max-w-6xl mx-auto w-full">
+          <div className="w-full">
             {children}
           </div>
         </main>
