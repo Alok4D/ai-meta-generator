@@ -16,7 +16,7 @@ export default function LandingPage() {
       <Navbar />
       <Hero />
       <Stats />
-      <Features/>
+
 
 
       <CTA/>
