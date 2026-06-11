@@ -17,14 +17,12 @@ export default function PricingPage() {
     <>
       <Navbar />
       
-      <section className={`w-full bg-[#F3F5F7] py-24 md:py-32 ${space.className} min-h-[80vh]`}>
+      <section className={`w-full bg-[#F3F5F7] py-16 md:py-16 ${space.className} min-h-[80vh]`}>
         <div className="max-w-6xl mx-auto px-4 md:px-8">
           
           {/* Section Header */}
           <div className="text-center mb-16 md:mb-20">
-            <h2 className="text-[12px] font-bold tracking-[0.15em] text-slate-500 uppercase mb-4">
-              PRICING
-            </h2>
+           
             <h3 className="text-[36px] md:text-[56px] font-bold leading-[1.1] tracking-tight text-[#14181F] mb-6">
               Simple, transparent pricing
             </h3>

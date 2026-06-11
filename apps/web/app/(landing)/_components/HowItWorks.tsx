@@ -131,19 +131,19 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
   }
 
   return (
-    <section id="how-it-works" className={`w-full bg-[#F3F5F7] py-24 md:py-32 ${space.className}`}>
-      <div className="max-w-[800px] mx-auto px-4 md:px-8">
+    <section id="how-it-works" className={`w-full bg-[#F3F5F7] py-24 md:py-24 ${space.className}`}>
+      <div className="max-w-5xl mx-auto px-4 md:px-8">
         
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-20">
-          <h2 className="text-[12px] font-bold tracking-[0.15em] text-[#6A7181] uppercase mb-4">
+          <h2 className="text-[14px] font-semibold tracking-[0.15em] leading-[20px] text-[#6A7181] uppercase mb-4">
             HOW IT WORKS
           </h2>
-          <h3 className="text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight text-[#14181F] mb-6">
+          <h3 className="text-[36px] md:text-[60px] font-bold leading-tight md:leading-[60px] tracking-tight text-[#14181F] mb-6">
             From upload to export <br className="hidden md:block" />
             in four simple steps
           </h3>
-          <p className="text-[16px] md:text-[17px] text-[#6A7181] font-sans max-w-xl mx-auto">
+          <p className="text-[16px] leading-[24px] font-normal text-[#14181F] max-w-xl mx-auto">
             MetaGen AI makes generating stock metadata effortless. Here's exactly how it works.
           </p>
         </div>
@@ -153,7 +153,7 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
           {detailedSteps.map((item, index) => (
             <div 
               key={index} 
-              className="bg-white rounded-[24px] p-8 md:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row gap-6 md:gap-10 items-start transition-transform hover:-translate-y-1 duration-300"
+              className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row gap-6 md:gap-10 items-start transition-transform hover:-translate-y-1 duration-300"
             >
               {/* Left Side: Icon & Step */}
               <div className="flex flex-col items-center sm:min-w-[100px] shrink-0">
