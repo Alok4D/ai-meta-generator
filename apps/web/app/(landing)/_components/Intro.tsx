@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Sparkles, ArrowRight, AppWindow, Upload, Image as ImageIcon } from "lucide-react";
+import { Sparkles, ArrowRight, PlayCircle, Upload, ImageIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -28,18 +29,22 @@ export default function Hero() {
 
       {/* CTA Buttons */}
       <div className="flex flex-col sm:flex-row items-center gap-4 mb-20 w-full sm:w-auto px-4">
+       <Link href={"/dashboard/generator"}>
         <button className="w-full sm:w-auto bg-[#18181B] hover:bg-black text-white px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200">
           Start for Free
           <ArrowRight size={18} strokeWidth={2} />
         </button>
-        <button className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm">
-          <AppWindow size={18} strokeWidth={2} />
-          Chrome Extension
-        </button>
+       </Link>
+        <Link href="/how-it-works" className="w-full sm:w-auto">
+          <button className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm">
+            <PlayCircle size={18} strokeWidth={2} />
+            How it works
+          </button>
+        </Link>
       </div>
 
       {/* App Mockup Window */}
-      <div className="bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex flex-col mt-4">
+      <div className="bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex flex-col">
         
         {/* Mockup Header (Mac-style) */}
         <div className="h-12 bg-[#F9FAFB] border-b border-gray-100 flex items-center px-4 gap-2 shrink-0">
