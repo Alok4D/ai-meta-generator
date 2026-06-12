@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="w-full bg-[#EFF2F4] pt-20 pb-24 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden">
+    <section className="w-full bg-[#EFF2F4] pt-20 pb-12 md:pb-24 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden">
       
       {/* Top Badge */}
       <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 mb-8 shadow-sm">
@@ -28,8 +28,8 @@ export default function Hero() {
       </div>
 
       {/* CTA Buttons */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-20 w-full sm:w-auto px-4">
-       <Link href={"/dashboard/generator"}>
+      <div className="flex flex-col sm:flex-row items-center gap-4 mb-10 md:mb-20 w-full sm:w-auto px-4">
+       <Link href={"/dashboard/generator"} className="w-full sm:w-auto">
         <button className="w-full sm:w-auto bg-[#18181B] hover:bg-black text-white px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200">
           Start for Free
           <ArrowRight size={18} strokeWidth={2} />
@@ -44,7 +44,7 @@ export default function Hero() {
       </div>
 
       {/* App Mockup Window */}
-      <div className="bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex flex-col">
+      <div className="hidden md:flex bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex-col">
         
         {/* Mockup Header (Mac-style) */}
         <div className="h-12 bg-[#F9FAFB] border-b border-gray-100 flex items-center px-4 gap-2 shrink-0">
