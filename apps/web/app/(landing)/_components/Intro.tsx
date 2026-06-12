@@ -18,7 +18,7 @@ export default function Hero() {
 
       {/* Hero Headings */}
       <div className="text-center max-w-4xl mx-auto mb-6">
-        <h1 className="text-[44px] md:text-[72px] font-bold text-[#111827] leading-tight md:leading-[1] tracking-tight max-w-4xl mx-auto mb-6">
+        <h1 className="text-[30px] md:text-[54px] lg:text-[72px] font-bold text-[#111827] leading-tight md:leading-[1] tracking-tight max-w-4xl mx-auto mb-6">
           Generate SEO-Optimized Metadata in Seconds
         </h1>
         {/* Subheading / Description */}
