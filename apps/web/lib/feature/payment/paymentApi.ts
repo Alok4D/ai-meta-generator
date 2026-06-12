@@ -52,6 +52,13 @@ export const paymentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Transactions"],
     }),
+    deleteTransaction: builder.mutation({
+      query: (id) => ({
+        url: `/payments/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Transactions"],
+    }),
   }),
 });
 
@@ -64,4 +71,5 @@ export const {
   useSubmitManualPaymentMutation,
   useGetPendingManualPaymentsQuery,
   useVerifyManualPaymentMutation,
+  useDeleteTransactionMutation,
 } = paymentApi;

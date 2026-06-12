@@ -355,3 +355,36 @@ export const verifyManualPayment = async (req: Request, res: Response): Promise<
     res.status(500).json({ error: error.message || 'Server error' });
   }
 };
+
+export const deleteTransaction = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?._id;
+    const userRole = req.user?.role;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const transaction = await Transaction.findById(id);
+    
+    if (!transaction) {
+      res.status(404).json({ error: 'Transaction not found' });
+      return;
+    }
+
+    // Only admin or the owner can delete
+    if (userRole !== 'admin' && transaction.user.toString() !== userId.toString()) {
+      res.status(403).json({ error: 'You do not have permission to delete this transaction' });
+      return;
+    }
+
+    await Transaction.findByIdAndDelete(id);
+
+    res.status(200).json({ success: true, message: 'Transaction deleted successfully' });
+  } catch (error: any) {
+    console.error('Error deleting transaction:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

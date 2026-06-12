@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Check, X } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminManualPaymentsPage() {
   const { data: pendingPayments = [], isLoading, refetch } = useGetPendingManualPaymentsQuery(undefined);
@@ -43,8 +44,11 @@ export default function AdminManualPaymentsPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
             </div>
           ) : pendingPayments.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
