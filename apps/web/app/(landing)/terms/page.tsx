@@ -9,8 +9,8 @@ export default function TermsPage() {
   return (
     <>
       <Navbar />
-      <div className={`w-full bg-[#F3F5F7] min-h-screen py-24 md:py-32 ${space.className}`}>
-        <div className="max-w-3xl mx-auto px-4 md:px-8 bg-white p-8 md:p-12 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-gray-100">
+      <div className={`w-full bg-[#F3F5F7] min-h-screen py-24 md:py-24 ${space.className}`}>
+        <div className="max-w-6xl mx-auto px-4 md:px-8 bg-white p-8 md:p-12 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-gray-100">
           <h1 className="text-[36px] font-bold text-[#14181F] mb-4 tracking-tight">Terms of Service</h1>
           <p className="text-slate-500 mb-10 font-sans">Last updated: March 18, 2026</p>
 

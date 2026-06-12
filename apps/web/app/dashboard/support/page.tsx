@@ -1,31 +1,86 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import emailjs from "@emailjs/browser";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { useSubmitSupportMessageMutation } from "@/lib/feature/support/supportApi";
+import { Textarea } from "@/components/ui/textarea";
+
+type SupportFormData = {
+  name: string;
+  email: string;
+  msg: string;
+};
 
 export default function SupportPage() {
-  const [subject, setSubject] = useState("");
-  const [message, setMessage] = useState("");
-  const [submitMessage, { isLoading }] = useSubmitSupportMessageMutation();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<SupportFormData>();
+  const [mailSending, setMailSending] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!subject.trim() || !message.trim()) {
-      toast.error("Please fill in both subject and message");
-      return;
-    }
+  useEffect(() => {
+    if (errors.name) toast.error(errors.name.message as string, { duration: 2000 });
+    if (errors.email) toast.error(errors.email.message as string, { duration: 2000 });
+    if (errors.msg) toast.error(errors.msg.message as string, { duration: 2000 });
+  }, [errors.name, errors.email, errors.msg]);
+
+  const handleSendMessage = async (msgData: SupportFormData) => {
+    setMailSending(true);
+
+    Swal.fire({
+      title: "Sending Message...",
+      text: "Please wait a moment!",
+      icon: "info",
+      color: "#fff",
+      background: "#05030efc",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
 
     try {
-      await submitMessage({ subject, message }).unwrap();
-      toast.success("Message sent successfully! We'll be in touch soon.");
-      setSubject("");
-      setMessage("");
-    } catch (error) {
-      toast.error("Failed to send message. Please try again.");
+      // Send message to Admin
+      await emailjs.send(
+        "service_025dcpe", // Your Service ID
+        "template_etaio6n", // Admin Template ID
+        {
+          name: msgData.name,
+          email: msgData.email,
+          msg: msgData.msg,
+        },
+        "F9-rnJCGVisBrLm_G" // Public Key
+      );
+
+      toast.success("Message Sent!");
+      Swal.fire({
+        title: "Message Sent!",
+        text: `Thank you, ${msgData.name}! Please check your email.`,
+        icon: "success",
+        confirmButtonText: "Okay",
+        color: "#fff",
+        background: "#05030efc",
+      });
+
+      reset();
+    } catch (error: any) {
+      console.error(error);
+      Swal.fire({
+        title: "Message Sending Failed!",
+        text: error?.text || "Something went wrong! Please try again later.",
+        icon: "error",
+        confirmButtonText: "Close",
+        color: "#fff",
+        background: "#05030efc",
+      });
+    } finally {
+      setMailSending(false);
     }
   };
 
@@ -41,32 +96,44 @@ export default function SupportPage() {
           <CardTitle>Send a Message</CardTitle>
           <CardDescription>We typically reply within 24 hours.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="subject">Subject</Label>
-            <Input 
-              id="subject" 
-              placeholder="What do you need help with?" 
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="message">Message</Label>
-            <textarea 
-              id="message" 
-              className="flex min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="Describe your issue or question in detail..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            ></textarea>
-          </div>
-        </CardContent>
-        <CardFooter className="flex justify-end">
-          <Button onClick={handleSubmit} disabled={isLoading}>
-            {isLoading ? "Sending..." : "Send Message"}
-          </Button>
-        </CardFooter>
+        <form onSubmit={handleSubmit(handleSendMessage)}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input 
+                id="name" 
+                placeholder="Your Name" 
+                {...register("name", { required: "Name is required" })}
+                disabled={mailSending}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input 
+                id="email" 
+                type="email"
+                placeholder="Your Email" 
+                {...register("email", { required: "Email is required" })}
+                disabled={mailSending}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="msg">Message</Label>
+              <Textarea 
+                id="msg" 
+                className="min-h-[150px]"
+                placeholder="Describe your issue or question in detail..."
+                {...register("msg", { required: "Message is required" })}
+                disabled={mailSending}
+              />
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button className="py-4 px-6 rounded-md font-medium" type="submit" disabled={mailSending}>
+              {mailSending ? "Sending..." : "Send Message"}
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );
