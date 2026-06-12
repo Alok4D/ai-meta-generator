@@ -44,6 +44,12 @@ export const authApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    claimWelcomeBonus: builder.mutation({
+      query: () => ({
+        url: '/auth/claim-bonus',
+        method: 'POST',
+      }),
+    }),
     getMe: builder.query({
       query: () => '/auth/me',
       providesTags: ['User'],
@@ -60,4 +66,5 @@ export const {
   useResetPasswordMutation,
   useUpdateProfileMutation,
   useGetMeQuery,
+  useClaimWelcomeBonusMutation,
 } = authApi;

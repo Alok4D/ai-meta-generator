@@ -389,3 +389,44 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ error: `Server error updating profile: ${error.message || error}` });
   }
 };
+
+export const claimWelcomeBonus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?._id;
+    if (!userId) {
+      res.status(401).json({ error: 'Not authorized' });
+      return;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    if (user.hasClaimedWelcomeBonus) {
+      res.status(400).json({ error: 'Welcome bonus has already been claimed' });
+      return;
+    }
+
+    user.credits += 100;
+    user.hasClaimedWelcomeBonus = true;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      credits: user.credits,
+      role: user.role,
+      activePlan: user.activePlan,
+      planExpireDate: user.planExpireDate,
+      avatar: user.avatar,
+      phone: user.phone,
+      hasClaimedWelcomeBonus: user.hasClaimedWelcomeBonus,
+      token: generateToken(user._id as unknown as string),
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+};

@@ -1,6 +1,7 @@
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { Space_Grotesk } from "next/font/google";
+import Link from "next/link";
 
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
@@ -20,7 +21,7 @@ export default function CTA({
       <div className="max-w-6xl mx-auto px-4 md:px-0">
         
         {/* CTA Card */}
-        <div className="bg-[#18181B] rounded-[30px] px-6 py-16 md:py-16 flex flex-col items-center text-center">
+        <div className="bg-[#18181B] rounded-[30px] px-6 py-10 md:py-16 flex flex-col items-center text-center">
           
           <h2 className="text-[32px] md:text-[48px] font-bold text-white mb-5 tracking-tight leading-[1] md:leading-[48px]">
             {title}
@@ -30,10 +31,12 @@ export default function CTA({
             {subtitle}
           </p>
           
+          <Link href={"/dashboard/generator"}>
           <button className="bg-white hover:bg-gray-100 text-[#14181F] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 text-[14px] leading-[20px] font-semibold transition-all duration-200 hover:scale-105">
             {buttonText}
             <ArrowRight size={16} strokeWidth={2.5} />
           </button>
+          </Link>
           
         </div>
         

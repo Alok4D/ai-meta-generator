@@ -136,11 +136,6 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
         
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-20">
-          {variant === 'landing' && (
-            <h2 className="text-[14px] font-semibold tracking-[0.15em] leading-[20px] text-[#6A7181] uppercase mb-4">
-              HOW IT WORKS
-            </h2>
-          )}
           <h3 className="text-[36px] md:text-[60px] font-bold leading-tight md:leading-[60px] tracking-tight text-[#14181F] mb-6">
             From upload to export <br className="hidden md:block" />
             in four simple steps

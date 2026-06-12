@@ -1,10 +1,43 @@
 "use client";
 
-import React from "react";
-import { Sparkles, ArrowRight, PlayCircle, Upload, ImageIcon } from "lucide-react";
+import React, { useState } from "react";
+import { Sparkles, ArrowRight, Upload, ImageIcon, Gift, PlayCircle } from "lucide-react";
 import Link from "next/link";
+import { useSelector, useDispatch } from "react-redux";
+import { useClaimWelcomeBonusMutation } from "@/lib/feature/auth/authApi";
+import { setUser } from "@/lib/feature/auth/authSlice";
+import { toast } from "sonner";
+import WelcomeBonusModal from "./WelcomeBonusModal";
+import ClaimSuccessModal from "./ClaimSuccessModal";
 
 export default function Hero() {
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const { user } = useSelector((state: any) => state.auth);
+  const dispatch = useDispatch();
+  const [claimBonus, { isLoading: isClaiming }] = useClaimWelcomeBonusMutation();
+
+  const handleClaimBonus = async () => {
+    if (!user) {
+      setShowWelcomeModal(true);
+      return;
+    }
+    
+    // Check if user already claimed
+    if (user.hasClaimedWelcomeBonus) {
+      toast.info("You have already claimed your welcome bonus!");
+      return;
+    }
+    
+    try {
+      const res = await claimBonus({}).unwrap();
+      dispatch(setUser(res));
+      setShowSuccessModal(true);
+    } catch (error: any) {
+      toast.error(error.data?.error || "Failed to claim bonus");
+    }
+  };
+
   return (
     <section className="w-full bg-[#EFF2F4] pt-20 pb-12 md:pb-24 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden">
       
@@ -35,13 +68,33 @@ export default function Hero() {
           <ArrowRight size={18} strokeWidth={2} />
         </button>
        </Link>
-        <Link href="/how-it-works" className="w-full sm:w-auto">
-          <button className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm">
-            <PlayCircle size={18} strokeWidth={2} />
-            How it works
+        {!user?.hasClaimedWelcomeBonus ? (
+          <button 
+            onClick={handleClaimBonus}
+            disabled={isClaiming}
+            className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm"
+          >
+            <Gift size={18} strokeWidth={2} />
+            {isClaiming ? "Claiming..." : "Get 100 Free Midnight Credits"}
           </button>
-        </Link>
+        ) : (
+          <Link href="/how-it-works" className="w-full sm:w-auto">
+            <button className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm">
+              <PlayCircle size={18} strokeWidth={2} />
+              How it works
+            </button>
+          </Link>
+        )}
       </div>
+
+      <WelcomeBonusModal 
+        isOpen={showWelcomeModal} 
+        onClose={() => setShowWelcomeModal(false)} 
+      />
+      <ClaimSuccessModal 
+        isOpen={showSuccessModal} 
+        onClose={() => setShowSuccessModal(false)} 
+      />
 
       {/* App Mockup Window */}
       <div className="hidden md:flex bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex-col pointer-events-none select-none">

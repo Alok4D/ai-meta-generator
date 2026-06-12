@@ -13,6 +13,7 @@ export interface IUser extends Document {
   phone?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
+  hasClaimedWelcomeBonus?: boolean;
   getResetPasswordToken(): string;
 }
 
@@ -28,6 +29,7 @@ const UserSchema: Schema = new Schema({
   phone: { type: String, required: false },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
+  hasClaimedWelcomeBonus: { type: Boolean, default: false },
 }, {
   timestamps: true
 });

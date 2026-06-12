@@ -8,6 +8,7 @@ export interface User {
   phone?: string;
   activePlan?: any;
   planExpireDate?: string;
+  hasClaimedWelcomeBonus?: boolean;
   token: string;
 }
 
