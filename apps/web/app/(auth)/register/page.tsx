@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth, googleProvider } from "@/lib/firebase";
 import { setUser } from "@/lib/feature/auth/authSlice";
-import { useRegisterMutation, useGoogleLoginMutation } from "@/lib/feature/auth/authApi";
+import { useRegisterMutation, useGoogleLoginMutation, useVerifyOtpMutation, useResendOtpMutation } from "@/lib/feature/auth/authApi";
+import { Mail, CheckCircle2 } from "lucide-react";
 
 export default function Register() {
   
@@ -20,23 +21,35 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [showOtpScreen, setShowOtpScreen] = useState(false);
+  const [otp, setOtp] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
 
   const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
   const [googleLogin, { isLoading: isGoogleLoading }] = useGoogleLoginMutation();
+  const [verifyOtp, { isLoading: isVerifyLoading }] = useVerifyOtpMutation();
+  const [resendOtp, { isLoading: isResendLoading }] = useResendOtpMutation();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setEmailError("");
     try {
       const data = await register({ name, email, password }).unwrap();
-      dispatch(setUser(data));
-      toast.success("Account created successfully!");
-      if (data.role === 'admin') {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
+      
+      // If the backend indicates verification is needed
+      if (data.message && data.message.includes("verify")) {
+        setShowOtpScreen(true);
+        toast.success(data.message);
+      } else if (data.token) {
+        // Fallback if token is returned immediately
+        dispatch(setUser(data));
+        toast.success("Account created successfully!");
+        if (data.role === 'admin') {
+          router.push("/admin");
+        } else {
+          router.push("/dashboard");
+        }
       }
     } catch (error: any) {
       const errorMessage = error.data?.error || "Failed to register";
@@ -70,7 +83,85 @@ export default function Register() {
     }
   };
 
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const data = await verifyOtp({ email, otp }).unwrap();
+      dispatch(setUser(data));
+      toast.success("Email verified and logged in successfully!");
+      if (data.role === 'admin') {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (error: any) {
+      toast.error(error.data?.error || "Invalid OTP or expired.");
+    }
+  };
+
+  const handleResendOtp = async () => {
+    try {
+      await resendOtp({ email }).unwrap();
+      toast.success("A new verification code has been sent to your email.");
+    } catch (error: any) {
+      toast.error(error.data?.error || "Failed to resend OTP.");
+    }
+  };
+
   const isLoading = isRegisterLoading || isGoogleLoading;
+
+  if (showOtpScreen) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4 bg-muted/30">
+        <Card className="w-full max-w-md shadow-lg rounded-2xl border-muted/50 p-6">
+          <div className="flex flex-col items-center justify-center pt-4 pb-6 space-y-4 text-center">
+            <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-2">
+              <Mail className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-2xl font-bold tracking-tight">Verify Your Email</CardTitle>
+            <CardDescription className="text-base text-muted-foreground">
+              We've sent a 6-digit verification code to your email
+            </CardDescription>
+          </div>
+          
+          <CardContent className="space-y-6 px-0">
+            <form onSubmit={handleVerifyOtp} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="otp" className="text-xs font-semibold uppercase text-muted-foreground">Verification Code</Label>
+                <Input 
+                  id="otp" 
+                  type="text" 
+                  placeholder="Enter OTP" 
+                  className="text-center tracking-widest text-lg h-12"
+                  maxLength={6}
+                  required 
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+              </div>
+              <Button type="submit" className="w-full h-12 text-md font-medium" disabled={isVerifyLoading}>
+                {isVerifyLoading ? "Verifying..." : "Verify & Log In"}
+              </Button>
+            </form>
+
+            <div className="flex flex-col space-y-4 items-center">
+              <button 
+                type="button" 
+                onClick={handleResendOtp}
+                disabled={isResendLoading}
+                className="text-sm text-muted-foreground hover:text-primary hover:underline transition-colors disabled:opacity-50 disabled:hover:no-underline"
+              >
+                {isResendLoading ? "Resending..." : "Didn't receive code? Resend"}
+              </button>
+              <div className="text-sm font-medium pt-2">
+                Verifying: <span className="text-primary">{email}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-muted/30">

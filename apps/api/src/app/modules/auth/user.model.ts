@@ -14,6 +14,9 @@ export interface IUser extends Document {
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
   hasClaimedWelcomeBonus?: boolean;
+  isVerified: boolean;
+  otp?: string;
+  otpExpiresAt?: Date;
   getResetPasswordToken(): string;
 }
 
@@ -30,6 +33,9 @@ const UserSchema: Schema = new Schema({
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   hasClaimedWelcomeBonus: { type: Boolean, default: false },
+  isVerified: { type: Boolean, default: false },
+  otp: { type: String },
+  otpExpiresAt: { type: Date },
 }, {
   timestamps: true
 });

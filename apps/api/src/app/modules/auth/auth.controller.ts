@@ -64,6 +64,9 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const freePlan = await SubscriptionPlan.findOne({ name: 'Free' });
     const planExpireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
     const user = await User.create({
       name,
       email,
@@ -71,24 +74,117 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       credits: 30,
       activePlan: freePlan?._id,
       planExpireDate,
+      isVerified: false,
+      otp,
+      otpExpiresAt,
     });
 
     if (user) {
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        credits: user.credits,
-        role: user.role,
-        avatar: user.avatar,
-        phone: user.phone,
-        activePlan: user.activePlan,
-        planExpireDate: user.planExpireDate,
-        token: generateToken(user._id as unknown as string),
-      });
+      try {
+        await sendEmail({
+          email: user.email,
+          subject: 'Verify your email address - MetaGen AI',
+          message: `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+        });
+        
+        res.status(201).json({
+          message: 'Registration successful. Please verify your email.',
+          email: user.email,
+        });
+      } catch (error) {
+        // If email fails to send, we might want to delete the user or just tell them to resend.
+        // For now, let's keep the user and tell them to resend.
+        res.status(201).json({
+          message: 'Registration successful, but failed to send verification email. Please try resending the OTP.',
+          email: user.email,
+        });
+      }
     } else {
       res.status(400).json({ error: 'Invalid user data' });
     }
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const verifyOtp = async (req: Request, res: Response): Promise<void> => {
+  const { email, otp } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    if (user.isVerified) {
+      res.status(400).json({ error: 'Email is already verified' });
+      return;
+    }
+
+    if (user.otp !== otp) {
+      res.status(400).json({ error: 'Invalid OTP' });
+      return;
+    }
+
+    if (user.otpExpiresAt && user.otpExpiresAt.getTime() < Date.now()) {
+      res.status(400).json({ error: 'OTP has expired' });
+      return;
+    }
+
+    // Mark as verified
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpiresAt = undefined;
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      credits: user.credits,
+      role: user.role,
+      avatar: user.avatar,
+      phone: user.phone,
+      activePlan: user.activePlan,
+      planExpireDate: user.planExpireDate,
+      hasClaimedWelcomeBonus: user.hasClaimedWelcomeBonus,
+      token: generateToken(user._id as unknown as string),
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const resendOtp = async (req: Request, res: Response): Promise<void> => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    if (user.isVerified) {
+      res.status(400).json({ error: 'Email is already verified' });
+      return;
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    await user.save();
+
+    await sendEmail({
+      email: user.email,
+      subject: 'Verify your email address - MetaGen AI',
+      message: `Your new verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+    });
+
+    res.json({ message: 'OTP sent successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -101,6 +197,27 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     const user = await User.findOne({ email }).populate('activePlan');
 
     if (user && user.password && (await bcrypt.compare(password, user.password))) {
+      if (!user.isVerified) {
+        // Send a new OTP when they try to login without verification
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otp = otp;
+        user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+        await user.save();
+
+        try {
+          await sendEmail({
+            email: user.email,
+            subject: 'Verify your email address - MetaGen AI',
+            message: `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+          });
+        } catch (err) {
+          // Ignore email send error here, prompt them to verify
+        }
+
+        res.status(403).json({ error: 'Please verify your email address. A new OTP has been sent.', email: user.email, requireOtp: true });
+        return;
+      }
+
       await checkAndResetSubscription(user);
 
       res.json({
