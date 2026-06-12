@@ -1,22 +1,42 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
+import { setUser } from "@/lib/feature/auth/authSlice";
 import { useGetHistoryQuery } from "@/lib/feature/upload/uploadApi";
+import { useCancelSubscriptionMutation } from "@/lib/feature/payment/paymentApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 import { Wand2, User as UserIcon, Zap, History } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function DashboardOverview() {
   
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch();
   const router = useRouter();
-
   const { data: history = [], isLoading } = useGetHistoryQuery({});
+  const [cancelSubscription, { isLoading: isCanceling }] = useCancelSubscriptionMutation();
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+  const handleCancelSubscription = async () => {
+    try {
+      const res = await cancelSubscription({}).unwrap();
+      if (res.success && res.user) {
+        dispatch(setUser(res.user));
+        setIsCancelModalOpen(false);
+        toast.success("Subscription canceled successfully.");
+      }
+    } catch (error) {
+      console.error("Failed to cancel subscription:", error);
+      toast.error("Failed to cancel subscription. Please try again.");
+    }
+  };
 
   const chartData = useMemo(() => {
     const data = [];
@@ -114,8 +134,35 @@ export default function DashboardOverview() {
             <UserIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold capitalize">{user.activePlan?.name || 'Free'} Plan</div>
-            <p className="text-xs text-muted-foreground mt-1">Upgrade for more credits</p>
+            <div className="flex justify-between items-end">
+              <div>
+                <div className="text-2xl font-bold capitalize">{user.activePlan?.name || 'Free'} Plan</div>
+                <p className="text-xs text-muted-foreground mt-1">Upgrade for more credits</p>
+              </div>
+              {user.activePlan?.name !== 'Free' && user.activePlan?.name !== 'Basic' && user.activePlan && (
+                <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+                  <DialogTrigger render={<Button variant="destructive" size="sm" />}>
+                    Cancel
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Cancel Subscription</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to cancel your subscription? You will be downgraded to the Free plan immediately.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setIsCancelModalOpen(false)} disabled={isCanceling}>
+                        Go Back
+                      </Button>
+                      <Button variant="destructive" onClick={handleCancelSubscription} disabled={isCanceling}>
+                        {isCanceling ? 'Canceling...' : 'Confirm Cancel'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
           </CardContent>
         </Card>
 

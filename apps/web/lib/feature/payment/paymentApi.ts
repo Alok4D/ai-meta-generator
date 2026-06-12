@@ -25,6 +25,13 @@ export const paymentApi = baseApi.injectEndpoints({
       query: () => "/payments/all",
       providesTags: ["Transactions"],
     }),
+    cancelSubscription: builder.mutation({
+      query: () => ({
+        url: "/payments/cancel-subscription",
+        method: "POST",
+      }),
+      invalidatesTags: ["Transactions"],
+    }),
   }),
 });
 
@@ -33,4 +40,5 @@ export const {
   useVerifySessionMutation,
   useGetUserTransactionsQuery,
   useGetAllTransactionsQuery,
+  useCancelSubscriptionMutation,
 } = paymentApi;

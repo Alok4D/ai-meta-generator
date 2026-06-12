@@ -216,3 +216,35 @@ export const verifyCheckoutSession = async (req: Request, res: Response): Promis
     res.status(500).json({ error: error.message || 'Server error' });
   }
 };
+
+export const cancelSubscription = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const freePlan = await SubscriptionPlan.findOne({ name: 'Free' });
+    if (!freePlan) {
+      res.status(404).json({ error: 'Free plan not found' });
+      return;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      activePlan: freePlan._id,
+      credits: 30,
+      planExpireDate: undefined, // Free plan doesn't expire
+    }, { new: true }).populate('activePlan');
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Subscription canceled successfully',
+      user: updatedUser
+    });
+
+  } catch (error: any) {
+    console.error('Error canceling subscription:', error);
+    res.status(500).json({ error: error.message || 'Server error' });
+  }
+};

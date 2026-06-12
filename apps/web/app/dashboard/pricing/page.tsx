@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Check } from "lucide-react";
 import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
 import { useSelector } from "react-redux";
@@ -12,7 +13,7 @@ import PaymentModal from "@/components/PaymentModal";
 import PaymentSuccessModal from "@/components/PaymentSuccessModal";
 import { toast } from "sonner";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useVerifySessionMutation } from "@/lib/feature/payment/paymentApi";
+import { useVerifySessionMutation, useCancelSubscriptionMutation } from "@/lib/feature/payment/paymentApi";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/lib/feature/auth/authSlice";
 
@@ -26,6 +27,22 @@ export default function PricingPage() {
   const router = useRouter();
   const [verifySession] = useVerifySessionMutation();
   const dispatch = useDispatch();
+  const [cancelSubscription, { isLoading: isCanceling }] = useCancelSubscriptionMutation();
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+
+  const handleCancelSubscription = async () => {
+    try {
+      const res = await cancelSubscription({}).unwrap();
+      if (res.success && res.user) {
+        dispatch(setUser(res.user));
+        setIsCancelModalOpen(false);
+        toast.success("Subscription canceled successfully.");
+      }
+    } catch (error) {
+      console.error("Failed to cancel subscription:", error);
+      toast.error("Failed to cancel subscription. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -71,8 +88,33 @@ export default function PricingPage() {
               Valid until: {user.planExpireDate ? new Date(user.planExpireDate).toLocaleDateString() : 'N/A'}
             </p>
           </div>
-          <div className="mt-4 sm:mt-0 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
-            {user.credits} Credits Remaining
+          <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row items-center gap-3">
+            <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
+              {user.credits} Credits Remaining
+            </div>
+            {user.activePlan?.name !== 'Free' && user.activePlan?.name !== 'Basic' && (
+              <Dialog open={isCancelModalOpen} onOpenChange={setIsCancelModalOpen}>
+                <DialogTrigger render={<Button variant="destructive" />}>
+                  Cancel Subscription
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Cancel Subscription</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to cancel your subscription? You will be downgraded to the Free plan immediately.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsCancelModalOpen(false)} disabled={isCanceling}>
+                      Go Back
+                    </Button>
+                    <Button variant="destructive" onClick={handleCancelSubscription} disabled={isCanceling}>
+                      {isCanceling ? 'Canceling...' : 'Confirm Cancel'}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
         </div>
       )}
