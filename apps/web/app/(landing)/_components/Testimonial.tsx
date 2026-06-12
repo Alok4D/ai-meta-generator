@@ -62,9 +62,11 @@ export default function Testimonials({ variant = 'full' }: TestimonialsProps) {
         
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-20">
+          {variant === 'landing' && (
             <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
-            TESTIMONIALS
-          </h2>
+              TESTIMONIALS
+            </h2>
+          )}
          
           <h3 className="text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight text-[#14181F] mb-6">
             {variant === 'landing' ? (

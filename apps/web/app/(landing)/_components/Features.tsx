@@ -60,9 +60,11 @@ export default function Features({ limit }: FeaturesProps) {
         
         {/* Section Header */}
         <div className="text-center mb-16 md:mb-20">
-          <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
-            FEATURES
-          </h2>
+          {limit && (
+            <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
+              FEATURES
+            </h2>
+          )}
           <h3 className="text-[36px] md:text-[48px] font-bold md:leading-[50px] tracking-tight text-[#14181F] mb-6">
             Everything you need to <br className="hidden md:block" />
             <span className="text-slate-500">optimize your workflow</span>

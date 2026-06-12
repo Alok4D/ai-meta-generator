@@ -44,7 +44,7 @@ export default function Hero() {
       </div>
 
       {/* App Mockup Window */}
-      <div className="hidden md:flex bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex-col">
+      <div className="hidden md:flex bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex-col pointer-events-none select-none">
         
         {/* Mockup Header (Mac-style) */}
         <div className="h-12 bg-[#F9FAFB] border-b border-gray-100 flex items-center px-4 gap-2 shrink-0">
@@ -80,7 +80,7 @@ export default function Hero() {
               <a href="#" className="text-slate-500 hover:bg-gray-50 text-[13px] font-medium px-3 py-2 rounded-lg transition-colors">
                 Events
               </a>
-              <a href="#" className="text-slate-500 hover:bg-gray-50 text-[13px] font-medium px-3 py-2 rounded-lg transition-colors mt-4">
+              <a href="#" className="text-slate-500 hover:bg-gray-50 text-[13px] font-medium px-3 py-2 rounded-lg transition-colors">
                 Pricing
               </a>
             </nav>
