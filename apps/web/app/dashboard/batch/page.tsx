@@ -10,6 +10,7 @@ import { updateCredits } from "@/lib/feature/auth/authSlice";
 import { useUploadImageMutation } from "@/lib/feature/upload/uploadApi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 type BatchItem = {
   id: string;
@@ -29,7 +30,11 @@ export default function BatchUploadPage() {
   
   const [items, setItems] = useState<BatchItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [uploadImage] = useUploadImageMutation();
+
+  const planName = user?.activePlan?.name?.toLowerCase();
+  const hasAccess = planName === 'pro' || planName === 'agency';
 
   const isProcessingRef = useRef(false);
 
@@ -222,19 +227,35 @@ export default function BatchUploadPage() {
       {items.length === 0 ? (
         <Card className="border-dashed border-2 bg-muted/5">
           <CardContent className="flex flex-col items-center justify-center h-80 text-center space-y-4 p-6">
-            <div 
-              {...getRootProps()} 
-              className={`w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-colors ${isDragActive ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}
-            >
-              <input {...getInputProps()} />
-              <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+            {!hasAccess ? (
+              <div 
+                onClick={() => setShowUpgradeModal(true)}
+                className="w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-colors hover:bg-muted/50"
+              >
+                <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                </div>
+                <div className="space-y-2 max-w-sm text-center">
+                  <h3 className="font-semibold text-xl">Drag & Drop up to 50 images</h3>
+                  <p className="text-sm text-muted-foreground">JPG, PNG, SVG, WEBP, AVIF or EPS</p>
+                  <p className="text-xs text-primary font-medium mt-2">Pro or Agency Plan Required</p>
+                </div>
               </div>
-              <div className="space-y-2 max-w-sm">
-                <h3 className="font-semibold text-xl">Drag & Drop up to 50 images</h3>
-                <p className="text-sm text-muted-foreground">JPG, PNG, SVG, WEBP, AVIF or EPS</p>
+            ) : (
+              <div 
+                {...getRootProps()} 
+                className={`w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-colors ${isDragActive ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}
+              >
+                <input {...getInputProps()} />
+                <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                </div>
+                <div className="space-y-2 max-w-sm text-center">
+                  <h3 className="font-semibold text-xl">Drag & Drop up to 50 images</h3>
+                  <p className="text-sm text-muted-foreground">JPG, PNG, SVG, WEBP, AVIF or EPS</p>
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       ) : (
@@ -384,6 +405,42 @@ export default function BatchUploadPage() {
           ))}
         </div>
       )}
+
+      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 mt-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+            </div>
+            <DialogTitle className="text-center text-xl font-bold">Unlock Batch Processing</DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Pro and Agency plans include Batch Processing, allowing you to upload up to <strong className="text-foreground">50 images at once</strong> for rapid metadata generation and conversion.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg text-sm font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>
+              <span>Batch Upload — up to 50 images at once</span>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg text-sm font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              <span>Image Converter & Metadata Extractor</span>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg text-sm font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span>EPS Support & Vector Conversion</span>
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-col gap-2 pt-2">
+            <Button className="w-full text-md py-6 rounded-xl" onClick={() => router.push("/dashboard/pricing")}>
+              Upgrade plan
+            </Button>
+            <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setShowUpgradeModal(false)}>
+              Maybe later
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
