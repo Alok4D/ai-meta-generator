@@ -248,3 +248,109 @@ export const cancelSubscription = async (req: Request, res: Response): Promise<v
     res.status(500).json({ error: error.message || 'Server error' });
   }
 };
+
+export const submitManualPayment = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' });
+      return;
+    }
+
+    const { planId, paymentMethod, senderNumber, trxId, amount } = req.body;
+
+    if (!planId || !paymentMethod || !senderNumber || !trxId) {
+      res.status(400).json({ error: 'All fields are required' });
+      return;
+    }
+
+    const plan = await SubscriptionPlan.findById(planId);
+    if (!plan) {
+      res.status(404).json({ error: 'Plan not found' });
+      return;
+    }
+
+    const existingTrx = await Transaction.findOne({ trxId });
+    if (existingTrx) {
+      res.status(400).json({ error: 'Transaction ID already exists' });
+      return;
+    }
+
+    const newTx = await Transaction.create({
+      user: userId,
+      plan: plan._id,
+      amount: amount || plan.price,
+      currency: 'bdt',
+      paymentMethod,
+      senderNumber,
+      trxId,
+      status: 'pending',
+    });
+
+    res.status(200).json({ success: true, message: 'Payment submitted successfully. Please wait for verification.', transaction: newTx });
+  } catch (error: any) {
+    console.error('Error submitting manual payment:', error);
+    res.status(500).json({ error: error.message || 'Server error' });
+  }
+};
+
+export const getPendingManualPayments = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const transactions = await Transaction.find({ paymentMethod: { $in: ['bkash', 'nagad'] }, status: 'pending' })
+      .populate('user', 'name email avatar')
+      .populate('plan', 'name price')
+      .sort({ createdAt: -1 });
+    
+    res.status(200).json(transactions);
+  } catch (error) {
+    console.error('Error fetching pending manual payments:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const verifyManualPayment = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { transactionId, status } = req.body;
+
+    if (!['completed', 'failed'].includes(status)) {
+      res.status(400).json({ error: 'Invalid status. Must be completed or failed.' });
+      return;
+    }
+
+    const transaction = await Transaction.findById(transactionId);
+    if (!transaction) {
+      res.status(404).json({ error: 'Transaction not found' });
+      return;
+    }
+
+    if (transaction.status !== 'pending') {
+      res.status(400).json({ error: 'Transaction is already processed' });
+      return;
+    }
+
+    transaction.status = status;
+    await transaction.save();
+
+    if (status === 'completed') {
+      const plan = await SubscriptionPlan.findById(transaction.plan);
+      if (plan) {
+        let creditsToAssign = 30;
+        if (plan.name === 'Pro') creditsToAssign = 2000;
+        if (plan.name === 'Agency') creditsToAssign = 9999999;
+
+        const planExpireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+        await User.findByIdAndUpdate(transaction.user, {
+          activePlan: plan._id,
+          credits: creditsToAssign,
+          planExpireDate,
+        });
+      }
+    }
+
+    res.status(200).json({ success: true, message: `Payment ${status} successfully` });
+  } catch (error: any) {
+    console.error('Error verifying manual payment:', error);
+    res.status(500).json({ error: error.message || 'Server error' });
+  }
+};

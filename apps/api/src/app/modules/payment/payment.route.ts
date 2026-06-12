@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createCheckoutSession, handleWebhook, getUserTransactions, getAllTransactions, verifyCheckoutSession, cancelSubscription } from './payment.controller';
+import { createCheckoutSession, handleWebhook, getUserTransactions, getAllTransactions, verifyCheckoutSession, cancelSubscription, submitManualPayment, getPendingManualPayments, verifyManualPayment } from './payment.controller';
 import { protect, admin } from '../../middlewares/auth';
 
 const router = Router();
@@ -12,8 +12,11 @@ router.post('/create-checkout-session', protect, createCheckoutSession);
 router.post('/verify-session', protect, verifyCheckoutSession);
 router.get('/history', protect, getUserTransactions);
 router.post('/cancel-subscription', protect, cancelSubscription);
+router.post('/manual', protect, submitManualPayment);
 
 // Admin routes
 router.get('/all', protect, admin, getAllTransactions);
+router.get('/manual/pending', protect, admin, getPendingManualPayments);
+router.post('/manual/verify', protect, admin, verifyManualPayment);
 
 export default router;

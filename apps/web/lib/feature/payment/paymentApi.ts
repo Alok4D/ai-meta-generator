@@ -32,6 +32,26 @@ export const paymentApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Transactions"],
     }),
+    submitManualPayment: builder.mutation({
+      query: (data) => ({
+        url: "/payments/manual",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Transactions"],
+    }),
+    getPendingManualPayments: builder.query({
+      query: () => "/payments/manual/pending",
+      providesTags: ["Transactions"],
+    }),
+    verifyManualPayment: builder.mutation({
+      query: (data) => ({
+        url: "/payments/manual/verify",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Transactions"],
+    }),
   }),
 });
 
@@ -41,4 +61,7 @@ export const {
   useGetUserTransactionsQuery,
   useGetAllTransactionsQuery,
   useCancelSubscriptionMutation,
+  useSubmitManualPaymentMutation,
+  useGetPendingManualPaymentsQuery,
+  useVerifyManualPaymentMutation,
 } = paymentApi;
