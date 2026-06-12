@@ -114,7 +114,7 @@ export default function DashboardOverview() {
             <UserIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold capitalize">{user.role || 'Free'} Plan</div>
+            <div className="text-2xl font-bold capitalize">{user.activePlan?.name || 'Free'} Plan</div>
             <p className="text-xs text-muted-foreground mt-1">Upgrade for more credits</p>
           </CardContent>
         </Card>

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 export interface IUser extends Document {
   name: string;
@@ -7,6 +7,8 @@ export interface IUser extends Document {
   password?: string;
   credits: number;
   role: 'user' | 'admin';
+  activePlan?: mongoose.Types.ObjectId;
+  planExpireDate?: Date;
   avatar?: string;
   phone?: string;
   resetPasswordToken?: string;
@@ -18,8 +20,10 @@ const UserSchema: Schema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: false },
-  credits: { type: Number, default: 100 },
+  credits: { type: Number, default: 30 },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  activePlan: { type: Schema.Types.ObjectId, ref: 'SubscriptionPlan' },
+  planExpireDate: { type: Date },
   avatar: { type: String, required: false },
   phone: { type: String, required: false },
   resetPasswordToken: String,

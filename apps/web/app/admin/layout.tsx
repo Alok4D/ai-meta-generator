@@ -8,7 +8,7 @@ import type { RootState } from "@/lib/redux/store";
 import { logout } from "@/lib/feature/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { LayoutDashboard, Users, Image as ImageIcon, BarChart3, Settings, LifeBuoy, LogOut, User as UserIcon, SubscriptIcon, Menu, PanelLeft } from "lucide-react";
+import { LayoutDashboard, Users, Image as ImageIcon, BarChart3, Settings, LifeBuoy, LogOut, User as UserIcon, SubscriptIcon, Menu, PanelLeft, CreditCard } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -47,7 +47,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const routes = [
     { href: "/admin", label: "Overview", icon: LayoutDashboard },
     { href: "/admin/users", label: "Users", icon: Users },
-    { href: "/admin/subscriptions-management", label: "Subscriptions Management", icon: SubscriptIcon },
+    { href: "/admin/subscriptions-management", label: "Subscriptions", icon: SubscriptIcon },
+    { href: "/admin/payments", label: "Payments", icon: CreditCard },
     { href: "/admin/images", label: "Images", icon: ImageIcon },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
     { href: "/admin/support", label: "Support", icon: LifeBuoy },

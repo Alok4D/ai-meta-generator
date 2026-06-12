@@ -6,6 +6,8 @@ export interface User {
   role: string;
   avatar?: string;
   phone?: string;
+  activePlan?: any;
+  planExpireDate?: string;
   token: string;
 }
 

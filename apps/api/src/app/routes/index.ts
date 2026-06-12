@@ -4,6 +4,7 @@ import uploadRoutes from '../modules/upload/upload.route';
 import adminRoutes from '../modules/admin/admin.route';
 import supportRoutes from '../modules/support/support.route';
 import subscriptionRoutes from '../modules/subscription/subscription.route';
+import paymentRoutes from '../modules/payment/payment.route';
 
 const router = Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: '/subscriptions',
     route: subscriptionRoutes,
+  },
+  {
+    path: '/payments',
+    route: paymentRoutes,
   },
 ];
 

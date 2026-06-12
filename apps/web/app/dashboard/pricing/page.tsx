@@ -2,11 +2,58 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Check } from "lucide-react";
 import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/redux/store";
+import { useState, useEffect } from "react";
+import PaymentModal from "@/components/PaymentModal";
+import PaymentSuccessModal from "@/components/PaymentSuccessModal";
+import { toast } from "sonner";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useVerifySessionMutation } from "@/lib/feature/payment/paymentApi";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/lib/feature/auth/authSlice";
 
 export default function PricingPage() {
   const { data: plans = [], isLoading } = useGetSubscriptionsQuery(undefined);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [successData, setSuccessData] = useState<any>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [verifySession] = useVerifySessionMutation();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const sessionId = searchParams.get('session_id');
+    if (searchParams.get('success') && sessionId) {
+      verifySession({ sessionId })
+        .unwrap()
+        .then((res) => {
+          setSuccessData(res);
+          if (res.user) {
+            dispatch(setUser(res.user));
+          }
+          toast.success('Payment successful! Your subscription has been updated.');
+        })
+        .catch((err) => {
+          console.error(err);
+          toast.error('Could not verify payment session.');
+        });
+    } else if (searchParams.get('canceled')) {
+      toast.error('Payment was canceled.');
+      router.replace('/dashboard/pricing');
+    }
+  }, [searchParams, router, verifySession]);
+
+  const handlePlanClick = (plan: any) => {
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto py-8">
       <div className="text-center space-y-4">
@@ -16,7 +63,21 @@ export default function PricingPage() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8 pt-8">
+      {user?.activePlan && (
+        <div className="bg-primary/10 border border-primary/20 rounded-lg p-6 flex flex-col sm:flex-row items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-primary">Your Active Plan: {user.activePlan.name || 'Free'}</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Valid until: {user.planExpireDate ? new Date(user.planExpireDate).toLocaleDateString() : 'N/A'}
+            </p>
+          </div>
+          <div className="mt-4 sm:mt-0 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium">
+            {user.credits} Credits Remaining
+          </div>
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-3 gap-8 pt-4">
         {isLoading ? (
           <>
             {[1, 2, 3].map((_, index) => (
@@ -75,17 +136,51 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button 
-                  variant={plan.isPopular ? 'default' : 'outline'} 
-                  className="w-full"
-                >
-                  {plan.buttonText}
-                </Button>
+                {user?.activePlan?._id === plan._id || user?.activePlan === plan._id ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="w-full block cursor-not-allowed" tabIndex={0}>
+                          <Button 
+                            variant={plan.isPopular ? 'default' : 'outline'} 
+                            className="w-full opacity-50"
+                            tabIndex={-1}
+                            style={{ pointerEvents: 'none' }}
+                          >
+                            Current Plan
+                          </Button>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>You already have this plan active</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : (
+                  <Button 
+                    variant={plan.isPopular ? 'default' : 'outline'} 
+                    className="w-full"
+                    onClick={() => handlePlanClick(plan)}
+                  >
+                    {plan.buttonText}
+                  </Button>
+                )}
               </CardFooter>
             </Card>
           ))
         )}
       </div>
+
+      <PaymentModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        plan={selectedPlan} 
+      />
+
+      <PaymentSuccessModal 
+        isOpen={!!successData} 
+        data={successData} 
+      />
     </div>
   );
 }

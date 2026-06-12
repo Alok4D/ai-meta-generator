@@ -48,6 +48,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/generator", label: "Generator", icon: Wand2 },
     { href: "/dashboard/batch", label: "Batch", icon: Layers },
     { href: "/dashboard/history", label: "Generation History", icon: History },
+    { href: "/dashboard/transactions", label: "Transactions", icon: CreditCard },
     { href: "/dashboard/pricing", label: "Pricing", icon: CreditCard },
     { href: "/dashboard/events", label: "Events", icon: Calendar },
     { href: "/dashboard/color-palette", label: "Color Palette", icon: Palette },
@@ -131,9 +132,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <header className="h-16 bg-background border-b flex items-center justify-between px-4 md:px-8 shrink-0">
           <div className="flex items-center gap-4">
             <Sheet open={open} onOpenChange={setOpen}>
-              <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden shrink-0" />}>
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle menu</span>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden shrink-0">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
                 <div className="h-16 flex items-center px-6 border-b shrink-0">

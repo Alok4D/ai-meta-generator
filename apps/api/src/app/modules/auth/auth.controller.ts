@@ -1,16 +1,29 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
 import User from './user.model';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import sendEmail from '../../utils/sendEmail';
+import SubscriptionPlan from '../subscription/subscription.model';
 import { v2 as cloudinary } from 'cloudinary';
-import fs from 'fs';
+import * as fs from 'fs';
 
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
     expiresIn: '30d',
   });
+};
+
+const checkAndResetSubscription = async (user: any) => {
+  if (user.activePlan && user.planExpireDate && user.planExpireDate.getTime() < Date.now()) {
+    // Determine the credits based on the plan (for now we assume 30 for Free, 2000 for Pro etc. We'll just reset to 30 as requested)
+    const plan = await SubscriptionPlan.findById(user.activePlan);
+    const resetCredits = plan?.name === 'Pro' ? 2000 : plan?.name === 'Agency' ? 999999 : 30;
+    
+    user.credits = resetCredits;
+    user.planExpireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await user.save({ validateBeforeSave: false });
+  }
 };
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
@@ -27,10 +40,16 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const freePlan = await SubscriptionPlan.findOne({ name: 'Free' });
+    const planExpireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
+      credits: 30,
+      activePlan: freePlan?._id,
+      planExpireDate,
     });
 
     if (user) {
@@ -42,6 +61,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         role: user.role,
         avatar: user.avatar,
         phone: user.phone,
+        activePlan: user.activePlan,
+        planExpireDate: user.planExpireDate,
         token: generateToken(user._id as unknown as string),
       });
     } else {
@@ -56,9 +77,11 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate('activePlan');
 
     if (user && user.password && (await bcrypt.compare(password, user.password))) {
+      await checkAndResetSubscription(user);
+
       res.json({
         _id: user._id,
         name: user.name,
@@ -67,6 +90,8 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         role: user.role,
         avatar: user.avatar,
         phone: user.phone,
+        activePlan: user.activePlan,
+        planExpireDate: user.planExpireDate,
         token: generateToken(user._id as unknown as string),
       });
     } else {
@@ -81,31 +106,44 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
   const { email, name } = req.body;
 
   try {
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email }).populate('activePlan');
 
     if (!user) {
       // Create user if not exists
       const randomPassword = Math.random().toString(36).slice(-10);
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      
+      const freePlan = await SubscriptionPlan.findOne({ name: 'Free' });
+      const planExpireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
       user = await User.create({
         name,
         email,
         password: hashedPassword,
-        credits: 100, // Default credits for new Google users
+        credits: 30, 
+        activePlan: freePlan?._id,
+        planExpireDate,
       });
+      // Re-fetch to populate plan
+      user = await User.findById(user._id).populate('activePlan');
+    }
+
+    if (user) {
+      await checkAndResetSubscription(user);
     }
 
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      credits: user.credits,
-      role: user.role,
-      avatar: user.avatar,
-      phone: user.phone,
-      token: generateToken(user._id as unknown as string),
+      _id: user?._id,
+      name: user?.name,
+      email: user?.email,
+      credits: user?.credits,
+      role: user?.role,
+      avatar: user?.avatar,
+      phone: user?.phone,
+      activePlan: user?.activePlan,
+      planExpireDate: user?.planExpireDate,
+      token: generateToken(user?._id as unknown as string),
     });
   } catch (error) {
     res.status(500).json({ error: 'Server error during Google Login' });
@@ -114,7 +152,12 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
 export const getMe = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.user?._id).select('-password');
+    const user = await User.findById(req.user?._id).select('-password').populate('activePlan');
+    
+    if (user) {
+      await checkAndResetSubscription(user);
+    }
+
     res.json(user);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Check } from "lucide-react";
 import Navbar from "../_components/Navbar";
 import Footer from "../_components/Footer";
@@ -8,10 +7,28 @@ import CTA from "../_components/CTA";
 import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/redux/store";
+import { useState, Suspense } from "react";
+import PaymentModal from "@/components/PaymentModal";
+import { useRouter } from "next/navigation";
 
-export default function PricingPage() {
-  
+function PricingContent() {
   const { data: plans = [], isLoading } = useGetSubscriptionsQuery(undefined);
+  const user = useSelector((state: RootState) => state.auth.user);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+
+  const handlePlanClick = (plan: any) => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
 
   return (
     <>
@@ -88,12 +105,35 @@ export default function PricingPage() {
                     </ul>
                   </CardContent>
                   <CardFooter>
-                    <Button 
-                      variant={plan.isPopular ? 'default' : 'outline'} 
-                      className="w-full rounded-md py-5 text-md"
-                    >
-                      {plan.buttonText}
-                    </Button>
+                    {user?.activePlan?._id === plan._id || user?.activePlan === plan._id ? (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="w-full block cursor-not-allowed" tabIndex={0}>
+                              <Button 
+                                variant={plan.isPopular ? 'default' : 'outline'} 
+                                className="w-full opacity-50" 
+                                tabIndex={-1}
+                                style={{ pointerEvents: 'none' }}
+                              >
+                                Current Plan
+                              </Button>
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>You already have this plan active</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ) : (
+                      <Button 
+                        variant={plan.isPopular ? 'default' : 'outline'} 
+                        className="w-full rounded-md py-5 text-md"
+                        onClick={() => handlePlanClick(plan)}
+                      >
+                        {plan.buttonText}
+                      </Button>
+                    )}
                   </CardFooter>
                 </Card>
               ))
@@ -108,6 +148,20 @@ export default function PricingPage() {
         buttonText="Get Started Free"
       />
       <Footer />
+
+      <PaymentModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        plan={selectedPlan} 
+      />
     </>
   );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PricingContent />
+    </Suspense>
+  )
 }
