@@ -43,7 +43,7 @@ export default function ClaimSuccessModal({ isOpen, onClose }: ClaimSuccessModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-white border border-gray-100 text-slate-900 rounded-[24px] p-0 overflow-hidden outline-none shadow-xl">
+      <DialogContent showCloseButton={false} className="sm:max-w-[425px] bg-white border-0 ring-0 shadow-2xl text-slate-900 rounded-[24px] p-0 overflow-hidden outline-none">
         <DialogTitle className="sr-only">Congratulations</DialogTitle>
         <div className="relative p-8 flex flex-col items-center text-center">
           <button 
@@ -60,7 +60,7 @@ export default function ClaimSuccessModal({ isOpen, onClose }: ClaimSuccessModal
           <h2 className="text-[32px] font-bold mb-4 tracking-tight">Congratulations!</h2>
           
           <p className="text-slate-500 text-[16px] mb-8 leading-relaxed max-w-[260px] mx-auto">
-            100 Midnight Credits added to your account!
+            100 Credits added to your account!
           </p>
           
           <button 

@@ -11,16 +11,9 @@ interface WelcomeBonusModalProps {
 export default function WelcomeBonusModal({ isOpen, onClose }: WelcomeBonusModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-white border border-gray-100 text-slate-900 rounded-[24px] p-0 overflow-hidden outline-none shadow-xl">
+      <DialogContent showCloseButton={false} className="sm:max-w-[425px] bg-white border-0 ring-0 shadow-2xl text-slate-900 rounded-[24px] p-0 overflow-hidden outline-none">
         <DialogTitle className="sr-only">Welcome Bonus</DialogTitle>
         <div className="relative p-8 flex flex-col items-center text-center">
-          <button 
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 transition-colors"
-          >
-            <X size={20} />
-          </button>
-          
           <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-6 text-blue-600">
             <Info size={32} />
           </div>

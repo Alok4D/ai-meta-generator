@@ -11,6 +11,7 @@ import WelcomeBonusModal from "./WelcomeBonusModal";
 import ClaimSuccessModal from "./ClaimSuccessModal";
 
 export default function Hero() {
+  
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const { user } = useSelector((state: any) => state.auth);
@@ -75,7 +76,7 @@ export default function Hero() {
             className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm"
           >
             <Gift size={18} strokeWidth={2} />
-            {isClaiming ? "Claiming..." : "Get 100 Free Midnight Credits"}
+            {isClaiming ? "Claiming..." : "Get 100 Free Credits"}
           </button>
         ) : (
           <Link href="/how-it-works" className="w-full sm:w-auto">
