@@ -26,6 +26,14 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
   * **Admin Panel**: A restricted, secure layout for administrators to manage users and platform metrics.
 * **Cloud Storage Integration**: Seamless connection with Cloudinary for fast, reliable, and optimized image hosting.
 
+### 💳 Monetization & Subscriptions
+* **Automated Payments**: Seamless integration with Stripe Checkout for instant plan upgrades and recurring subscriptions.
+* **Manual Local Payments**: Dedicated system for users to pay via mobile banking (bKash/Nagad) with TrxID submission.
+* **Admin Verification Portal**: Administrators can easily review, approve, or reject pending manual payments.
+* **Dynamic Pricing UI**: Beautiful, interactive pricing tables that automatically highlight active plans and provide contextual tooltips.
+* **Subscription Management**: Users can cancel their subscriptions anytime and automatically fallback to a free tier.
+* **Advanced Transaction History**: Comprehensive payment logs for both Users and Admins, featuring real-time search, plan filtering, status filtering, and custom shadcn deletion modals.
+
 ---
 
 ## 🛠️ Technology Stack
