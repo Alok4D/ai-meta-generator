@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
-import { logout } from "@/lib/feature/auth/authSlice";
+import { logout, setUser } from "@/lib/feature/auth/authSlice";
+import { useGetMeQuery } from "@/lib/feature/auth/authApi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon } from "lucide-react";
@@ -18,6 +19,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const { data: meData } = useGetMeQuery(undefined, {
+    skip: !user,
+  });
+
+  useEffect(() => {
+    if (meData && meData._id) {
+      dispatch(setUser(meData));
+    }
+  }, [meData, dispatch]);
 
   useEffect(() => {
     const checkScreenSize = () => {

@@ -44,6 +44,10 @@ export const authApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    getMe: builder.query({
+      query: () => '/auth/me',
+      providesTags: ['User'],
+    }),
   }),
   overrideExisting: true,
 });
@@ -55,4 +59,5 @@ export const {
   useForgotPasswordMutation,
   useResetPasswordMutation,
   useUpdateProfileMutation,
+  useGetMeQuery,
 } = authApi;

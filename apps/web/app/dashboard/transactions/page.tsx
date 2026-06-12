@@ -49,7 +49,7 @@ export default function TransactionsPage() {
                       {new Date(tx.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell>{tx.plan?.name || "Unknown Plan"}</TableCell>
-                    <TableCell>${tx.amount.toFixed(2)}</TableCell>
+                    <TableCell>{tx.currency?.toLowerCase() === 'bdt' ? `${tx.amount} BDT` : `$${tx.amount.toFixed(2)}`}</TableCell>
                     <TableCell>
                       <Badge variant={tx.status === 'completed' ? 'default' : 'secondary'}>
                         {tx.status}

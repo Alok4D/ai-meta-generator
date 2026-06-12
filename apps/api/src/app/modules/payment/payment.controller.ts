@@ -284,6 +284,7 @@ export const submitManualPayment = async (req: Request, res: Response): Promise<
       paymentMethod,
       senderNumber,
       trxId,
+      stripeSessionId: `manual_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       status: 'pending',
     });
 
