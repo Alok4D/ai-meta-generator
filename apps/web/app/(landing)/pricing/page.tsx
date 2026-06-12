@@ -108,18 +108,19 @@ function PricingContent() {
                     {user?.activePlan?._id === plan._id || user?.activePlan === plan._id ? (
                       <TooltipProvider>
                         <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="w-full block cursor-not-allowed" tabIndex={0}>
-                              <Button 
-                                variant={plan.isPopular ? 'default' : 'outline'} 
-                                className="w-full opacity-50" 
-                                tabIndex={-1}
-                                style={{ pointerEvents: 'none' }}
-                              >
-                                Current Plan
-                              </Button>
-                            </span>
-                          </TooltipTrigger>
+                          <TooltipTrigger 
+                            render={
+                              <div className="w-full cursor-not-allowed" tabIndex={0}>
+                                <Button 
+                                  variant={plan.isPopular ? 'default' : 'outline'} 
+                                  className="w-full rounded-md py-5 text-md opacity-50 pointer-events-none" 
+                                  tabIndex={-1}
+                                >
+                                  {plan.buttonText}
+                                </Button>
+                              </div>
+                            } 
+                          />
                           <TooltipContent>
                             <p>You already have this plan active</p>
                           </TooltipContent>
