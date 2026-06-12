@@ -9,7 +9,7 @@ interface ClaimSuccessModalProps {
 }
 
 export default function ClaimSuccessModal({ isOpen, onClose }: ClaimSuccessModalProps) {
-  
+
   useEffect(() => {
     if (isOpen) {
       // Trigger confetti animation
@@ -17,7 +17,7 @@ export default function ClaimSuccessModal({ isOpen, onClose }: ClaimSuccessModal
       const animationEnd = Date.now() + duration;
       const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
 
-      const interval: any = setInterval(function() {
+      const interval: any = setInterval(function () {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {
@@ -46,24 +46,24 @@ export default function ClaimSuccessModal({ isOpen, onClose }: ClaimSuccessModal
       <DialogContent showCloseButton={false} className="sm:max-w-[425px] bg-white border-0 ring-0 shadow-2xl text-slate-900 rounded-[24px] p-0 overflow-hidden outline-none">
         <DialogTitle className="sr-only">Congratulations</DialogTitle>
         <div className="relative p-8 flex flex-col items-center text-center">
-          <button 
+          <button
             onClick={onClose}
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 transition-colors"
           >
             <X size={20} />
           </button>
-          
+
           <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-6 text-green-600">
             <Check size={32} strokeWidth={3} />
           </div>
-          
+
           <h2 className="text-[32px] font-bold mb-4 tracking-tight">Congratulations!</h2>
-          
-          <p className="text-slate-500 text-[16px] mb-8 leading-relaxed max-w-[260px] mx-auto">
-            100 Credits added to your account!
+
+          <p className="text-slate-500 text-[16px] mb-8 leading-relaxed max-w-[335px] mx-auto">
+            100 Credits added to your account! Please check your balance and start generating.
           </p>
-          
-          <button 
+
+          <button
             onClick={onClose}
             className="w-full bg-[#18181B] hover:bg-black text-white py-3.5 rounded-2xl font-bold text-[15px] transition-colors shadow-sm"
           >
