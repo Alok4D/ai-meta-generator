@@ -18,7 +18,34 @@ export default function PricingPage() {
 
       <div className="grid md:grid-cols-3 gap-8 pt-8">
         {isLoading ? (
-          <div className="col-span-3 text-center py-12 text-muted-foreground">Loading pricing plans...</div>
+          <>
+            {[1, 2, 3].map((_, index) => (
+              <Card key={index} className="flex flex-col relative animate-pulse">
+                <CardHeader>
+                  <div className="h-8 bg-muted rounded-md w-1/2 mb-2"></div>
+                  <div className="h-4 bg-muted rounded-md w-full mb-1"></div>
+                  <div className="h-4 bg-muted rounded-md w-4/5"></div>
+                  <div className="mt-4 flex items-baseline gap-2">
+                    <div className="h-10 bg-muted rounded-md w-20"></div>
+                    <div className="h-4 bg-muted rounded-md w-12"></div>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <ul className="space-y-4 mt-2">
+                    {[1, 2, 3, 4, 5].map((_, fIndex) => (
+                      <li key={fIndex} className="flex items-center gap-3">
+                        <div className="h-5 w-5 rounded-full bg-muted shrink-0"></div>
+                        <div className="h-4 bg-muted rounded-md w-3/4"></div>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <div className="h-14 bg-muted rounded-md w-full"></div>
+                </CardFooter>
+              </Card>
+            ))}
+          </>
         ) : plans.length === 0 ? (
           <div className="col-span-3 text-center py-12 text-muted-foreground">No pricing plans available.</div>
         ) : (
