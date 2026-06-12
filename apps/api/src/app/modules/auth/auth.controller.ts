@@ -7,6 +7,20 @@ import sendEmail from '../../utils/sendEmail';
 import SubscriptionPlan from '../subscription/subscription.model';
 import { v2 as cloudinary } from 'cloudinary';
 import * as fs from 'fs';
+import { isDisposableEmail } from 'disposable-email-domains-js';
+
+const blockedDomains = [
+  "mailinator.com",
+  "10minutemail.com",
+  "guerrillamail.com",
+  "temp-mail.org",
+  "tempmail.com",
+  "yopmail.com",
+  "sharklasers.com",
+  "dispostable.com",
+  "maildrop.cc",
+  "getnada.com",
+];
 
 const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, {
@@ -28,6 +42,13 @@ const checkAndResetSubscription = async (user: any) => {
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
+
+  const domain = email.split("@")[1];
+
+  if (blockedDomains.includes(domain) || isDisposableEmail(email)) {
+    res.status(400).json({ error: 'Disposable or temporary emails are not allowed. Please use a permanent email address.' });
+    return;
+  }
 
   try {
     const userExists = await User.findOne({ email });

@@ -19,6 +19,7 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
   const router = useRouter();
   const dispatch = useDispatch();
 
@@ -27,6 +28,7 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError("");
     try {
       const data = await register({ name, email, password }).unwrap();
       dispatch(setUser(data));
@@ -37,7 +39,12 @@ export default function Register() {
         router.push("/dashboard");
       }
     } catch (error: any) {
-      toast.error(error.data?.error || "Failed to register");
+      const errorMessage = error.data?.error || "Failed to register";
+      if (errorMessage.includes("Disposable") || errorMessage.includes("temporary email")) {
+        setEmailError(errorMessage);
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -100,8 +107,17 @@ export default function Register() {
                 placeholder="m@example.com" 
                 required 
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) setEmailError("");
+                }}
+                className={emailError ? "border-red-500 focus-visible:ring-red-500" : ""}
               />
+              {emailError && (
+                <p className="text-[13px] text-red-500 font-medium mt-1">
+                  {emailError}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
