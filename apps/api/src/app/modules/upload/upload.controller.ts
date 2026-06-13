@@ -42,22 +42,35 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       aiImageUrl = aiImageUrl.substring(0, aiImageUrl.lastIndexOf('.')) + '.jpg';
     }
 
-    // 2. Process with OpenAI Vision API (or OpenRouter)
-    const apiKey = process.env.OPENAI_API_KEY || 'dummy_key_to_prevent_crash_on_startup';
-    const isOpenRouter = apiKey.startsWith('sk-or-');
-    
-    const openai = new OpenAI({
-      apiKey: apiKey,
-      baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
-      defaultHeaders: isOpenRouter ? {
-        "HTTP-Referer": "http://localhost:3000", // Required by OpenRouter
-        "X-Title": "AI Meta Generator", // Required by OpenRouter
-      } : undefined,
-    });
+    // 2. Process with AI Vision API (Grok, OpenRouter, or OpenAI)
+    let openai: OpenAI;
+    let modelName: string;
+
+    if (process.env.GROK_API_KEY) {
+      openai = new OpenAI({
+        apiKey: process.env.GROK_API_KEY,
+        baseURL: 'https://api.x.ai/v1',
+      });
+      // Fallback to grok-2-vision-1212 if the provided model doesn't support vision
+      modelName = process.env.TEXT_MODEL_BASIC || "grok-2-vision-1212";
+    } else {
+      const apiKey = process.env.OPENAI_API_KEY || 'dummy_key_to_prevent_crash_on_startup';
+      const isOpenRouter = apiKey.startsWith('sk-or-');
+      
+      openai = new OpenAI({
+        apiKey: apiKey,
+        baseURL: isOpenRouter ? 'https://openrouter.ai/api/v1' : undefined,
+        defaultHeaders: isOpenRouter ? {
+          "HTTP-Referer": "http://localhost:3000",
+          "X-Title": "AI Meta Generator",
+        } : undefined,
+      });
+      modelName = isOpenRouter ? "openai/gpt-4o" : "gpt-4o";
+    }
 
     const response = await openai.chat.completions.create({
-      model: isOpenRouter ? "openai/gpt-4o" : "gpt-4o",
-      response_format: { type: "json_object" },
+      model: modelName,
+      response_format: process.env.GROK_API_KEY ? undefined : { type: "json_object" },
       messages: [
         {
           role: "user",
