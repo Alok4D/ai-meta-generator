@@ -14,10 +14,64 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
     const totalCreditsDistributed = totalUsers * 100;
     const totalCreditsUsed = totalCreditsDistributed - totalCreditsRemaining;
 
+    // Last 7 days data
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const userGrowthRaw = await User.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const uploadGrowthRaw = await MetaData.aggregate([
+      { $match: { createdAt: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    // Format for charts, ensuring all 7 days are present
+    const userGrowth = [];
+    const uploadGrowth = [];
+    
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(sevenDaysAgo);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const shortDate = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      const userDay = userGrowthRaw.find(d => d._id === dateStr);
+      userGrowth.push({
+        name: shortDate,
+        date: dateStr,
+        users: userDay ? userDay.count : 0
+      });
+
+      const uploadDay = uploadGrowthRaw.find(d => d._id === dateStr);
+      uploadGrowth.push({
+        name: shortDate,
+        date: dateStr,
+        uploads: uploadDay ? uploadDay.count : 0
+      });
+    }
+
     res.json({
       totalUsers,
       totalUploads,
-      totalCreditsUsed: totalCreditsUsed > 0 ? totalCreditsUsed : 0
+      totalCreditsUsed: totalCreditsUsed > 0 ? totalCreditsUsed : 0,
+      userGrowth,
+      uploadGrowth
     });
   } catch (error) {
     res.status(500).json({ error: 'Server error fetching overview stats' });
