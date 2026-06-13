@@ -1,7 +1,11 @@
+"use client";
+
 import React from "react";
 import { ArrowRight } from "lucide-react";
 import { Space_Grotesk } from "next/font/google";
 import Link from "next/link";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/redux/store";
 
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
@@ -16,6 +20,8 @@ export default function CTA({
   subtitle = <>Join thousands of stock contributors who save hours <br className="hidden sm:block" />every week with MetaGen AI.</>,
   buttonText = "Get Started Free"
 }: CTAProps) {
+  const user = useSelector((state: RootState) => state.auth.user);
+  
   return (
     <section className={`w-full bg-[#F3F5F7] py-20 md:py-28 ${space.className}`}>
       <div className="max-w-6xl mx-auto px-4 md:px-0">
@@ -31,7 +37,7 @@ export default function CTA({
             {subtitle}
           </p>
           
-          <Link href={"/dashboard/generator"}>
+          <Link href={user ? "/dashboard/generator" : "/login"}>
           <button className="bg-white hover:bg-gray-100 text-[#14181F] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 text-[14px] leading-[20px] font-semibold transition-all duration-200 hover:scale-105">
             {buttonText}
             <ArrowRight size={16} strokeWidth={2.5} />
