@@ -46,7 +46,13 @@ export default function PricingPage() {
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
-    if (searchParams.get('success') && sessionId) {
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+
+    if (success && sessionId) {
+      // Remove query params to prevent re-triggering on tab change/back button
+      router.replace('/dashboard/pricing', { scroll: false });
+      
       verifySession({ sessionId })
         .unwrap()
         .then((res) => {
@@ -60,11 +66,12 @@ export default function PricingPage() {
           console.error(err);
           toast.error('Could not verify payment session.');
         });
-    } else if (searchParams.get('canceled')) {
+    } else if (canceled) {
+      // Remove query params
+      router.replace('/dashboard/pricing', { scroll: false });
       toast.error('Payment was canceled.');
-      router.replace('/dashboard/pricing');
     }
-  }, [searchParams, router, verifySession]);
+  }, [searchParams, router, verifySession, dispatch]);
 
   const handlePlanClick = (plan: any) => {
     setSelectedPlan(plan);
