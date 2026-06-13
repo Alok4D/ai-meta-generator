@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Sparkles, ArrowRight, Upload, ImageIcon, Gift, PlayCircle } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { useClaimWelcomeBonusMutation } from "@/lib/feature/auth/authApi";
 import { setUser } from "@/lib/feature/auth/authSlice";
@@ -39,19 +40,58 @@ export default function Hero() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3,
+      },
+    },
+  };
+
+  const textVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.7,
+      },
+    },
+  };
+
+  const imageVariants = {
+    hidden: { opacity: 0, scale: 0.9, y: 20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+      },
+    },
+  };
+
   return (
-    <section className="w-full bg-[#EFF2F4] pt-20 pb-12 md:pb-24 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden">
+    <motion.section 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      className="w-full bg-[#EFF2F4] pt-20 pb-12 md:pb-24 px-4 md:px-8 flex flex-col items-center justify-center overflow-hidden"
+    >
       
       {/* Top Badge */}
-      <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 mb-8 shadow-sm">
+      <motion.div variants={textVariants} className="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-4 py-1.5 mb-8 shadow-sm">
         <Sparkles size={14} className="text-slate-500" />
         <span className="text-[14px] text-[#6A7181] font-normal leading-[20px] py-0.5">
           AI-powered stock metadata generation
         </span>
-      </div>
+      </motion.div>
 
       {/* Hero Headings */}
-      <div className="text-center max-w-4xl mx-auto mb-6">
+      <motion.div variants={textVariants} className="text-center max-w-4xl mx-auto mb-6">
         <h1 className="text-[30px] md:text-[54px] lg:text-[72px] font-bold text-[#111827] leading-tight md:leading-[1] tracking-tight max-w-4xl mx-auto mb-6">
           Generate SEO-Optimized Metadata in Seconds
         </h1>
@@ -59,10 +99,10 @@ export default function Hero() {
         <p className="text-[18px] text-[#6A7181] leading-[28px] font-normal mb-10 max-w-2xl mx-auto">
           AI Metadata Generator for Images & Stock Content. Upload your images, videos, and vectors — MetaGen AI uses AI to generate titles, descriptions, and keywords optimized for every major stock platform.
         </p>
-      </div>
+      </motion.div>
 
       {/* CTA Buttons */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-10 md:mb-20 w-full sm:w-auto px-4">
+      <motion.div variants={textVariants} className="flex flex-col sm:flex-row items-center gap-4 mb-10 md:mb-20 w-full sm:w-auto px-4">
        <Link href={"/dashboard/generator"} className="w-full sm:w-auto">
         <button className="w-full sm:w-auto bg-[#18181B] hover:bg-black text-white px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200">
           Start for Free
@@ -86,7 +126,7 @@ export default function Hero() {
             </button>
           </Link>
         )}
-      </div>
+      </motion.div>
 
       <WelcomeBonusModal 
         isOpen={showWelcomeModal} 
@@ -98,7 +138,7 @@ export default function Hero() {
       />
 
       {/* App Mockup Window */}
-      <div className="hidden md:flex bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex-col pointer-events-none select-none">
+      <motion.div variants={imageVariants} className="hidden md:flex bg-white rounded-lg shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-gray-100 overflow-hidden w-full max-w-6xl mx-auto h-[600px] flex-col pointer-events-none select-none">
         
         {/* Mockup Header (Mac-style) */}
         <div className="h-12 bg-[#F9FAFB] border-b border-gray-100 flex items-center px-4 gap-2 shrink-0">
@@ -176,7 +216,7 @@ export default function Hero() {
           </div>
 
         </div>
-      </div>
-    </section>
+      </motion.div>
+    </motion.section>
   );
 }
