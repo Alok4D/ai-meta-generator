@@ -9,7 +9,7 @@ import { logout, setUser } from "@/lib/feature/auth/authSlice";
 import { useGetMeQuery } from "@/lib/feature/auth/authApi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon } from "lucide-react";
+import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   
@@ -106,6 +106,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
 
         <div className="p-4 border-t space-y-4 shrink-0 overflow-hidden">
+          {!isCollapsed && (
+            <div className="bg-muted/40 rounded-2xl p-4 border relative overflow-hidden flex items-center justify-center">
+              <div className="absolute -top-6 -right-6 w-20 h-20 bg-muted/80 rounded-full"></div>
+              
+              <div className="flex items-center justify-center gap-4 relative z-10 w-full">
+                <div className="w-11 h-11 bg-muted/80 rounded-xl flex items-center justify-center shrink-0 border border-border/40">
+                  <Sparkles className="h-5 w-5 text-foreground/70" />
+                </div>
+                <div className="flex flex-col justify-center text-left">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-0.5">Credits</span>
+                  <span className="text-2xl font-bold leading-none text-foreground">{user.credits}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className={`flex items-center ${isCollapsed ? "justify-center" : "gap-3 px-3"}`}>
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative shrink-0">
               {user.avatar ? (
