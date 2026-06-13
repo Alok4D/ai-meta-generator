@@ -77,6 +77,31 @@ export default function Dashboard() {
     if (!file) return;
     if (!user) return;
     
+    if (user.credits < 1) {
+      toast.error("Not enough credits. Generating costs 1 credit.");
+      return;
+    }
+
+    const hasSeenAlert = localStorage.getItem('hasSeenGenerateAlert');
+    
+    if (!hasSeenAlert) {
+      const result = await Swal.fire({
+        title: 'Generate Metadata?',
+        text: 'Generating metadata for 1 image will cost 1 credit from your account.',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, generate!'
+      });
+
+      if (result.isConfirmed) {
+        localStorage.setItem('hasSeenGenerateAlert', 'true');
+      } else {
+        return;
+      }
+    }
+    
     const formData = new FormData();
     formData.append("image", file);
 
