@@ -66,7 +66,7 @@ export const authApi = baseApi.injectEndpoints({
     }),
     getMe: builder.query({
       query: () => '/auth/me',
-      providesTags: ['User'],
+      providesTags: ['Users'],
     }),
   }),
   overrideExisting: true,

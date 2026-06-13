@@ -115,7 +115,7 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label>Payment Method</Label>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <Select value={paymentMethod} onValueChange={(val) => setPaymentMethod(val || "")}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select method" />
                     </SelectTrigger>

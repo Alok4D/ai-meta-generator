@@ -20,7 +20,7 @@ const authSlice = createSlice({
       const currentToken = state.user?.token;
       state.user = {
         ...action.payload,
-        token: action.payload.token || currentToken,
+        token: action.payload.token || currentToken || "",
       };
       if (typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(state.user));
