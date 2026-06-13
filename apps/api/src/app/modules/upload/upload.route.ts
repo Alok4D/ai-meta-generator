@@ -1,6 +1,6 @@
-import * as express from 'express';
-import * as multer from 'multer';
-import * as path from 'path';
+import express from 'express';
+import multer from 'multer';
+import path from 'path';
 import { uploadImage, getHistory, deleteHistory, regenerateMetadata } from './upload.controller';
 import { protect } from '../../middlewares/auth';
 
