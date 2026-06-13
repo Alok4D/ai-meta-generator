@@ -1,6 +1,9 @@
+"use client";
+
 import React from 'react';
 import { SlidersHorizontal, Upload, Sparkles, Globe } from 'lucide-react';
 import { Space_Grotesk } from 'next/font/google';
+import { motion } from 'framer-motion';
 
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
@@ -84,12 +87,36 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
     }
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 },
+    },
+  };
+
   if (variant === 'landing') {
     return (
-      <section id="how-it-works" className={`w-full bg-[#F9FAFB] py-20 md:py-20 ${space.className}`}>
+      <motion.section 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        id="how-it-works" 
+        className={`w-full bg-[#F9FAFB] py-20 md:py-20 ${space.className}`}
+      >
         <div className="max-w-6xl mx-auto px-4 md:px-0">
           
-          <div className="text-center mb-16 md:mb-20">
+          <motion.div variants={itemVariants} className="text-center mb-16 md:mb-20">
          
               <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
            HOW IT WORKS
@@ -97,11 +124,11 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
             <h3 className="text-[36px] md:text-[48px] font-bold leading-tight md:leading-[48px] tracking-tight text-[#14181F]">
               Three simple steps
             </h3>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 items-start">
             {landingSteps.map((item, index) => (
-              <div key={index} className="flex flex-col items-center text-center">
+              <motion.div variants={itemVariants} key={index} className="flex flex-col items-center text-center">
                 <div className="w-[64px] h-[64px] bg-[#14181F] rounded-[20px] flex items-center justify-center shadow-md mb-6 transition-transform hover:-translate-y-1 duration-300">
                   {item.icon}
                 </div>
@@ -114,7 +141,7 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
                 <p className="text-[14px] text-[#6A7181] leading-[1.6] max-w-[280px]">
                   {item.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -126,16 +153,23 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
           </div>
 
         </div>
-      </section>
+      </motion.section>
     );
   }
 
   return (
-    <section id="how-it-works" className={`w-full bg-[#F3F5F7] py-24 md:py-24 ${space.className}`}>
+    <motion.section 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      id="how-it-works" 
+      className={`w-full bg-[#F3F5F7] py-24 md:py-24 ${space.className}`}
+    >
       <div className="max-w-5xl mx-auto px-4 md:px-8">
         
         {/* Section Header */}
-        <div className="text-center mb-16 md:mb-20">
+        <motion.div variants={itemVariants} className="text-center mb-16 md:mb-20">
           <h3 className="text-[36px] md:text-[60px] font-bold leading-tight md:leading-[60px] tracking-tight text-[#14181F] mb-6">
             From upload to export <br className="hidden md:block" />
             in four simple steps
@@ -143,12 +177,13 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
           <p className="text-[16px] leading-[24px] font-normal text-[#14181F] max-w-xl mx-auto">
             MetaGen AI makes generating stock metadata effortless. Here's exactly how it works.
           </p>
-        </div>
+        </motion.div>
 
         {/* Steps Stack */}
         <div className="flex flex-col gap-6">
           {detailedSteps.map((item, index) => (
-            <div 
+            <motion.div 
+              variants={itemVariants}
               key={index} 
               className="bg-white rounded-[20px] p-8 md:p-10 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row gap-6 md:gap-10 items-start transition-transform hover:-translate-y-1 duration-300"
             >
@@ -183,11 +218,11 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
                   </ul>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
       </div>
-    </section>
+    </motion.section>
   );
 };
