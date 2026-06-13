@@ -21,6 +21,14 @@ export const uploadApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['History'],
     }),
+    regenerateMetadata: builder.mutation({
+      query: (data) => ({
+        url: '/upload/regenerate',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['History'],
+    }),
   }),
   overrideExisting: true,
 });
@@ -29,4 +37,5 @@ export const {
   useUploadImageMutation,
   useGetHistoryQuery,
   useDeleteHistoryMutation,
+  useRegenerateMetadataMutation,
 } = uploadApi;

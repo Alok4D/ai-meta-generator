@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import { updateCredits } from "@/lib/feature/auth/authSlice";
-import { useUploadImageMutation } from "@/lib/feature/upload/uploadApi";
+import { useUploadImageMutation, useRegenerateMetadataMutation } from "@/lib/feature/upload/uploadApi";
+import Swal from 'sweetalert2';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const router = useRouter();
 
   const [uploadImage, { isLoading: uploading }] = useUploadImageMutation();
+  const [regenerateMetadata, { isLoading: isRegenerating }] = useRegenerateMetadataMutation();
 
   useEffect(() => {
     if (!user) {
@@ -87,6 +89,39 @@ export default function Dashboard() {
       // Do not clear the file so the preview remains visible
     } catch (error: any) {
       toast.error(error.data?.error || "Upload failed");
+    }
+  };
+
+  const handleRegenerate = async () => {
+    if (!metadata || !metadata.imageUrl) {
+      toast.error("No image found to regenerate");
+      return;
+    }
+
+    if (user && user.credits < 2) {
+      toast.error("Not enough credits. Regenerating costs 2 credits.");
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Regenerate Metadata?',
+      text: "This action will cost 2 credits from your account.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, regenerate!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const data = await regenerateMetadata({ imageUrl: metadata.imageUrl }).unwrap();
+        toast.success("Metadata regenerated successfully!");
+        setMetadata(data.metadata);
+        dispatch(updateCredits(data.creditsRemaining));
+      } catch (error: any) {
+        toast.error(error.data?.error || "Failed to regenerate metadata");
+      }
     }
   };
 
@@ -286,8 +321,18 @@ export default function Dashboard() {
                       ))}
                     </div>
                   </div>
-                  <Button variant="outline" className="w-full">
-                    Regenerate
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={handleRegenerate}
+                    disabled={isRegenerating}
+                  >
+                    {isRegenerating ? (
+                      <div className="flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Regenerating...
+                      </div>
+                    ) : "Regenerate"}
                   </Button>
                 </TabsContent>
                 

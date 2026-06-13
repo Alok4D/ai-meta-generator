@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { uploadImage, getHistory, deleteHistory } from './upload.controller';
+import { uploadImage, getHistory, deleteHistory, regenerateMetadata } from './upload.controller';
 import { protect } from '../../middlewares/auth';
 
 const router = express.Router();
@@ -20,5 +20,6 @@ const upload = multer({ storage: storage });
 router.post('/', protect, upload.single('image'), uploadImage);
 router.get('/history', protect, getHistory);
 router.delete('/history/:id', protect, deleteHistory);
+router.post('/regenerate', protect, regenerateMetadata);
 
 export default router;
