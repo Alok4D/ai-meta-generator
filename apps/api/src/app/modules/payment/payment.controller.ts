@@ -63,7 +63,7 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
 
 export const handleWebhook = async (req: Request, res: Response): Promise<void> => {
   const sig = req.headers['stripe-signature'] as string;
-  let event: Stripe.Event;
+  let event: any;
 
   try {
     // req.body must be the raw buffer here
@@ -80,7 +80,7 @@ export const handleWebhook = async (req: Request, res: Response): Promise<void> 
 
   // Handle the event
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
+    const session = event.data.object as any;
     
     const userId = session.metadata?.userId;
     const planId = session.metadata?.planId;
