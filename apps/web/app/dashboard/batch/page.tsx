@@ -115,6 +115,7 @@ export default function BatchUploadPage() {
       if (!isProcessingRef.current) break;
       
       const item = items[i];
+      if (!item) continue;
       if (item.status === 'success') continue;
 
       setItems(prev => prev.map((p, idx) => idx === i ? { ...p, status: 'processing' } : p));
