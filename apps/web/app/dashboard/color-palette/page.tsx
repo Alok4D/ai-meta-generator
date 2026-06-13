@@ -60,6 +60,7 @@ export default function ColorPalettePage() {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
+      if (!file) return;
       const imageUrl = URL.createObjectURL(file);
       setImageSrc(imageUrl);
       setColors([]); // Reset colors while loading
