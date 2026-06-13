@@ -13,6 +13,7 @@ import { RootState } from "@/lib/redux/store";
 import { useState, Suspense } from "react";
 import PaymentModal from "@/components/PaymentModal";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 function PricingContent() {
   const { data: plans = [], isLoading } = useGetSubscriptionsQuery(undefined);
@@ -30,20 +31,48 @@ function PricingContent() {
     setIsModalOpen(true);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 },
+    },
+  };
+
   return (
-    <>
+    <motion.main
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+      className="min-h-screen flex flex-col"
+    >
       <Navbar />
       
-      <section className="w-full bg-[#F3F5F7] py-16 md:py-18 min-h-[80vh]">
+      <motion.section 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-50px" }}
+        className="w-full bg-[#F3F5F7] py-16 md:py-18 flex-1"
+      >
         <div className="max-w-6xl mx-auto px-4 md:px-8 space-y-16">
           
           {/* Section Header */}
-          <div className="text-center space-y-4">
+          <motion.div variants={itemVariants} className="text-center space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Simple, transparent pricing</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Choose the perfect plan for your needs. Upgrade anytime to unlock more features and credits.
             </p>
-          </div>
+          </motion.div>
 
           {/* Pricing Grid */}
           <div className="grid md:grid-cols-3 gap-8 pt-8 max-w-5xl mx-auto">
@@ -80,8 +109,9 @@ function PricingContent() {
               <div className="col-span-3 text-center py-12 text-muted-foreground">No pricing plans available.</div>
             ) : (
               plans.map((plan: any) => (
-                <Card key={plan._id} className={`flex flex-col relative ${plan.isPopular ? 'border-primary shadow-lg scale-105 z-10' : ''}`}>
-                  {plan.isPopular && (
+                <motion.div variants={itemVariants} key={plan._id} className="flex h-full">
+                  <Card className={`flex flex-col relative w-full ${plan.isPopular ? 'border-primary shadow-lg scale-105 z-10' : ''}`}>
+                    {plan.isPopular && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
                       Most Popular
                     </div>
@@ -136,12 +166,13 @@ function PricingContent() {
                       </Button>
                     )}
                   </CardFooter>
-                </Card>
+                  </Card>
+                </motion.div>
               ))
             )}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       <CTA 
         title="Claim Your Free Welcome Bonus!"
@@ -155,7 +186,7 @@ function PricingContent() {
         onClose={() => setIsModalOpen(false)} 
         plan={selectedPlan} 
       />
-    </>
+    </motion.main>
   );
 }
 
