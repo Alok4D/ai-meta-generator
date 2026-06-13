@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import OpenAI from 'openai';
-import fs from 'fs';
+import * as fs from 'fs';
 import MetaData from './metaData.model';
 import User from '../auth/user.model';
 
