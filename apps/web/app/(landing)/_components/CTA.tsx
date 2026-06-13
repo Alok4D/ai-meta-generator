@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { ArrowRight, Gift } from "lucide-react";
 import { Space_Grotesk } from "next/font/google";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import { useClaimWelcomeBonusMutation } from "@/lib/feature/auth/authApi";
@@ -53,23 +54,46 @@ export default function CTA({
       toast.error(error.data?.error || "Failed to claim bonus");
     }
   };
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 },
+    },
+  };
   
   return (
-    <section className={`w-full bg-[#F3F5F7] py-20 md:py-28 ${space.className}`}>
+    <motion.section 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      className={`w-full bg-[#F3F5F7] py-20 md:py-28 ${space.className}`}
+    >
       <div className="max-w-6xl mx-auto px-4 md:px-0">
         
         {/* CTA Card */}
         <div className="bg-[#18181B] rounded-[30px] px-6 py-10 md:py-16 flex flex-col items-center text-center">
           
-          <h2 className="text-[32px] md:text-[48px] font-bold text-white mb-5 tracking-tight leading-[1] md:leading-[48px]">
+          <motion.h2 variants={itemVariants} className="text-[32px] md:text-[48px] font-bold text-white mb-5 tracking-tight leading-[1] md:leading-[48px]">
             {title}
-          </h2>
+          </motion.h2>
           
-          <p className="text-white/70 text-[18px] max-w-xl mx-auto mb-10 leading-[28px] font-normal">
+          <motion.p variants={itemVariants} className="text-white/70 text-[18px] max-w-xl mx-auto mb-10 leading-[28px] font-normal">
             {subtitle}
-          </p>
+          </motion.p>
           
-          {claimBonusMode && (!user || !user.hasClaimedWelcomeBonus) ? (
+          <motion.div variants={itemVariants}>
+            {claimBonusMode && (!user || !user.hasClaimedWelcomeBonus) ? (
             <button 
               onClick={handleClaimBonus}
               disabled={isClaiming}
@@ -84,8 +108,9 @@ export default function CTA({
                 {buttonText}
                 <ArrowRight size={16} strokeWidth={2.5} />
               </button>
-            </Link>
-          )}
+              </Link>
+            )}
+          </motion.div>
           
         </div>
         
@@ -103,6 +128,6 @@ export default function CTA({
           />
         </>
       )}
-    </section>
+    </motion.section>
   );
 }
