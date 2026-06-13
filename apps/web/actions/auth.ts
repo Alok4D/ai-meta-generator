@@ -121,13 +121,14 @@ export async function resetPassword(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData), // Wait, reset password might expect token!
+      body: JSON.stringify(userData),
     });
 
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || `Request failed with status ${response.status}`);
+      const errorMsg = data.error || (data.errorMessages && data.errorMessages[0]?.message) || `Request failed with status ${response.status}`;
+      throw new Error(errorMsg);
     }
 
     return {
@@ -160,7 +161,7 @@ export async function verifyOTP(
 ): Promise<VerifyOtpResponseData> {
   try {
     const response = await fetch(
-      `${BACKEND_API_URL}/auth/verify-otp`,
+      `${BACKEND_API_URL}/auth/verify-reset-otp`,
       {
         method: "POST",
         headers: {
@@ -173,13 +174,14 @@ export async function verifyOTP(
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || `Request failed with status ${response.status}`);
+      const errorMsg = data.error || (data.errorMessages && data.errorMessages[0]?.message) || `Request failed with status ${response.status}`;
+      throw new Error(errorMsg);
     }
 
-    // Backend returns the user object with token if successful
-    if (data.token || data._id) {
+    // Check if the backend returned a success message or token
+    if (data.success || data.token || data._id) {
       return {
-        message: "OTP verified successfully",
+        message: data.message || "OTP verified successfully",
         success: true,
       };
     }
