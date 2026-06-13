@@ -3,6 +3,7 @@
 import { Star, ArrowRight } from 'lucide-react';
 import { Space_Grotesk } from 'next/font/google';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
@@ -56,12 +57,35 @@ export default function Testimonials({ variant = 'full' }: TestimonialsProps) {
     }
   ];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 },
+    },
+  };
+
   return (
-    <section className={`w-full bg-[#F3F5F7] py-20 md:py-20 ${space.className}`}>
+    <motion.section 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      className={`w-full bg-[#F3F5F7] py-20 md:py-20 ${space.className}`}
+    >
       <div className="max-w-6xl mx-auto px-4 md:px-0">
         
         {/* Section Header */}
-        <div className="text-center mb-16 md:mb-20">
+        <motion.div variants={itemVariants} className="text-center mb-16 md:mb-20">
           {variant === 'landing' && (
             <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
               TESTIMONIALS
@@ -80,12 +104,13 @@ export default function Testimonials({ variant = 'full' }: TestimonialsProps) {
               Hear from stock contributors who transformed their metadata workflow with MetaGen AI.
             </p>
           )}
-        </div>
+        </motion.div>
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 items-stretch mt-8">
           {(variant === 'landing' ? reviews.slice(0, 3) : reviews).map((review, index) => (
-            <div 
+            <motion.div 
+              variants={itemVariants}
               key={index} 
               className="bg-white rounded-xl p-8 border border-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col h-full transition-transform hover:-translate-y-1 duration-300 relative"
             >
@@ -117,7 +142,7 @@ export default function Testimonials({ variant = 'full' }: TestimonialsProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       {/* View All Features Link */}
@@ -133,6 +158,6 @@ export default function Testimonials({ variant = 'full' }: TestimonialsProps) {
           </div>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
