@@ -144,9 +144,9 @@ function PricingContent() {
       </section>
 
       <CTA 
-        title="Start generating metadata today"
-        subtitle={<>Try MetaGen AI for free with 150 daily credits. No credit card <br className="hidden sm:block" />required.</>}
-        buttonText="Get Started Free"
+        title="Claim Your Free Welcome Bonus!"
+        subtitle={<>Start your journey with 100 free credits. No credit card <br className="hidden sm:block" />required.</>}
+        claimBonusMode={true}
       />
       <Footer />
 
