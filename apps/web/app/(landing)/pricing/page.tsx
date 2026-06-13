@@ -1,9 +1,9 @@
 "use client";
 
+import CTA from "../_components/CTA";
 import { Check } from "lucide-react";
 import Navbar from "../_components/Navbar";
 import Footer from "../_components/Footer";
-import CTA from "../_components/CTA";
 import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

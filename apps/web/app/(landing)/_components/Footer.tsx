@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { Space_Grotesk } from "next/font/google";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/redux/store";
 
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 export default function Footer() {
+  const user = useSelector((state: RootState) => state.auth.user);
+
   return (
     <footer className={`w-full bg-[#14181F] text-white pt-20 pb-10 ${space.className}`}>
       <div className="max-w-6xl mx-auto px-4 md:px-0">
@@ -52,7 +58,7 @@ export default function Footer() {
                 <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Keyword Tool</Link>
                 <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Templates</Link>
                 <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Agencies</Link>
-                <Link href={"/dashboard/support"} className="text-slate-400 hover:text-white text-[15px] transition-colors">Help Center</Link>
+                <Link href={user ? "/dashboard/support" : "/login"} className="text-slate-400 hover:text-white text-[15px] transition-colors">Help Center</Link>
               </div>
             </div>
 
@@ -73,7 +79,7 @@ export default function Footer() {
               <div className="flex flex-col gap-4">
                 <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">About Us</Link>
                 <Link href="#" className="text-slate-400 hover:text-white text-[15px] transition-colors">Blog</Link>
-                <Link href="/dashboard/support" className="text-slate-400 hover:text-white text-[15px] transition-colors">Support</Link>
+                <Link href={user ? "/dashboard/support" : "/login"} className="text-slate-400 hover:text-white text-[15px] transition-colors">Support</Link>
                 <Link href="/privacy" className="text-slate-400 hover:text-white text-[15px] transition-colors">Privacy Policy</Link>
               </div>
             </div>
