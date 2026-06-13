@@ -92,7 +92,7 @@ export default function AdminPaymentsPage() {
             />
           </div>
           <div className="flex gap-4">
-            <Select value={planFilter} onValueChange={setPlanFilter}>
+            <Select value={planFilter} onValueChange={(val) => setPlanFilter(val || "all")}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Plan" />
               </SelectTrigger>
@@ -103,7 +103,7 @@ export default function AdminPaymentsPage() {
                 ))}
               </SelectContent>
             </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
