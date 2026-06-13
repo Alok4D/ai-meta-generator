@@ -93,7 +93,6 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         });
       } catch (error) {
         // If email fails to send, we might want to delete the user or just tell them to resend.
-        // For now, let's keep the user and tell them to resend.
         res.status(201).json({
           message: 'Registration successful, but failed to send verification email. Please try resending the OTP.',
           email: user.email,

@@ -7,8 +7,38 @@ interface EmailOptions {
 }
 
 const sendEmail = async (options: EmailOptions) => {
+  const proxyUrl = process.env.EMAIL_PROXY_URL;
+  const secretKey = process.env.EMAIL_PROXY_SECRET;
+
+  if (proxyUrl && secretKey) {
+    try {
+      // Use dynamic import for fetch or just global fetch in node 18+
+      const response = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: options.email,
+          subject: options.subject,
+          message: options.message,
+          secretKey,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: 'Unknown proxy error' }));
+        throw new Error(`Proxy error: ${err.error || response.statusText}`);
+      }
+
+      console.log("Email sent via Vercel proxy");
+      return;
+    } catch (error) {
+      console.error("Failed to send email via proxy", error);
+      throw error;
+    }
+  }
+
+  // Fallback to regular nodemailer
   let transporter;
-  
   const host = process.env.EMAIL_HOST || process.env.SMTP_HOST;
   const user = process.env.EMAIL_USER || process.env.SMTP_USER;
   const pass = process.env.EMAIL_PASS || process.env.SMTP_PASS;
@@ -39,7 +69,7 @@ const sendEmail = async (options: EmailOptions) => {
   }
 
   const message = {
-    from: process.env.EMAIL_FROM || `${process.env.FROM_NAME || 'Meta Generator'} <${process.env.FROM_EMAIL || 'noreply@metagenerator.com'}>`,
+    from: process.env.EMAIL_FROM || `${process.env.FROM_NAME || 'Meta Gen AI'} <${process.env.FROM_EMAIL || 'noreply@metagenerator.com'}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
