@@ -178,27 +178,14 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
               <CardFooter>
-                {user?.activePlan?._id === plan._id || user?.activePlan === plan._id ? (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger 
-                        render={
-                          <div className="w-full cursor-not-allowed" tabIndex={0}>
-                            <Button 
-                              variant={plan.isPopular ? 'default' : 'outline'} 
-                              className="w-full opacity-50 pointer-events-none"
-                              tabIndex={-1}
-                            >
-                              {plan.buttonText}
-                            </Button>
-                          </div>
-                        } 
-                      />
-                      <TooltipContent>
-                        <p>You already have this plan active</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                {user?.activePlan?._id === plan._id || user?.activePlan === plan._id || (plan.name?.toLowerCase() === 'free' && !user?.activePlan) ? (
+                  <Button 
+                    variant={plan.isPopular ? 'default' : 'outline'} 
+                    className="w-full opacity-50 cursor-not-allowed"
+                    disabled
+                  >
+                    {plan.buttonText}
+                  </Button>
                 ) : (
                   <Button 
                     variant={plan.isPopular ? 'default' : 'outline'} 

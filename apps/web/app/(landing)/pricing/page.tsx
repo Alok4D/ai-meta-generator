@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 function PricingContent() {
+  
   const { data: plans = [], isLoading } = useGetSubscriptionsQuery(undefined);
   const user = useSelector((state: RootState) => state.auth.user);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -133,7 +134,7 @@ function PricingContent() {
                       </ul>
                     </CardContent>
                     <CardFooter>
-                      {user?.activePlan?._id === plan._id || user?.activePlan === plan._id ? (
+                      {user?.activePlan?._id === plan._id || user?.activePlan === plan._id || (plan.name?.toLowerCase() === 'free' && !user?.activePlan) ? (
                         <Button
                           variant={plan.isPopular ? 'default' : 'outline'}
                           className="w-full rounded-md py-5 text-md opacity-50 cursor-not-allowed"
