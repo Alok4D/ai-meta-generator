@@ -103,7 +103,7 @@ export default function Hero() {
 
       {/* CTA Buttons */}
       <motion.div variants={textVariants} className="flex flex-col sm:flex-row items-center gap-4 mb-10 md:mb-20 w-full sm:w-auto px-4">
-       <Link href={"/dashboard/generator"} className="w-full sm:w-auto">
+       <Link href={user ? "/dashboard/generator" : "/login"} className="w-full sm:w-auto">
         <button className="w-full sm:w-auto bg-[#18181B] hover:bg-black text-white px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200">
           Start for Free
           <ArrowRight size={18} strokeWidth={2} />
