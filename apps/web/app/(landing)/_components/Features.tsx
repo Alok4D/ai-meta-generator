@@ -1,6 +1,9 @@
+"use client";
+
 import { Sparkles, Upload, Layers, Zap, Shield, FileSpreadsheet, SlidersHorizontal, Cpu, ArrowRight } from "lucide-react";
 import { Space_Grotesk } from 'next/font/google';
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
@@ -54,12 +57,39 @@ export default function Features({ limit }: FeaturesProps) {
 
   const displayFeatures = limit ? features.slice(0, limit) : features;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+      },
+    },
+  };
+
   return (
-    <section className={`w-full bg-[#F3F5F7] py-20 md:py-20 ${space.className}`}>
+    <motion.section 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      className={`w-full bg-[#F3F5F7] py-20 md:py-20 ${space.className}`}
+    >
       <div className="max-w-6xl mx-auto px-4 md:px-0">
         
         {/* Section Header */}
-        <div className="text-center mb-16 md:mb-20">
+        <motion.div variants={itemVariants} className="text-center mb-16 md:mb-20">
           {limit && (
             <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
               FEATURES
@@ -74,12 +104,13 @@ export default function Features({ limit }: FeaturesProps) {
               Powerful tools designed for stock contributors who want to spend less time on metadata and more time creating.
             </p>
           )}
-        </div>
+        </motion.div>
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-4 items-stretch">
           {displayFeatures.map((feature, index) => (
-            <div 
+            <motion.div 
+              variants={itemVariants}
               key={index} 
               className="bg-[#FBFCFC] rounded-xl p-6 md:p-8 border border-gray-200/60 shadow-[0_4px_24px_rgba(0,0,0,0.02)] flex flex-col items-start transition-transform duration-300 hover:-translate-y-1 h-full"
             >
@@ -92,7 +123,7 @@ export default function Features({ limit }: FeaturesProps) {
               <p className="text-[14px] text-[#6A7181] leading-[23px] font-normal">
                 {feature.description}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -109,6 +140,6 @@ export default function Features({ limit }: FeaturesProps) {
           </div>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
