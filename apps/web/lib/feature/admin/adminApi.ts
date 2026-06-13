@@ -7,7 +7,14 @@ export const adminApi = baseApi.injectEndpoints({
       providesTags: ['Users'],
     }),
     getAllUsers: builder.query({
-      query: () => '/admin/users',
+      query: ({ page = 1, limit = 12, search = '', role = 'all' }: { page?: number; limit?: number; search?: string; role?: string } = {}) => {
+        const params = new URLSearchParams();
+        if (page) params.append('page', page.toString());
+        if (limit) params.append('limit', limit.toString());
+        if (search) params.append('search', search);
+        if (role && role !== 'all') params.append('role', role);
+        return `/admin/users?${params.toString()}`;
+      },
       providesTags: ['Users'],
     }),
     updateUser: builder.mutation({
@@ -15,6 +22,13 @@ export const adminApi = baseApi.injectEndpoints({
         url: `/admin/users/${id}`,
         method: 'PUT',
         body: data,
+      }),
+      invalidatesTags: ['Users'],
+    }),
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/admin/users/${id}`,
+        method: 'DELETE',
       }),
       invalidatesTags: ['Users'],
     }),
@@ -26,4 +40,5 @@ export const {
   useGetAdminOverviewQuery,
   useGetAllUsersQuery,
   useUpdateUserMutation,
+  useDeleteUserMutation,
 } = adminApi;

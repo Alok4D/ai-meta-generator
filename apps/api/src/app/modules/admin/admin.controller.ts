@@ -26,8 +26,40 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
-    res.json(users);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+    const search = req.query.search as string;
+    const role = req.query.role as string;
+
+    const query: any = {};
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (role && role !== 'all') {
+      query.role = role;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const total = await User.countDocuments(query);
+    const users = await User.find(query)
+      .select('-password')
+      .populate('activePlan')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      users,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    });
   } catch (error) {
     res.status(500).json({ error: 'Server error fetching users' });
   }
@@ -59,6 +91,25 @@ export const updateUser = async (req: Request, res: Response): Promise<void> => 
     });
   } catch (error) {
     res.status(500).json({ error: 'Server error updating user' });
+  }
+};
+
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    await User.deleteOne({ _id: id });
+
+    res.json({ message: 'User removed' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error deleting user' });
   }
 };
 
