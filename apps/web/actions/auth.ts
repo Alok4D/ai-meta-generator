@@ -59,7 +59,7 @@ export async function forgotPassword(
     }
 
     if (isApiError(data)) {
-      throw new Error(data.errorMessages![0].message);
+      throw new Error(data.errorMessages?.[0]?.message || data.message || "An error occurred");
     }
 
     if (isApiSuccess(data) && data.success) {
@@ -158,13 +158,13 @@ export async function resetPassword(
     if (!response.ok) {
       const message =
         isApiError(data) && data.message
-          ? data.errorMessages![0].message
+          ? data.errorMessages?.[0]?.message || data.message
           : `Request failed with status ${response.status}`;
       throw new Error(message);
     }
 
     if (isApiError(data)) {
-      throw new Error(data.errorMessages![0].message);
+      throw new Error(data.errorMessages?.[0]?.message || data.message || "An error occurred");
     }
 
     if (isApiSuccess(data) && data.success) {
@@ -222,7 +222,7 @@ export async function verifyOTP(
     }
 
     if (isApiError(data)) {
-      throw new Error(data.errorMessages![0].message);
+      throw new Error(data.errorMessages?.[0]?.message || data.message || "An error occurred");
     }
 
     if (isApiSuccess(data) && data.success) {
