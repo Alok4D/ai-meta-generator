@@ -102,6 +102,7 @@ export default function BatchUploadPage() {
     
     // Check pending count against credits
     const pendingCount = items.filter(i => i.status === 'pending' || i.status === 'error').length;
+    if (!user) return;
     if (pendingCount > user.credits) {
       toast.error(`You need ${pendingCount} credits but only have ${user.credits}`);
       return;
