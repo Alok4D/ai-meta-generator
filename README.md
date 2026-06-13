@@ -5,7 +5,7 @@ Welcome to **AI Meta Generator** — a powerful, modern, and feature-rich monore
 Built with cutting-edge web technologies, this platform offers a stunning **Glassmorphism UI** with seamless interactions and enterprise-grade architecture.
 
 ### 🌐 Live Demo
-**[https://metagen-ai-bd.vercel.app/](https://metagen-ai-bd.vercel.app)**
+**[https://metagen-ai-bd.vercel.app](https://metagen-ai-bd.vercel.app)**
 
 ![AI Meta Generator Banner](apps/web/public/image.png)
 
