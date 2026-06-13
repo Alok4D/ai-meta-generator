@@ -4,6 +4,11 @@ Welcome to **AI Meta Generator** — a powerful, modern, and feature-rich monore
 
 Built with cutting-edge web technologies, this platform offers a stunning **Glassmorphism UI** with seamless interactions and enterprise-grade architecture.
 
+### 🌐 Live Demo
+**[https://metagen-ai-bd.vercel.app/](https://metagen-ai-bd.vercel.app/)**
+
+![AI Meta Generator Banner](apps/web/public/image.png)
+
 ---
 
 ## 🚀 Key Features
@@ -21,6 +26,7 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 
 ### 🔐 Security & User Management
 * **Secure Authentication**: Robust JWT-based Login and Registration system with encrypted password management.
+* **Advanced Forgot Password Flow**: Built-in specialized OTP routing to independently handle password resets versus account verification, ensuring maximum security.
 * **Role-Based Access Control (RBAC)**: 
   * **User Dashboard**: A personalized space for clients to generate and manage their assets.
   * **Admin Panel**: A restricted, secure layout for administrators to manage users and platform metrics.
@@ -28,11 +34,15 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 
 ### 💳 Monetization & Subscriptions
 * **Automated Payments**: Seamless integration with Stripe Checkout for instant plan upgrades and recurring subscriptions.
+* **Clean Session Handling**: Intelligent URL parsing and history management to prevent duplicate success popups and maintain a seamless user experience during checkout.
 * **Manual Local Payments**: Dedicated system for users to pay via mobile banking (bKash/Nagad) with TrxID submission.
 * **Admin Verification Portal**: Administrators can easily review, approve, or reject pending manual payments.
 * **Dynamic Pricing UI**: Beautiful, interactive pricing tables that automatically highlight active plans and provide contextual tooltips.
 * **Subscription Management**: Users can cancel their subscriptions anytime and automatically fallback to a free tier.
 * **Advanced Transaction History**: Comprehensive payment logs for both Users and Admins, featuring real-time search, plan filtering, status filtering, and custom shadcn deletion modals.
+
+### ⚡ Infrastructure & DevOps
+* **Serverless Email Proxy**: Custom Vercel Next.js API route functioning as a secure proxy to bypass strict SMTP port blockages on free-tier backend hosting (like Render), ensuring guaranteed email delivery for OTPs and notifications.
 
 ---
 
