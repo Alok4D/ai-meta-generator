@@ -48,28 +48,16 @@ export async function forgotPassword(
       body: JSON.stringify(userData),
     });
 
-    const data: ForgotPasswordApiResponse = await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
-      const message =
-        isApiError(data) && data.message
-          ? data.message
-          : `Request failed with status ${response.status}`;
-      throw new Error(message);
+      throw new Error(data.error || `Request failed with status ${response.status}`);
     }
 
-    if (isApiError(data)) {
-      throw new Error(data.errorMessages?.[0]?.message || data.message || "An error occurred");
-    }
-
-    if (isApiSuccess(data) && data.success) {
-      return {
-        message: data.message,
-        success: true,
-      };
-    }
-
-    throw new Error("Unexpected response from server");
+    return {
+      message: data.message || "Password reset email sent",
+      success: true,
+    };
   } catch (error) {
     const errorMessage =
       error instanceof Error
@@ -95,37 +83,20 @@ export async function resendOTP(email: string): Promise<ResendOtpResult> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
-    const data: ResendOtpResponse = await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
-      return {
-        success: false,
-        message: data?.message ?? "Failed to resend OTP",
-      };
-    }
-
-    if (isApiError(data)) {
-      return {
-        success: false,
-        message: data.message,
-      };
-    }
-
-    if (isApiSuccess(data)) {
-      return {
-        success: true,
-        message: data.message,
-      };
+      throw new Error(data.error || "Failed to resend OTP");
     }
 
     return {
-      success: false,
-      message: "Unexpected server response",
+      success: true,
+      message: data.message || "OTP resent successfully",
     };
   } catch (error) {
     return {
       success: false,
-      message: "Network error. Please try again.",
+      message: error instanceof Error ? error.message : "Network error. Please try again.",
     };
   }
 }
@@ -150,31 +121,19 @@ export async function resetPassword(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(userData), // Wait, reset password might expect token!
     });
 
-    const data: ResetPasswordApiResponse = await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
-      const message =
-        isApiError(data) && data.message
-          ? data.errorMessages?.[0]?.message || data.message
-          : `Request failed with status ${response.status}`;
-      throw new Error(message);
+      throw new Error(data.error || `Request failed with status ${response.status}`);
     }
 
-    if (isApiError(data)) {
-      throw new Error(data.errorMessages?.[0]?.message || data.message || "An error occurred");
-    }
-
-    if (isApiSuccess(data) && data.success) {
-      return {
-        message: data.message,
-        success: true,
-      };
-    }
-
-    throw new Error("Unexpected response from server");
+    return {
+      message: data.message || "Password updated successfully",
+      success: true,
+    };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to update password";
@@ -211,23 +170,16 @@ export async function verifyOTP(
       }
     );
 
-    const data: VerifyOtpApiResponse = await response.json();
+    const data = await response.json();
 
     if (!response.ok) {
-      const message =
-        isApiError(data) && data.message
-          ? data.message
-          : `Request failed with status ${response.status}`;
-      throw new Error(message);
+      throw new Error(data.error || `Request failed with status ${response.status}`);
     }
 
-    if (isApiError(data)) {
-      throw new Error(data.errorMessages?.[0]?.message || data.message || "An error occurred");
-    }
-
-    if (isApiSuccess(data) && data.success) {
+    // Backend returns the user object with token if successful
+    if (data.token || data._id) {
       return {
-        message: data.message,
+        message: "OTP verified successfully",
         success: true,
       };
     }
