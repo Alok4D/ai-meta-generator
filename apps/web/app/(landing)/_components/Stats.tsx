@@ -1,11 +1,30 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useRef } from "react";
+import { animate, motion, useInView, useMotionValue, useTransform } from "framer-motion";
+
+function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, (latest) => Math.round(latest) + suffix);
+
+  useEffect(() => {
+    if (isInView) {
+      const controls = animate(count, to, { duration: 2, ease: "easeOut" });
+      return controls.stop;
+    }
+  }, [count, isInView, to]);
+
+  return <motion.span ref={ref}>{rounded}</motion.span>;
+}
 
 export default function Stats() {
   const statItems = [
-    { value: "500+", label: "Files per batch" },
-    { value: "6", label: "Platforms supported" },
-    { value: "50+", label: "Keywords per image" },
-    { value: "99%", label: "Accuracy rate" },
+    { value: 500, suffix: "+", label: "Files per batch" },
+    { value: 6, suffix: "", label: "Platforms supported" },
+    { value: 50, suffix: "+", label: "Keywords per image" },
+    { value: 99, suffix: "%", label: "Accuracy rate" },
   ];
 
   return (
@@ -18,7 +37,7 @@ export default function Stats() {
               className="flex flex-col items-center justify-center text-center"
             >
               <h3 className="text-[36px] font-bold text-[#14181F] leading-[40px] tracking-tight mb-2 md:mb-3">
-                {stat.value}
+                <CountUp to={stat.value} suffix={stat.suffix} />
               </h3>
               <p className="text-[14px] font-normal text-[#6A7181] leading-[20px]">
                 {stat.label}
