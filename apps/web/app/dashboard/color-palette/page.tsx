@@ -201,7 +201,7 @@ export default function ColorPalettePage() {
                     <div 
                       key={i} 
                       className="h-full flex-1 transition-all hover:flex-[1.5]" 
-                      style={{ backgroundColor: rgbToHex(c[0], c[1], c[2]) }} 
+                      style={{ backgroundColor: rgbToHex(c[0] || 0, c[1] || 0, c[2] || 0) }} 
                     />
                   ))}
                 </div>
@@ -212,9 +212,9 @@ export default function ColorPalettePage() {
                 <div className="h-12 w-full rounded-2xl overflow-hidden flex shadow-sm border border-border/30 mt-2">
                   <div 
                     className="h-full flex-1 flex items-center justify-center text-white font-bold drop-shadow-md text-sm tracking-wider" 
-                    style={{ backgroundColor: rgbToHex(selectedColor[0], selectedColor[1], selectedColor[2]) }} 
+                    style={{ backgroundColor: rgbToHex(selectedColor[0] || 0, selectedColor[1] || 0, selectedColor[2] || 0) }} 
                   >
-                    PICKED: {rgbToHex(selectedColor[0], selectedColor[1], selectedColor[2]).toUpperCase()}
+                    PICKED: {rgbToHex(selectedColor[0] || 0, selectedColor[1] || 0, selectedColor[2] || 0).toUpperCase()}
                   </div>
                 </div>
               )}
@@ -246,8 +246,8 @@ export default function ColorPalettePage() {
 // Sub-component for individual color cards
 function ColorCard({ rgb, isPicked = false }: { rgb: number[], isPicked?: boolean }) {
   const [r, g, b] = rgb;
-  const hex = rgbToHex(r, g, b).toUpperCase();
-  const hsl = rgbToHsl(r, g, b);
+  const hex = rgbToHex(r || 0, g || 0, b || 0).toUpperCase();
+  const hsl = rgbToHsl(r || 0, g || 0, b || 0);
   
   return (
     <div className={`bg-background rounded-2xl overflow-hidden shadow-sm border transition-all hover:shadow-md ${isPicked ? 'border-primary ring-2 ring-primary/20' : 'border-border/30'}`}>
