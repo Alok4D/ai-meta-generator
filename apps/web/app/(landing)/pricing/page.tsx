@@ -7,7 +7,6 @@ import Footer from "../_components/Footer";
 import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
 import { useState, Suspense } from "react";
@@ -56,16 +55,15 @@ function PricingContent() {
       className="min-h-screen flex flex-col"
     >
       <Navbar />
-      
-      <motion.section 
+
+      <motion.section
         variants={containerVariants}
         initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
+        animate="visible"
         className="w-full bg-[#F3F5F7] py-16 md:py-18 flex-1"
       >
         <div className="max-w-6xl mx-auto px-4 md:px-8 space-y-16">
-          
+
           {/* Section Header */}
           <motion.div variants={itemVariants} className="text-center space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Simple, transparent pricing</h2>
@@ -112,60 +110,47 @@ function PricingContent() {
                 <motion.div variants={itemVariants} key={plan._id} className="flex h-full">
                   <Card className={`flex flex-col relative w-full ${plan.isPopular ? 'border-primary shadow-lg scale-105 z-10' : ''}`}>
                     {plan.isPopular && (
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
-                      Most Popular
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                    <CardDescription>{plan.description}</CardDescription>
-                    <div className="mt-4">
-                      <span className="text-4xl font-bold">${plan.price}</span>
-                      <span className="text-muted-foreground">/{plan.period}</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <ul className="space-y-3">
-                      {plan.features.map((feature: string, idx: number) => (
-                        <li key={idx} className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-primary shrink-0" /> 
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                  <CardFooter>
-                    {user?.activePlan?._id === plan._id || user?.activePlan === plan._id ? (
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger 
-                            render={
-                              <div className="w-full cursor-not-allowed" tabIndex={0}>
-                                <Button 
-                                  variant={plan.isPopular ? 'default' : 'outline'} 
-                                  className="w-full rounded-md py-5 text-md opacity-50 pointer-events-none" 
-                                  tabIndex={-1}
-                                >
-                                  {plan.buttonText}
-                                </Button>
-                              </div>
-                            } 
-                          />
-                          <TooltipContent>
-                            <p>You already have this plan active</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    ) : (
-                      <Button 
-                        variant={plan.isPopular ? 'default' : 'outline'} 
-                        className="w-full rounded-md py-5 text-md"
-                        onClick={() => handlePlanClick(plan)}
-                      >
-                        {plan.buttonText}
-                      </Button>
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
+                        Most Popular
+                      </div>
                     )}
-                  </CardFooter>
+                    <CardHeader>
+                      <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                      <CardDescription>{plan.description}</CardDescription>
+                      <div className="mt-4">
+                        <span className="text-4xl font-bold">${plan.price}</span>
+                        <span className="text-muted-foreground">/{plan.period}</span>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <ul className="space-y-3">
+                        {plan.features.map((feature: string, idx: number) => (
+                          <li key={idx} className="flex items-center gap-2">
+                            <Check className="h-4 w-4 text-primary shrink-0" />
+                            {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                    <CardFooter>
+                      {user?.activePlan?._id === plan._id || user?.activePlan === plan._id ? (
+                        <Button
+                          variant={plan.isPopular ? 'default' : 'outline'}
+                          className="w-full rounded-md py-5 text-md opacity-50 cursor-not-allowed"
+                          disabled
+                        >
+                          {plan.buttonText}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant={plan.isPopular ? 'default' : 'outline'}
+                          className="w-full rounded-md py-5 text-md"
+                          onClick={() => handlePlanClick(plan)}
+                        >
+                          {plan.buttonText}
+                        </Button>
+                      )}
+                    </CardFooter>
                   </Card>
                 </motion.div>
               ))
@@ -174,17 +159,17 @@ function PricingContent() {
         </div>
       </motion.section>
 
-      <CTA 
+      <CTA
         title="Claim Your Free Welcome Bonus!"
         subtitle={<>Start your journey with 100 free credits. No credit card <br className="hidden sm:block" />required.</>}
         claimBonusMode={true}
       />
       <Footer />
 
-      <PaymentModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        plan={selectedPlan} 
+      <PaymentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        plan={selectedPlan}
       />
     </motion.main>
   );
