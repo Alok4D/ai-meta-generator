@@ -46,8 +46,7 @@ export function DashboardHeader() {
           )}
           {mounted ? (
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href="/dashboard/profile" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+              <TooltipTrigger render={<Link href="/dashboard/profile" className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors" />}>
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs uppercase overflow-hidden relative">
                     {user?.avatar ? (
                       <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
@@ -55,7 +54,6 @@ export function DashboardHeader() {
                       user?.name?.charAt(0) || "U"
                     )}
                   </div>
-                </Link>
               </TooltipTrigger>
               <TooltipContent side="left">
                 <p>{user?.name || "User"}</p>
@@ -63,12 +61,10 @@ export function DashboardHeader() {
             </Tooltip>
           ) : (
             <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 text-sm font-medium">
+              <TooltipTrigger render={<div className="flex items-center gap-2 text-sm font-medium" />}>
                   <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative">
                     U
                   </div>
-                </div>
               </TooltipTrigger>
               <TooltipContent side="left">
                 <p>User</p>
