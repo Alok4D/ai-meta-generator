@@ -546,7 +546,7 @@ export const claimWelcomeBonus = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    user.credits += 100;
+    user.credits += 20;
     user.hasClaimedWelcomeBonus = true;
     await user.save({ validateBeforeSave: false });
 

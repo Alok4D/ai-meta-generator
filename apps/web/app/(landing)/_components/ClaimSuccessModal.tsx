@@ -60,7 +60,7 @@ export default function ClaimSuccessModal({ isOpen, onClose }: ClaimSuccessModal
           <h2 className="text-[32px] font-bold mb-4 tracking-tight">Congratulations!</h2>
 
           <p className="text-slate-500 text-[16px] mb-8 leading-relaxed max-w-[335px] mx-auto">
-            100 Credits added to your account! Please check your balance and start generating.
+            20 Credits added to your account! Please check your balance and start generating.
           </p>
 
           <button

@@ -162,7 +162,7 @@ function PricingContent() {
 
       <CTA
         title="Claim Your Free Welcome Bonus!"
-        subtitle={<>Start your journey with 100 free credits. No credit card <br className="hidden sm:block" />required.</>}
+        subtitle={<>Start your journey with 20 free credits. No credit card <br className="hidden sm:block" />required.</>}
         claimBonusMode={true}
       />
       <Footer />

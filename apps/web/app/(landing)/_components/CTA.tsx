@@ -9,6 +9,8 @@ import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import { useClaimWelcomeBonusMutation } from "@/lib/feature/auth/authApi";
 import { setUser } from "@/lib/feature/auth/authSlice";
+import Swal from 'sweetalert2';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import WelcomeBonusModal from "./WelcomeBonusModal";
 import ClaimSuccessModal from "./ClaimSuccessModal";
 
@@ -41,7 +43,13 @@ export default function CTA({
     }
 
     if (user.hasClaimedWelcomeBonus) {
-      toast.info("You have already claimed your welcome bonus!");
+      Swal.fire({
+        title: 'Already Claimed!',
+        text: "You have already claimed your welcome bonus. Keep generating amazing metadata!",
+        icon: 'info',
+        confirmButtonColor: '#18181B',
+        confirmButtonText: 'Got it!'
+      });
       return;
     }
 
@@ -69,15 +77,26 @@ export default function CTA({
             {subtitle}
           </p>
 
-          {claimBonusMode && (!user || !user.hasClaimedWelcomeBonus) ? (
-            <button
-              onClick={handleClaimBonus}
-              disabled={isClaiming}
-              className="bg-white hover:bg-gray-100 text-[#14181F] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 text-[14px] leading-[20px] font-semibold transition-all duration-200 hover:scale-105"
-            >
-              <Gift size={18} strokeWidth={2.5} />
-              {isClaiming ? "Claiming..." : "Get 100 Free Credits"}
-            </button>
+          {claimBonusMode ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger render={<div className="w-full sm:w-auto" />}>
+                  <button
+                    onClick={handleClaimBonus}
+                    disabled={isClaiming}
+                    className="bg-white hover:bg-gray-100 text-[#14181F] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 text-[14px] leading-[20px] font-semibold transition-all duration-200 hover:scale-105"
+                  >
+                    <Gift size={18} strokeWidth={2.5} />
+                    {isClaiming ? "Claiming..." : "Get 20 Free Credits"}
+                  </button>
+                </TooltipTrigger>
+                {user?.hasClaimedWelcomeBonus && (
+                  <TooltipContent>
+                    <p>You've already claimed your welcome bonus!</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
           ) : (
             <Link href={user ? "/dashboard/generator" : "/login"}>
               <button className="bg-white hover:bg-gray-100 text-[#14181F] px-8 py-3.5 rounded-full flex items-center justify-center gap-2 text-[14px] leading-[20px] font-semibold transition-all duration-200 hover:scale-105">

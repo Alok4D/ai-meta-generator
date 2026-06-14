@@ -1,13 +1,15 @@
 "use client";
 
+import Link from "next/link";
+import { toast } from "sonner";
 import React, { useState } from "react";
 import { Sparkles, ArrowRight, Upload, ImageIcon, Gift, PlayCircle } from "lucide-react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { useClaimWelcomeBonusMutation } from "@/lib/feature/auth/authApi";
 import { setUser } from "@/lib/feature/auth/authSlice";
-import { toast } from "sonner";
+import Swal from 'sweetalert2';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import WelcomeBonusModal from "./WelcomeBonusModal";
 import ClaimSuccessModal from "./ClaimSuccessModal";
 
@@ -27,7 +29,13 @@ export default function Hero() {
     
     // Check if user already claimed
     if (user.hasClaimedWelcomeBonus) {
-      toast.info("You have already claimed your welcome bonus!");
+      Swal.fire({
+        title: 'Already Claimed!',
+        text: "You have already claimed this welcome gift! Keep generating amazing metadata.",
+        icon: 'info',
+        confirmButtonColor: '#18181B',
+        confirmButtonText: 'Got it!'
+      });
       return;
     }
     
@@ -109,23 +117,25 @@ export default function Hero() {
           <ArrowRight size={18} strokeWidth={2} />
         </button>
        </Link>
-        {!user?.hasClaimedWelcomeBonus ? (
-          <button 
-            onClick={handleClaimBonus}
-            disabled={isClaiming}
-            className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm"
-          >
-            <Gift size={18} strokeWidth={2} />
-            {isClaiming ? "Claiming..." : "Get 100 Free Credits"}
-          </button>
-        ) : (
-          <Link href="/how-it-works" className="w-full sm:w-auto">
-            <button className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm">
-              <PlayCircle size={18} strokeWidth={2} />
-              How it works
-            </button>
-          </Link>
-        )}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger render={<div className="w-full sm:w-auto" />}>
+              <button 
+                onClick={handleClaimBonus}
+                disabled={isClaiming}
+                className="w-full sm:w-auto bg-white hover:bg-gray-50 border border-gray-200 text-slate-700 px-6 py-3 rounded-full flex items-center justify-center gap-2 text-[15px] font-medium transition-colors duration-200 shadow-sm"
+              >
+                <Gift size={18} strokeWidth={2} />
+                {isClaiming ? "Claiming..." : "Get 20 Free Credits"}
+              </button>
+            </TooltipTrigger>
+            {user?.hasClaimedWelcomeBonus && (
+              <TooltipContent>
+                <p>You've already claimed your welcome bonus!</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </motion.div>
 
       <WelcomeBonusModal 
