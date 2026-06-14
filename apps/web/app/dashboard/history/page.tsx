@@ -23,9 +23,11 @@ export default function HistoryPage() {
   };
 
   const handleDownloadCSV = (item: any) => {
-    const safeTitle = item.title.replace(/"/g, '""');
-    const safeKeywords = item.keywords.join(",").replace(/"/g, '""');
-    const csvContent = `Title,Keywords,Category\n"${safeTitle}","${safeKeywords}","${item.category}"`;
+    const mainText = item.platform === 'shutterstock' ? item.description : item.title;
+    const safeTitle = mainText ? mainText.replace(/"/g, '""') : '';
+    const safeKeywords = item.keywords ? item.keywords.join(",").replace(/"/g, '""') : '';
+    const labelText = item.platform === 'shutterstock' ? 'Description' : 'Title';
+    const csvContent = `Filename,${labelText},Keywords,Category\n"image","${safeTitle}","${safeKeywords}","${item.category}"`;
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -71,7 +73,7 @@ export default function HistoryPage() {
                 <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
                   <tr>
                     <th className="px-6 py-4 font-medium">Image</th>
-                    <th className="px-6 py-4 font-medium">Title</th>
+                    <th className="px-6 py-4 font-medium">Title / Description</th>
                     <th className="px-6 py-4 font-medium">Category</th>
                     <th className="px-6 py-4 font-medium">Date</th>
                     <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -91,8 +93,8 @@ export default function HistoryPage() {
                           </div>
                         )}
                       </td>
-                      <td className="px-6 py-4 font-medium min-w-[300px]" title={item.title}>
-                        {item.title}
+                      <td className="px-6 py-4 font-medium min-w-[300px]" title={item.platform === 'shutterstock' ? item.description : item.title}>
+                        {item.platform === 'shutterstock' ? item.description : item.title}
                       </td>
                       <td className="px-6 py-4 capitalize">{item.category}</td>
                       <td className="px-6 py-4 text-xs text-muted-foreground">

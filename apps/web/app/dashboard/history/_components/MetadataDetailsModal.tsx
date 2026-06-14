@@ -31,8 +31,8 @@ export default function MetadataDetailsModal({
             </div>
           )}
           <div>
-            <h4 className="text-sm font-semibold text-muted-foreground mb-1">Title</h4>
-            <div className="p-3 bg-muted rounded-md text-sm">{viewItem.title}</div>
+            <h4 className="text-sm font-semibold text-muted-foreground mb-1">{viewItem.platform === 'shutterstock' ? 'Description' : 'Title'}</h4>
+            <div className="p-3 bg-muted rounded-md text-sm">{viewItem.platform === 'shutterstock' ? viewItem.description : viewItem.title}</div>
           </div>
           <div>
             <h4 className="text-sm font-semibold text-muted-foreground mb-1">Category</h4>
