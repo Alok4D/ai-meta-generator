@@ -244,6 +244,18 @@ export default function Dashboard() {
     URL.revokeObjectURL(url);
   };
 
+  const handleCopy = (text: string | undefined, label: string) => {
+    if (!text) {
+      toast.error(`Nothing to copy for ${label}`);
+      return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} copied to clipboard!`);
+    }).catch(() => {
+      toast.error(`Failed to copy ${label}`);
+    });
+  };
+
   useEffect(() => {
     let tMax = 200, tMin = 20, kMax = 50, kMin = 5;
     if (platform === 'adobe') { tMax = 200; kMax = 49; kMin = 5; }
@@ -551,23 +563,23 @@ export default function Dashboard() {
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">{metadata.platform === 'shutterstock' ? 'Description' : 'Title'}</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.platform === 'shutterstock' ? metadata.description : metadata.title)}>Copy</Button>
+                      <h4 className="text-md font-medium text-muted-foreground">{metadata.platform === 'shutterstock' ? 'Description' : 'Title'}</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => handleCopy(metadata.platform === 'shutterstock' ? metadata.description : metadata.title, metadata.platform === 'shutterstock' ? 'Description' : 'Title')}>Copy</Button>
                     </div>
                     <div className="p-3 bg-muted rounded-md text-sm leading-relaxed">{metadata.platform === 'shutterstock' ? metadata.description : metadata.title}</div>
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-muted-foreground mb-1">Category</h4>
+                    <h4 className="text-md font-medium text-muted-foreground mb-1">Category</h4>
                     <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.category}</div>
                   </div>
                   <div>
                     <div className="flex justify-between items-end mb-1">
-                      <h4 className="text-sm font-semibold text-muted-foreground">Keywords ({metadata.keywords?.length || 49})</h4>
-                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => navigator.clipboard.writeText(metadata.keywords.join(', '))}>Copy</Button>
+                      <h4 className="text-md font-medium text-muted-foreground">Keywords ({metadata.keywords?.length || 49})</h4>
+                      <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => handleCopy(metadata.keywords?.join(', '), 'Keywords')}>Copy</Button>
                     </div>
                     <div className="flex flex-wrap gap-2 mt-2 p-3 bg-muted/30 rounded-md border">
                       {metadata.keywords.map((kw: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-background text-foreground border rounded-md text-xs font-medium shadow-sm">
+                        <span key={i} className="px-2 py-1 bg-background text-foreground border rounded-md text-sm font-medium shadow-sm capitalize">
                           {kw}
                         </span>
                       ))}
