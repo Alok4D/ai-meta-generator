@@ -148,6 +148,33 @@ export default function Dashboard() {
       }
       return;
     }
+
+    const hasSeenWarning = localStorage.getItem("hasSeenGenerateWarning");
+    if (!hasSeenWarning) {
+      const result = await Swal.fire({
+        title: 'Generate Metadata?',
+        html: `This action will cost <strong>1 credit</strong> from your account.<br/><br/>
+               <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;">
+                 <input type="checkbox" id="dontShowAgain" style="cursor: pointer; width: 16px; height: 16px;" />
+                 <label for="dontShowAgain" style="cursor: pointer; font-size: 14px;">Don't show this again</label>
+               </div>`,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, proceed',
+        preConfirm: () => {
+          const checkbox = document.getElementById('dontShowAgain') as HTMLInputElement;
+          return checkbox?.checked;
+        }
+      });
+
+      if (!result.isConfirmed) return;
+
+      if (result.value) {
+        localStorage.setItem("hasSeenGenerateWarning", "true");
+      }
+    }
     
     const formData = new FormData();
     formData.append("image", file);
