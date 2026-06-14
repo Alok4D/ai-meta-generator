@@ -587,7 +587,7 @@ export default function Dashboard() {
                   </div>
                   <Button 
                     variant="default" 
-                    className="w-full mt-4"
+                    className="w-full mt-4 py-5"
                     onClick={handleRegenerate}
                     disabled={isRegenerating}
                   >
