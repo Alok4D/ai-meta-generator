@@ -7,7 +7,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Filter } from "lucide-react";
 import MetadataDetailsModal from "./_components/MetadataDetailsModal";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function HistoryPage() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -16,6 +18,13 @@ export default function HistoryPage() {
   });
   const [deleteHistory] = useDeleteHistoryMutation();
   const [viewItem, setViewItem] = useState<any>(null);
+  const [filterPlatform, setFilterPlatform] = useState<string>("all");
+
+  const filteredHistory = history.filter((item: any) => {
+    if (filterPlatform === "all") return true;
+    if (filterPlatform === "general") return !item.platform || item.platform === "general";
+    return item.platform === filterPlatform;
+  });
 
   const handleCopy = (keywords: string[]) => {
     navigator.clipboard.writeText(keywords.join(", "));
@@ -54,14 +63,76 @@ export default function HistoryPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h2 className="text-3xl font-medium tracking-tight">Generation History</h2>
-        <p className="text-muted-foreground">View your past AI-generated SEO metadata.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-medium tracking-tight">Generation History</h2>
+          <p className="text-muted-foreground">View your past AI-generated SEO metadata.</p>
+        </div>
+        
+        <div className="w-full sm:w-auto">
+          <Select value={filterPlatform} onValueChange={setFilterPlatform}>
+            <SelectTrigger className="w-full sm:w-[200px] py-5 bg-card border-border shadow-sm hover:bg-muted/50 transition-colors h-10 font-medium">
+              <div className="flex items-center gap-2.5 text-foreground/80 w-full">
+                <Filter className="w-4 h-4 text-primary flex-shrink-0" />
+                {filterPlatform === "all" && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary/50"></div>
+                    <span className="truncate">All Platforms</span>
+                  </div>
+                )}
+                {filterPlatform === "adobe" && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span className="truncate">Adobe Stock</span>
+                  </div>
+                )}
+                {filterPlatform === "shutterstock" && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span className="truncate">Shutterstock</span>
+                  </div>
+                )}
+                {filterPlatform === "general" && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <span className="truncate">General</span>
+                  </div>
+                )}
+              </div>
+            </SelectTrigger>
+            <SelectContent align="end" className="font-medium">
+              <SelectItem value="all">
+                <span className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary/50"></div>
+                  All Platforms
+                </span>
+              </SelectItem>
+              <SelectItem value="adobe">
+                <span className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  Adobe Stock
+                </span>
+              </SelectItem>
+              <SelectItem value="shutterstock">
+                <span className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  Shutterstock
+                </span>
+              </SelectItem>
+              <SelectItem value="general">
+                <span className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  General
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {loading ? (
         <div className="text-center text-muted-foreground py-12">Loading...</div>
-      ) : history.length === 0 ? (
+      ) : filteredHistory.length === 0 ? (
         <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-xl bg-muted/10">
           No history found. Generate some metadata first!
         </div>
@@ -80,7 +151,7 @@ export default function HistoryPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {history?.map((item: any) => (
+                  {filteredHistory?.map((item: any) => (
                     <tr key={item._id} className="bg-card hover:bg-muted/30 transition-colors">
                       <td className="px-6 py-4">
                         {item.imageUrl ? (
