@@ -11,6 +11,7 @@ import { Filter, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import MetadataDetailsModal from "./_components/MetadataDetailsModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HistoryPage() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -153,7 +154,50 @@ export default function HistoryPage() {
       </div>
 
       {loading ? (
-        <div className="text-center text-muted-foreground py-12">Loading...</div>
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
+                  <tr>
+                    <th className="px-6 py-4 font-medium">Image</th>
+                    <th className="px-6 py-4 font-medium">Title / Description</th>
+                    <th className="px-6 py-4 font-medium">Category</th>
+                    <th className="px-6 py-4 font-medium">Date</th>
+                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {[...Array(5)].map((_, i) => (
+                    <tr key={i} className="bg-card">
+                      <td className="px-6 py-4">
+                        <Skeleton className="w-16 h-16 rounded-md" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-4 w-3/4 mb-2" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-4 w-20" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-4 w-24" />
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Skeleton className="h-8 w-12" />
+                          <Skeleton className="h-8 w-12" />
+                          <Skeleton className="h-8 w-20" />
+                          <Skeleton className="h-8 w-16" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       ) : filteredHistory.length === 0 ? (
         <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-xl bg-muted/10">
           No history found. Generate some metadata first!
