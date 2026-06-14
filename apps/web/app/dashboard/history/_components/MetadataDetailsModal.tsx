@@ -4,14 +4,18 @@ interface MetadataDetailsModalProps {
   viewItem: any;
   setViewItem: (item: any) => void;
   handleDownloadCSV: (item: any) => void;
+  handleDownloadTXT: (item: any) => void;
   handleCopy: (keywords: string[]) => void;
+  hasProAccess: boolean;
 }
 
 export default function MetadataDetailsModal({
   viewItem,
   setViewItem,
   handleDownloadCSV,
+  handleDownloadTXT,
   handleCopy,
+  hasProAccess,
 }: MetadataDetailsModalProps) {
   if (!viewItem) return null;
 
@@ -50,7 +54,10 @@ export default function MetadataDetailsModal({
           </div>
         </div>
         <div className="flex justify-end gap-2 p-6 border-t bg-muted/20">
-          <Button variant="outline" onClick={() => handleDownloadCSV(viewItem)}>Download CSV</Button>
+          <Button variant="outline" onClick={() => handleDownloadTXT(viewItem)}>Download TXT</Button>
+          {hasProAccess && (
+            <Button variant="outline" onClick={() => handleDownloadCSV(viewItem)}>Download CSV</Button>
+          )}
           <Button onClick={() => handleCopy(viewItem.keywords)}>Copy Keywords</Button>
         </div>
       </div>

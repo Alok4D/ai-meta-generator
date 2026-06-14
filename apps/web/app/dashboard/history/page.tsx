@@ -7,7 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Filter } from "lucide-react";
+import { Filter, ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import MetadataDetailsModal from "./_components/MetadataDetailsModal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -19,6 +20,9 @@ export default function HistoryPage() {
   const [deleteHistory] = useDeleteHistoryMutation();
   const [viewItem, setViewItem] = useState<any>(null);
   const [filterPlatform, setFilterPlatform] = useState<string>("all");
+
+  const planName = user?.activePlan?.name?.toLowerCase();
+  const hasProAccess = planName === 'pro' || planName === 'agency';
 
   const filteredHistory = history.filter((item: any) => {
     if (filterPlatform === "all") return true;
@@ -48,6 +52,24 @@ export default function HistoryPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadTXT = (item: any) => {
+    const mainText = item.platform === 'shutterstock' ? item.description : item.title;
+    const safeTitle = mainText || '';
+    const safeKeywords = item.keywords ? item.keywords.join(", ") : '';
+    const labelText = item.platform === 'shutterstock' ? 'Description' : 'Title';
+    
+    const txtContent = `${labelText}:\n${safeTitle}\n\nKeywords:\n${safeKeywords}\n\nCategory:\n${item.category}`;
+    const blob = new Blob([txtContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `metadata-${item._id}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this history item?")) {
       try {
@@ -70,7 +92,7 @@ export default function HistoryPage() {
         </div>
         
         <div className="w-full sm:w-auto">
-          <Select value={filterPlatform} onValueChange={setFilterPlatform}>
+          <Select value={filterPlatform} onValueChange={(val) => { if (val) setFilterPlatform(val) }}>
             <SelectTrigger className="w-full sm:w-[200px] py-5 bg-card border-border shadow-sm hover:bg-muted/50 transition-colors h-10 font-medium">
               <div className="flex items-center gap-2.5 text-foreground/80 w-full">
                 <Filter className="w-4 h-4 text-primary flex-shrink-0" />
@@ -175,7 +197,23 @@ export default function HistoryPage() {
                         <div className="flex justify-end gap-2">
                           <Button variant="outline" size="sm" className="h-8 px-2 text-xs" onClick={() => setViewItem(item)}>View</Button>
                           <Button variant="outline" size="sm" className="h-8 px-2 text-xs" onClick={() => handleCopy(item.keywords)}>Copy</Button>
-                          <Button variant="outline" size="sm" className="h-8 px-2 text-xs" onClick={() => handleDownloadCSV(item)}>Download</Button>
+                          {hasProAccess ? (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-2 text-xs gap-1">
+                                Download <ChevronDown className="w-3 h-3" />
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleDownloadTXT(item)}>
+                                  Download as TXT
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDownloadCSV(item)}>
+                                  Download as CSV
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          ) : (
+                            <Button variant="outline" size="sm" className="h-8 px-2 text-xs" onClick={() => handleDownloadTXT(item)}>Download TXT</Button>
+                          )}
                           <Button variant="destructive" size="sm" className="h-8 px-2 text-xs" onClick={() => handleDelete(item._id)}>Delete</Button>
                         </div>
                       </td>
@@ -193,7 +231,9 @@ export default function HistoryPage() {
         viewItem={viewItem} 
         setViewItem={setViewItem} 
         handleDownloadCSV={handleDownloadCSV} 
+        handleDownloadTXT={handleDownloadTXT}
         handleCopy={handleCopy} 
+        hasProAccess={hasProAccess}
       />
     </div>
   );
