@@ -11,6 +11,7 @@ import { useUploadImageMutation } from "@/lib/feature/upload/uploadApi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { SettingsSidebar } from "../generator/_components/SettingsSidebar";
 
 type BatchItem = {
   id: string;
@@ -43,6 +44,87 @@ export default function BatchUploadPage() {
       router.push("/login");
     }
   }, [user, router]);
+
+  // Advanced Settings State
+  const [platform, setPlatform] = useState('general');
+  const [titleLength, setTitleLength] = useState([157]);
+  const [keywordCount, setKeywordCount] = useState([41]);
+  const [usePrefix, setUsePrefix] = useState(false);
+  const [prefix, setPrefix] = useState('');
+  const [useSuffix, setUseSuffix] = useState(false);
+  const [suffix, setSuffix] = useState('');
+  const [useNegativeTitle, setUseNegativeTitle] = useState(false);
+  const [negativeTitleWords, setNegativeTitleWords] = useState('');
+  const [useNegativeKeywords, setUseNegativeKeywords] = useState(false);
+  const [negativeKeywords, setNegativeKeywords] = useState('');
+
+  // Load settings from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('metaGenSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.platform) setPlatform(parsed.platform);
+        if (parsed.titleLength) setTitleLength([parsed.titleLength]);
+        if (parsed.keywordCount) setKeywordCount([parsed.keywordCount]);
+        if (parsed.usePrefix !== undefined) setUsePrefix(parsed.usePrefix);
+        if (parsed.prefix) setPrefix(parsed.prefix);
+        if (parsed.useSuffix !== undefined) setUseSuffix(parsed.useSuffix);
+        if (parsed.suffix) setSuffix(parsed.suffix);
+        if (parsed.useNegativeTitle !== undefined) setUseNegativeTitle(parsed.useNegativeTitle);
+        if (parsed.negativeTitleWords) setNegativeTitleWords(parsed.negativeTitleWords);
+        if (parsed.useNegativeKeywords !== undefined) setUseNegativeKeywords(parsed.useNegativeKeywords);
+        if (parsed.negativeKeywords) setNegativeKeywords(parsed.negativeKeywords);
+      } catch (e) {
+        console.error("Failed to parse settings");
+      }
+    }
+  }, []);
+
+  // Save settings to localStorage when they change
+  useEffect(() => {
+    const settings = {
+      platform,
+      titleLength: titleLength[0],
+      keywordCount: keywordCount[0],
+      usePrefix, prefix,
+      useSuffix, suffix,
+      useNegativeTitle, negativeTitleWords,
+      useNegativeKeywords, negativeKeywords
+    };
+    localStorage.setItem('metaGenSettings', JSON.stringify(settings));
+  }, [platform, titleLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords]);
+
+  useEffect(() => {
+    let tMax = 200, tMin = 20, kMax = 50, kMin = 5;
+    if (platform === 'adobe') { tMax = 200; kMax = 49; kMin = 5; }
+    else if (platform === 'shutterstock') { tMax = 2048; kMax = 50; kMin = 7; }
+
+    const curTitle = titleLength[0] || 157;
+    const curKw = keywordCount[0] || 41;
+
+    if (curTitle > tMax) setTitleLength([tMax]);
+    else if (curTitle < tMin) setTitleLength([tMin]);
+    
+    if (curKw > kMax) setKeywordCount([kMax]);
+    else if (curKw < kMin) setKeywordCount([kMin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platform]);
+
+  let maxTitleLength = 200;
+  let minTitleLength = 20;
+  let maxKeywords = 50;
+  let minKeywords = 5;
+
+  if (platform === 'adobe') {
+    maxTitleLength = 200;
+    maxKeywords = 49;
+    minKeywords = 5;
+  } else if (platform === 'shutterstock') {
+    maxTitleLength = 2048;
+    maxKeywords = 50;
+    minKeywords = 7;
+  }
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (isProcessing) {
@@ -122,6 +204,13 @@ export default function BatchUploadPage() {
 
       const formData = new FormData();
       formData.append("image", item.file);
+      formData.append("platform", platform);
+      formData.append("titleLength", (titleLength[0] || 157).toString());
+      formData.append("keywordCount", (keywordCount[0] || 41).toString());
+      if (prefix) formData.append("prefix", prefix);
+      if (suffix) formData.append("suffix", suffix);
+      if (negativeTitleWords) formData.append("negativeTitleWords", negativeTitleWords);
+      if (negativeKeywords) formData.append("negativeKeywords", negativeKeywords);
 
       try {
         const data = await uploadImage(formData).unwrap();
@@ -155,7 +244,8 @@ export default function BatchUploadPage() {
     let csvContent = `Filename,Title,Keywords,Category\n`;
     
     successfulItems.forEach(item => {
-      const safeTitle = item.metadata.title.replace(/"/g, '""');
+      const mainText = item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title;
+      const safeTitle = mainText ? mainText.replace(/"/g, '""') : '';
       const safeKeywords = item.metadata.keywords.join(",").replace(/"/g, '""');
       csvContent += `"${item.file.name}","${safeTitle}","${safeKeywords}","${item.metadata.category}"\n`;
     });
@@ -202,7 +292,7 @@ export default function BatchUploadPage() {
   if (!user) return null;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-7xl mx-auto">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-3xl font-medium tracking-tight">Batch Upload</h2>
@@ -224,9 +314,23 @@ export default function BatchUploadPage() {
         )}
       </div>
 
-      {items.length > 0 && renderProgressBar()}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Left Sidebar */}
+        <SettingsSidebar 
+          platform={platform} setPlatform={setPlatform}
+          titleLength={titleLength} setTitleLength={setTitleLength} maxTitleLength={maxTitleLength} minTitleLength={minTitleLength}
+          keywordCount={keywordCount} setKeywordCount={setKeywordCount} maxKeywords={maxKeywords} minKeywords={minKeywords}
+          prefix={prefix} setPrefix={setPrefix}
+          suffix={suffix} setSuffix={setSuffix}
+          negativeTitleWords={negativeTitleWords} setNegativeTitleWords={setNegativeTitleWords}
+          negativeKeywords={negativeKeywords} setNegativeKeywords={setNegativeKeywords}
+        />
 
-      {items.length === 0 ? (
+        {/* Right Area: Batch Processing UI */}
+        <div className="flex-1 space-y-6 min-w-0">
+          {items.length > 0 && renderProgressBar()}
+
+          {items.length === 0 ? (
         <Card className="border-dashed border-2 bg-muted/5">
           <CardContent className="flex flex-col items-center justify-center h-80 text-center space-y-4 p-6">
             {!hasAccess ? (
@@ -359,13 +463,13 @@ export default function BatchUploadPage() {
                         {/* Title Section */}
                         <div className="bg-muted/30 p-3 rounded-lg border border-muted/50">
                           <div className="flex justify-between items-center mb-1.5">
-                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Title</span>
-                            <button onClick={() => { navigator.clipboard.writeText(item.metadata.title); toast.success("Copied!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md">
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{item.metadata.platform === 'shutterstock' ? 'Description' : 'Title'}</span>
+                            <button onClick={() => { navigator.clipboard.writeText(item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title); toast.success("Copied!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md">
                               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                               Copy
                             </button>
                           </div>
-                          <p className="text-sm font-medium leading-snug">{item.metadata.title}</p>
+                          <p className="text-sm font-medium leading-snug">{item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title}</p>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -407,6 +511,8 @@ export default function BatchUploadPage() {
           ))}
         </div>
       )}
+      </div>
+      </div>
 
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
         <DialogContent className="sm:max-w-md">
