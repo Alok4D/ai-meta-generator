@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { Check, CheckSquare, Square, X, ExternalLink, Copy } from 'lucide-react';
+import { Check, CheckSquare, Square, X, ExternalLink, Copy, Download } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 interface WorkGridProps {
     works: any[];
@@ -28,15 +29,15 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
         
         const rect = e.currentTarget.getBoundingClientRect();
         // Default to aligning right edge of popover with right edge of icon
-        let x = rect.right - 750;
+        let x = rect.right - 850;
         // If it goes off-screen to the left, align left edge instead
         if (x < 10) x = rect.left;
         
         // Default to opening downwards
         let y = rect.bottom + 8;
         // If it goes off-screen at the bottom, open upwards
-        if (typeof window !== 'undefined' && y + 450 > window.innerHeight) {
-            y = rect.top - 450 - 8;
+        if (typeof window !== 'undefined' && y + 500 > window.innerHeight) {
+            y = rect.top - 500 - 8;
         }
         
         setPopoverPos({ x, y });
@@ -48,6 +49,32 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
             setHoveredInfoId(null);
         }, 300); // 300ms delay allows user to move mouse to the popup
     };
+
+    const handleDownload = (format: 'txt' | 'csv', item: any) => {
+        if (!item.keywords) return;
+        const text = item.keywords.map((k: any) => k.title_keyword).join(format === 'csv' ? ',' : ', ');
+        const blob = new Blob([text], { type: format === 'csv' ? 'text/csv' : 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `keywords_${item.id_work}.${format}`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Copied successfully",
+            showConfirmButton: false,
+            timer: 1500,
+            backdrop: false
+        });
+    };
+
     if (!works || works.length === 0) {
         return (
             <div className="flex items-center justify-center h-64 text-gray-500">
@@ -124,7 +151,7 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                 {/* Detailed Popover */}
                                 {hoveredInfoId === item.id_work && (
                                     <div 
-                                        className="fixed w-[750px] h-[450px] bg-[#f8f9fa] dark:bg-gray-800 shadow-2xl rounded-md border border-gray-200 dark:border-gray-700 flex cursor-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-[9999]"
+                                        className="fixed w-[850px] h-[500px] bg-[#f8f9fa] dark:bg-gray-800 shadow-2xl rounded-md border border-gray-200 dark:border-gray-700 flex cursor-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-[9999]"
                                         style={{ left: popoverPos.x, top: popoverPos.y }}
                                         onClick={(e) => e.stopPropagation()} 
                                     >
@@ -167,8 +194,8 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                                     {item.title_work || "No title provided"}
                                                 </p>
                                                 <button 
-                                                    onClick={() => navigator.clipboard.writeText(item.title_work)}
-                                                    className="absolute right-0 bottom-0 opacity-0 group-hover/title:opacity-100 text-gray-400 hover:text-gray-700 transition-all"
+                                                    onClick={() => handleCopy(item.title_work)}
+                                                    className="absolute right-0 top-0 opacity-100 text-gray-400 hover:text-gray-700 transition-all"
                                                     title="Copy title"
                                                 >
                                                     <Copy className="w-4 h-4" />
@@ -176,7 +203,21 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                             </div>
 
                                             {/* Keywords */}
-                                            <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-2">Keywords:</span>
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm">Keywords:</span>
+                                                {item.keywords && (
+                                                    <button 
+                                                        onClick={() => {
+                                                            const text = item.keywords.map((k: any) => k.title_keyword).join(', ');
+                                                            handleCopy(text);
+                                                        }}
+                                                        className="text-gray-400 hover:text-gray-700 transition-colors"
+                                                        title="Copy all keywords"
+                                                    >
+                                                        <Copy className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                            </div>
                                             <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-2 relative">
                                                 <div className="flex flex-wrap items-center gap-x-1 gap-y-2 pb-2">
                                                     {item.keywords && Array.isArray(item.keywords) && item.keywords.map((kw: any, idx: number) => {
@@ -204,8 +245,19 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                             
                                             {/* Keyword Count Footer */}
                                             {item.keywords && (
-                                                <div className="text-[11px] text-gray-500 text-right mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-                                                    {item.keywords.length} / {item.keywords.length}
+                                                <div className="flex justify-between items-center text-[11px] text-gray-500 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                                    <div className="flex gap-3">
+                                                        <span className="uppercase tracking-wider font-medium">Download:</span>
+                                                        <button onClick={() => handleDownload('txt', item)} className="hover:text-blue-600 flex items-center gap-1 transition-colors">
+                                                            <Download className="w-3 h-3" /> TXT
+                                                        </button>
+                                                        <button onClick={() => handleDownload('csv', item)} className="hover:text-blue-600 flex items-center gap-1 transition-colors">
+                                                            <Download className="w-3 h-3" /> CSV
+                                                        </button>
+                                                    </div>
+                                                    <div>
+                                                        {item.keywords.length} / {item.keywords.length}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
