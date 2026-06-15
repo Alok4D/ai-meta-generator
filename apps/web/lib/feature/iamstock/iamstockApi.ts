@@ -2,7 +2,7 @@ import { baseApi } from "@/lib/api/baseApi";
 
 export const iamstockApi = baseApi.injectEndpoints({
     endpoints: (builder) => ({
-        searchImstocker: builder.mutation<any, { search: string, sessionId?: string, count?: number, offset?: number }>({
+        searchImstocker: builder.mutation<any, { search: string, sessionId?: string, count?: number, offset?: number, type?: number[] }>({
             queryFn: async (arg) => {
                 try {
                     const response = await fetch('/api/imstocker', {

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 const IAMStockPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [sessionId, setSessionId] = useState("");
+    const [typeFilter, setTypeFilter] = useState("any");
     const [searchImstocker, { isLoading, data }] = useSearchImstockerMutation();
 
     const handleSearch = async (e: React.FormEvent) => {
@@ -18,7 +19,8 @@ const IAMStockPage = () => {
         }
 
         try {
-            await searchImstocker({ search: searchTerm, sessionId, count: 100 }).unwrap();
+            const selectedType = typeFilter === "any" ? undefined : [parseInt(typeFilter)];
+            await searchImstocker({ search: searchTerm, sessionId, count: 100, type: selectedType }).unwrap();
             toast.success("Search completed!");
         } catch (error: any) {
             toast.error(error?.data?.message || error?.error || "Failed to fetch data from IMStocker");
@@ -33,21 +35,37 @@ const IAMStockPage = () => {
             </div>
 
             <form onSubmit={handleSearch} className="flex flex-col gap-3 max-w-2xl">
-                <div className="flex gap-3">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
-                        <input
-                            type="text"
-                            placeholder="Search for keywords (e.g., success, corporate...)"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all outline-none dark:bg-gray-800 dark:border-gray-700 dark:focus:ring-blue-500/30 text-gray-900 dark:text-gray-100 shadow-sm"
-                        />
+                <div className="flex w-full items-center bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+                    <div className="pl-4 pr-2 text-gray-400">
+                        <Search className="h-5 w-5" />
                     </div>
+                    <input
+                        type="text"
+                        placeholder="Search for works..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="flex-1 px-2 py-4 bg-transparent outline-none dark:text-gray-100 placeholder-gray-400"
+                    />
+                    
+                    <div className="border-l border-gray-200 dark:border-gray-700 flex items-center h-full px-3">
+                        <span className="text-sm text-gray-500 mr-2">Type:</span>
+                        <select 
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                            className="bg-transparent text-sm text-gray-700 dark:text-gray-300 outline-none cursor-pointer py-4"
+                        >
+                            <option value="any">Any</option>
+                            <option value="1">Photo</option>
+                            <option value="2">Illustration</option>
+                            <option value="3">Vector</option>
+                            <option value="4">Video</option>
+                        </select>
+                    </div>
+
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3.5 rounded-2xl font-medium transition-all shadow-sm hover:shadow-md flex items-center gap-2 disabled:opacity-70 disabled:hover:shadow-sm"
+                        className="h-full px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
                     >
                         {isLoading ? <Loader2 className="animate-spin h-5 w-5" /> : "Search"}
                     </button>

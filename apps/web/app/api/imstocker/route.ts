@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { search, sessionId, offset = 0, count = 100 } = body;
+    const { search, sessionId, offset = 0, count = 100, type = null } = body;
 
     const headers: any = {
       'Content-Type': 'application/json',
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
           query: {
             text: search,
             licenseType: null,
-            type: null,
+            type: type,
             hasModels: false,
             microstock: null,
             author: null,
