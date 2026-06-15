@@ -66,7 +66,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/image-converter", label: "Image Converter", icon: ImageIcon },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
     { href: "/dashboard/support", label: "Support", icon: LifeBuoy },
-    { href: "/dashboard/iamstock", label: "IAMStock", icon: LifeBuoy },
+    { href: "/dashboard/iamstock", label: "IAMStock", icon: Sparkles },
   ];
 
   return (

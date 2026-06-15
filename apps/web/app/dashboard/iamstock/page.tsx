@@ -10,7 +10,9 @@ import { KeywordPanel } from "./_components/KeywordPanel";
 const IAMStockPage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [sessionId, setSessionId] = useState("");
+    const [isLimitReached, setIsLimitReached] = useState(false);
     const [typeFilter, setTypeFilter] = useState("any");
+    const [layoutMode, setLayoutMode] = useState<'list' | 'grid' | 'half'>('grid');
     const [searchImstocker, { isLoading, data }] = useSearchImstockerMutation();
 
     const [selectedWorkIds, setSelectedWorkIds] = useState<number[]>([]);
@@ -32,6 +34,9 @@ const IAMStockPage = () => {
         } catch (error: any) {
             const errorMsg = error?.data?.error || error?.data?.message || error?.error || error?.message || "Failed to fetch data from IMStocker";
             toast.error(errorMsg);
+            if (errorMsg.includes('API_FLOOD') || errorMsg.includes('Rate limit')) {
+                setIsLimitReached(true);
+            }
         }
     };
 
@@ -76,6 +81,7 @@ const IAMStockPage = () => {
                         setTypeFilter={setTypeFilter}
                         sessionId={sessionId}
                         setSessionId={setSessionId}
+                        isLimitReached={isLimitReached}
                         isLoading={isLoading}
                         onSearch={handleSearch}
                     />
@@ -85,7 +91,7 @@ const IAMStockPage = () => {
             {/* Main Content Split */}
             <div className="flex-1 flex overflow-hidden">
                 {/* Left side: Image Grid */}
-                <div className="w-full lg:w-[60%] flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
+                <div className={`w-full ${layoutMode === 'half' ? 'lg:w-[100%]' : 'lg:w-[60%]'} flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden transition-all duration-300`}>
                     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                         <WorkGrid 
                             works={works} 
@@ -93,21 +99,25 @@ const IAMStockPage = () => {
                             onToggleWork={handleToggleWork}
                             onSelectAll={handleSelectAllWorks}
                             onSelectNone={handleSelectNoneWorks}
+                            layoutMode={layoutMode}
+                            onLayoutChange={setLayoutMode}
                         />
                     </div>
                 </div>
 
                 {/* Right side: Keyword Panel */}
-                <div className="w-full lg:w-[40%] flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden">
-                    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                        <KeywordPanel 
-                            selectedWorks={selectedWorksFull}
-                            selectedKeywords={selectedKeywords}
-                            onToggleKeyword={handleToggleKeyword}
-                            onClearKeywords={handleClearKeywords}
-                        />
+                {layoutMode !== 'half' && (
+                    <div className="w-full lg:w-[40%] flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden transition-all duration-300">
+                        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                            <KeywordPanel 
+                                selectedWorks={selectedWorksFull}
+                                selectedKeywords={selectedKeywords}
+                                onToggleKeyword={handleToggleKeyword}
+                                onClearKeywords={handleClearKeywords}
+                            />
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
