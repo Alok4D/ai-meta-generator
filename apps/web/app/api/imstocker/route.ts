@@ -28,7 +28,11 @@ export async function POST(request: Request) {
         };
 
         if (sessionId) {
-          payload.keyworder_session = sessionId;
+            if (sessionId.includes(':')) {
+                payload.access_token = sessionId;
+            } else {
+                payload.keyworder_session = sessionId;
+            }
         }
 
         const res = await fetch('https://api.imstocker.com/api/search/searchWorks', {
@@ -38,7 +42,13 @@ export async function POST(request: Request) {
         });
         
         if (!res.ok) throw new Error(`API returned status ${res.status}`);
-        return res.json();
+        
+        const data = await res.json();
+        if (data.error) {
+            throw new Error(`IMStocker Error (${data.error.code || 'API Limit'}): ${data.error.message || 'Rate limit exceeded'}`);
+        }
+        
+        return data;
     };
 
     if (count <= 50) {

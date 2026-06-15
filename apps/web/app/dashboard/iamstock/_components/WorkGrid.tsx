@@ -1,0 +1,234 @@
+import React, { useState, useRef } from 'react';
+import { Check, CheckSquare, Square, X, ExternalLink, Copy } from 'lucide-react';
+
+interface WorkGridProps {
+    works: any[];
+    selectedWorkIds: number[];
+    onToggleWork: (id: number) => void;
+    onSelectAll?: () => void;
+    onSelectNone?: () => void;
+}
+
+export const WorkGrid: React.FC<WorkGridProps> = ({
+    works,
+    selectedWorkIds,
+    onToggleWork,
+    onSelectAll,
+    onSelectNone
+}) => {
+    const [hoveredInfoId, setHoveredInfoId] = useState<number | null>(null);
+    const [popoverPos, setPopoverPos] = useState({ x: 0, y: 0 });
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleMouseEnter = (id: number, e: React.MouseEvent) => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+        
+        const rect = e.currentTarget.getBoundingClientRect();
+        // Default to aligning right edge of popover with right edge of icon
+        let x = rect.right - 750;
+        // If it goes off-screen to the left, align left edge instead
+        if (x < 10) x = rect.left;
+        
+        // Default to opening downwards
+        let y = rect.bottom + 8;
+        // If it goes off-screen at the bottom, open upwards
+        if (typeof window !== 'undefined' && y + 450 > window.innerHeight) {
+            y = rect.top - 450 - 8;
+        }
+        
+        setPopoverPos({ x, y });
+        setHoveredInfoId(id);
+    };
+
+    const handleMouseLeave = () => {
+        timeoutRef.current = setTimeout(() => {
+            setHoveredInfoId(null);
+        }, 300); // 300ms delay allows user to move mouse to the popup
+    };
+    if (!works || works.length === 0) {
+        return (
+            <div className="flex items-center justify-center h-64 text-gray-500">
+                No works found. Start searching.
+            </div>
+        );
+    }
+
+    const allSelected = works.length > 0 && selectedWorkIds.length === works.length;
+
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
+                <div className="text-sm text-gray-600 dark:text-gray-300 font-medium flex items-center gap-2">
+                    <span className="text-blue-600 dark:text-blue-400 font-bold">{selectedWorkIds.length}</span> 
+                    works selected
+                </div>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={onSelectAll}
+                        className="text-xs px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    >
+                        Select All
+                    </button>
+                    <button 
+                        onClick={onSelectNone}
+                        className="text-xs px-3 py-1.5 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    >
+                        Deselect All
+                    </button>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                {works.map((item: any) => {
+                    const isSelected = selectedWorkIds.includes(item.id_work);
+                    const imgSrc = item.small_preview_link_work || item.big_preview_link_work || item.thumbnail || item.preview;
+
+                    return (
+                        <div 
+                            key={item.id_work}
+                            onClick={() => onToggleWork(item.id_work)}
+                            className="group relative aspect-[4/3] cursor-pointer bg-[#eaeaea] dark:bg-gray-800"
+                        >
+                            {/* Image */}
+                            {imgSrc ? (
+                                <img
+                                    src={imgSrc}
+                                    alt={item.title_work || "Artwork"}
+                                    className="w-full h-full object-cover"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 text-sm p-4 text-center">
+                                    <span className="mb-2">No Preview</span>
+                                </div>
+                            )}
+
+                            {/* Selected Border Overlay */}
+                            {isSelected && (
+                                <div className="absolute inset-0 border-[4px] border-[#ffe169] pointer-events-none z-10"></div>
+                            )}
+
+                            {/* Info Icon with Popover (Top Right) */}
+                            <div 
+                                className="absolute top-2 right-2 z-50 flex flex-col items-end"
+                                onMouseEnter={(e) => handleMouseEnter(item.id_work, e)}
+                                onMouseLeave={handleMouseLeave}
+                            >
+                                <div className={`w-6 h-6 rounded-full bg-[#dce3de]/90 flex items-center justify-center text-gray-700 font-serif italic text-sm transition-opacity duration-150 shadow-sm cursor-help ${isSelected || hoveredInfoId === item.id_work ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                    i
+                                </div>
+
+                                {/* Detailed Popover */}
+                                {hoveredInfoId === item.id_work && (
+                                    <div 
+                                        className="fixed w-[750px] h-[450px] bg-[#f8f9fa] dark:bg-gray-800 shadow-2xl rounded-md border border-gray-200 dark:border-gray-700 flex cursor-auto overflow-hidden animate-in fade-in zoom-in-95 duration-200 z-[9999]"
+                                        style={{ left: popoverPos.x, top: popoverPos.y }}
+                                        onClick={(e) => e.stopPropagation()} 
+                                    >
+                                        {/* Left Side: Image Preview */}
+                                        <div className="w-1/2 bg-[#eaeaea] dark:bg-gray-900 flex items-center justify-center p-4">
+                                            {imgSrc ? (
+                                                <img src={item.big_preview_link_work || imgSrc} className="max-w-full max-h-full object-contain drop-shadow-md" alt="Preview" />
+                                            ) : (
+                                                <span className="text-gray-400">No Preview</span>
+                                            )}
+                                        </div>
+
+                                        {/* Right Side: Details */}
+                                        <div className="w-1/2 p-6 flex flex-col h-full bg-[#f8f9fa] dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
+                                            {/* Header */}
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm">Title:</span>
+                                                <div className="flex items-center gap-3 text-[13px] text-gray-600 dark:text-gray-300">
+                                                    <label className="flex items-center gap-1.5 cursor-pointer hover:text-gray-900 dark:hover:text-white transition-colors">
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={isSelected}
+                                                            onChange={() => onToggleWork(item.id_work)}
+                                                            className="cursor-pointer w-3.5 h-3.5"
+                                                        />
+                                                        Select work
+                                                    </label>
+                                                    <a href={item.link_work} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-blue-600 transition-colors">
+                                                        <ExternalLink className="w-3 h-3" /> Link
+                                                    </a>
+                                                    <button onClick={() => setHoveredInfoId(null)} className="hover:text-red-500 transition-colors ml-1">
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Title */}
+                                            <div className="relative group/title mb-4">
+                                                <p className="text-[14px] text-gray-600 dark:text-gray-400 line-clamp-4 leading-relaxed pr-6">
+                                                    {item.title_work || "No title provided"}
+                                                </p>
+                                                <button 
+                                                    onClick={() => navigator.clipboard.writeText(item.title_work)}
+                                                    className="absolute right-0 bottom-0 opacity-0 group-hover/title:opacity-100 text-gray-400 hover:text-gray-700 transition-all"
+                                                    title="Copy title"
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                            </div>
+
+                                            {/* Keywords */}
+                                            <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-2">Keywords:</span>
+                                            <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-2 relative">
+                                                <div className="flex flex-wrap items-center gap-x-1 gap-y-2 pb-2">
+                                                    {item.keywords && Array.isArray(item.keywords) && item.keywords.map((kw: any, idx: number) => {
+                                                        const themes = [
+                                                            { bg: 'bg-[#e8f0fe] dark:bg-blue-900/30', dot: 'bg-blue-500' },
+                                                            { bg: 'bg-[#fce8e6] dark:bg-red-900/30', dot: 'bg-red-400' },
+                                                            { bg: 'bg-[#fef7e0] dark:bg-yellow-900/30', dot: 'bg-yellow-500' },
+                                                            { bg: 'bg-[#e6f4ea] dark:bg-green-900/30', dot: 'bg-green-500' },
+                                                            { bg: 'bg-[#f3e8fd] dark:bg-purple-900/30', dot: 'bg-purple-500' },
+                                                        ];
+                                                        const theme = themes[idx % themes.length];
+                                                        
+                                                        return (
+                                                            <React.Fragment key={idx}>
+                                                                <span className={`flex items-center gap-1.5 px-2 py-1 rounded text-[13px] border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 shadow-sm ${theme.bg}`}>
+                                                                    <span className={`w-2 h-2 rounded-full ${theme.dot}`}></span>
+                                                                    {kw.title_keyword}
+                                                                </span>
+                                                                <span className="text-gray-500 font-serif mr-1">,</span>
+                                                            </React.Fragment>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Keyword Count Footer */}
+                                            {item.keywords && (
+                                                <div className="text-[11px] text-gray-500 text-right mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                                    {item.keywords.length} / {item.keywords.length}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Overlay Bottom Strip */}
+                            <div className={`absolute bottom-0 left-0 w-full h-10 bg-[#dce3de]/90 flex items-center px-3 transition-opacity duration-150 z-20 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                                {/* Checkbox */}
+                                <div className="w-4 h-4 border border-gray-600 bg-transparent flex items-center justify-center mr-2 shrink-0 rounded-sm">
+                                    {isSelected && (
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" className="w-3 h-3 text-black">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                    )}
+                                </div>
+                                <span className="text-[#294859] text-[15px]">Select work</span>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
