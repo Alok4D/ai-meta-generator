@@ -9,7 +9,7 @@ import { logout, setUser } from "@/lib/feature/auth/authSlice";
 import { useGetMeQuery } from "@/lib/feature/auth/authApi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles, Scissors } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   
@@ -64,6 +64,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/events", label: "Events", icon: Calendar },
     { href: "/dashboard/color-palette", label: "Color Palette", icon: Palette },
     { href: "/dashboard/image-converter", label: "Image Converter", icon: ImageIcon },
+    { href: "/dashboard/bg-remover", label: "BG Remover", icon: Scissors },
     { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
     { href: "/dashboard/support", label: "Support", icon: LifeBuoy },
     { href: "/dashboard/iamstock", label: "IAMStock", icon: Sparkles },
