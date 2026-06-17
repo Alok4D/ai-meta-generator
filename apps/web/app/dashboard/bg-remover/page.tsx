@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Image as ImageIcon, Download, Loader2, ArrowRight, Settings, ChevronDown, ChevronUp } from "lucide-react";
+import { Upload, Image as ImageIcon, Download, Loader2, ArrowRight, Settings, ChevronDown, ChevronUp, X } from "lucide-react";
 import { toast } from "sonner";
 
 export default function BackgroundRemoverPage() {
+    
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [originalPreview, setOriginalPreview] = useState<string | null>(null);
     const [processedImage, setProcessedImage] = useState<string | null>(null);
@@ -12,6 +13,7 @@ export default function BackgroundRemoverPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [downloadFormat, setDownloadFormat] = useState('png');
     const [filePrefix, setFilePrefix] = useState('removebg-');
+    const [showDownloadModal, setShowDownloadModal] = useState(false);
     
     // Advanced AI Settings
     const [aiModel, setAiModel] = useState('isnet-general-use');
@@ -154,13 +156,24 @@ export default function BackgroundRemoverPage() {
                 </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 md:p-8">
+            <div 
+                className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 md:p-8 relative"
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+            >
+                {/* Drag Overlay for when an image is already loaded */}
+                {isDragging && originalPreview && (
+                    <div className="absolute inset-0 bg-blue-500/10 backdrop-blur-[2px] z-[100] rounded-2xl flex items-center justify-center border-2 border-dashed border-blue-500 transition-all m-2">
+                        <span className="bg-white dark:bg-gray-800 px-6 py-3 rounded-xl font-bold text-blue-600 shadow-xl flex items-center gap-2 animate-in fade-in zoom-in-95 duration-200">
+                            <Upload className="w-5 h-5" /> Drop new image to replace
+                        </span>
+                    </div>
+                )}
+                
                 {!originalPreview ? (
                     <div 
                         onClick={() => fileInputRef.current?.click()}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
                         className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${isDragging ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-750'}`}
                     >
                         <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -304,65 +317,81 @@ export default function BackgroundRemoverPage() {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex flex-col md:flex-row gap-6 w-full justify-center">
-                                    <div className="flex items-start">
-                                        <button 
-                                            onClick={() => {
-                                                setSelectedFile(null);
-                                                setOriginalPreview(null);
-                                                setProcessedImage(null);
-                                            }}
-                                            className="px-6 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                        >
-                                            Upload Another
-                                        </button>
-                                    </div>
-                                    
-                                    <div className="w-full max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm text-left">
-                                        <h3 className="font-bold text-gray-900 dark:text-white text-lg">Download Settings</h3>
-                                        <p className="text-sm text-gray-500 mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">Configure export options for 1 image</p>
-
-                                        <div className="space-y-5">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Format</label>
-                                                <select 
-                                                    value={downloadFormat}
-                                                    onChange={(e) => setDownloadFormat(e.target.value)}
-                                                    className="w-full border-2 border-blue-500 rounded-xl p-3 outline-none focus:ring-4 focus:ring-blue-500/20 bg-white dark:bg-gray-900 text-gray-900 dark:text-white cursor-pointer appearance-none"
-                                                    style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.65rem auto' }}
-                                                >
-                                                    <option value="png">PNG (Transparent)</option>
-                                                    <option value="jpg">JPG</option>
-                                                    <option value="webp">WebP</option>
-                                                </select>
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">File Prefix</label>
-                                                <input 
-                                                    type="text" 
-                                                    value={filePrefix}
-                                                    onChange={(e) => setFilePrefix(e.target.value)}
-                                                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
-                                                />
-                                                <p className="text-xs text-gray-500 mt-2">Optional prefix for downloaded files</p>
-                                            </div>
-
-                                            <button 
-                                                onClick={handleDownload}
-                                                className="w-full py-3.5 rounded-xl font-bold text-white bg-[#5b5bfa] hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 mt-4"
-                                            >
-                                                <Download className="w-5 h-5" />
-                                                Download Now
-                                            </button>
-                                        </div>
-                                    </div>
+                                <div className="flex justify-center gap-4 w-full mt-2">
+                                    <button 
+                                        onClick={() => {
+                                            setSelectedFile(null);
+                                            setOriginalPreview(null);
+                                            setProcessedImage(null);
+                                        }}
+                                        className="px-6 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                                    >
+                                        Upload Another
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowDownloadModal(true)}
+                                        className="px-8 py-2.5 rounded-lg font-bold text-white bg-[#5b5bfa] hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20 flex items-center gap-2"
+                                    >
+                                        <Download className="w-5 h-5" /> Download
+                                    </button>
                                 </div>
                             )}
                         </div>
                     </div>
                 )}
             </div>
+
+            {/* Download Modal */}
+            {showDownloadModal && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+                    <div className="w-full max-w-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-2xl text-left animate-in zoom-in-95 duration-200 relative">
+                        <button 
+                            onClick={() => setShowDownloadModal(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        
+                        <h3 className="font-bold text-gray-900 dark:text-white text-lg">Download Settings</h3>
+                        <p className="text-sm text-gray-500 mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">Configure export options</p>
+
+                        <div className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Format</label>
+                                <select 
+                                    value={downloadFormat}
+                                    onChange={(e) => setDownloadFormat(e.target.value)}
+                                    className="w-full border border-gray-300 dark:border-gray-600 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white cursor-pointer"
+                                >
+                                    <option value="png">PNG (Transparent)</option>
+                                    <option value="jpg">JPG</option>
+                                    <option value="webp">WebP</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">File Prefix</label>
+                                <input 
+                                    type="text" 
+                                    value={filePrefix}
+                                    onChange={(e) => setFilePrefix(e.target.value)}
+                                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                />
+                            </div>
+
+                            <button 
+                                onClick={() => {
+                                    handleDownload();
+                                    setShowDownloadModal(false);
+                                }}
+                                className="w-full py-3.5 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 mt-4"
+                            >
+                                <Download className="w-5 h-5" /> Download Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
