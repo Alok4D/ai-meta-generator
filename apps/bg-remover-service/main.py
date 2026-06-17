@@ -16,9 +16,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize a stronger model session (IS-Net is much better than the default u2net for general use)
-# Other good options: "birefnet-general", "u2net_human_seg"
-model_session = new_session("isnet-general-use")
+# Session cache to store loaded models
+sessions = {}
+
+def get_session(model_name: str):
+    if model_name not in sessions:
+        # Load and cache the model if it hasn't been loaded yet
+        sessions[model_name] = new_session(model_name)
+    return sessions[model_name]
+
+# Pre-load the default model to save time on the first request
+get_session("isnet-general-use")
 
 @app.get("/")
 def read_root():
@@ -27,20 +35,27 @@ def read_root():
 @app.post("/api/remove-bg")
 async def remove_background(
     file: UploadFile = File(...),
-    alpha_matting: bool = Form(True) # Enabled by default for better edges
+    model_name: str = Form("isnet-general-use"),
+    alpha_matting: bool = Form(True),
+    foreground_threshold: int = Form(240),
+    background_threshold: int = Form(10),
+    erode_size: int = Form(10)
 ):
     try:
         contents = await file.read()
         input_image = Image.open(io.BytesIO(contents))
         
-        # Process the image with the stronger model and alpha matting
+        # Get the requested model session
+        current_session = get_session(model_name)
+        
+        # Process the image dynamically based on frontend parameters
         output_image = remove(
             input_image, 
-            session=model_session,
+            session=current_session,
             alpha_matting=alpha_matting,
-            alpha_matting_foreground_threshold=240,
-            alpha_matting_background_threshold=10,
-            alpha_matting_erode_size=10
+            alpha_matting_foreground_threshold=foreground_threshold,
+            alpha_matting_background_threshold=background_threshold,
+            alpha_matting_erode_size=erode_size
         )
         
         img_byte_arr = io.BytesIO()

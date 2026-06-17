@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Image as ImageIcon, Download, Loader2, ArrowRight } from "lucide-react";
+import { Upload, Image as ImageIcon, Download, Loader2, ArrowRight, Settings, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 
 export default function BackgroundRemoverPage() {
@@ -12,6 +12,14 @@ export default function BackgroundRemoverPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [downloadFormat, setDownloadFormat] = useState('png');
     const [filePrefix, setFilePrefix] = useState('removebg-');
+    
+    // Advanced AI Settings
+    const [aiModel, setAiModel] = useState('isnet-general-use');
+    const [alphaMatting, setAlphaMatting] = useState(true);
+    const [fgThreshold, setFgThreshold] = useState(240);
+    const [bgThreshold, setBgThreshold] = useState(10);
+    const [erodeSize, setErodeSize] = useState(10);
+    const [showAdvanced, setShowAdvanced] = useState(false);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,6 +63,11 @@ export default function BackgroundRemoverPage() {
         setIsProcessing(true);
         const formData = new FormData();
         formData.append("file", selectedFile);
+        formData.append("model_name", aiModel);
+        formData.append("alpha_matting", alphaMatting.toString());
+        formData.append("foreground_threshold", fgThreshold.toString());
+        formData.append("background_threshold", bgThreshold.toString());
+        formData.append("erode_size", erodeSize.toString());
 
         try {
             // Use environment variable for production, fallback to localhost for development
@@ -130,7 +143,7 @@ export default function BackgroundRemoverPage() {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8">
+        <div className="max-w-full mx-auto p-4 md:p-6 lg:p-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <ImageIcon className="w-8 h-8 text-blue-500" />
@@ -204,24 +217,91 @@ export default function BackgroundRemoverPage() {
                         <div className={`flex flex-col items-center mt-4 pt-6 border-t border-gray-100 dark:border-gray-700`}>
                             
                             {!processedImage ? (
-                                <div className="flex gap-4">
-                                    <button 
-                                        onClick={() => {
-                                            setSelectedFile(null);
-                                            setOriginalPreview(null);
-                                            setProcessedImage(null);
-                                        }}
-                                        className="px-6 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                                    >
-                                        Upload Another
-                                    </button>
-                                    <button 
-                                        onClick={handleRemoveBackground}
-                                        disabled={isProcessing}
-                                        className="px-8 py-2.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md shadow-blue-500/20"
-                                    >
-                                        {isProcessing ? "Processing..." : "Remove Background"}
-                                    </button>
+                                <div className="flex flex-col items-center w-full">
+                                    <div className="flex gap-4 mb-6">
+                                        <button 
+                                            onClick={() => {
+                                                setSelectedFile(null);
+                                                setOriginalPreview(null);
+                                                setProcessedImage(null);
+                                            }}
+                                            className="px-6 py-2.5 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                        >
+                                            Upload Another
+                                        </button>
+                                        <button 
+                                            onClick={handleRemoveBackground}
+                                            disabled={isProcessing}
+                                            className="px-8 py-2.5 rounded-lg font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md shadow-blue-500/20"
+                                        >
+                                            {isProcessing ? "Processing..." : "Remove Background"}
+                                        </button>
+                                    </div>
+
+                                    {/* Advanced Settings Accordion */}
+                                    <div className="w-full max-w-2xl border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-800/50">
+                                        <button 
+                                            onClick={() => setShowAdvanced(!showAdvanced)}
+                                            className="w-full flex items-center justify-between p-4 font-semibold text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors"
+                                        >
+                                            <span className="flex items-center gap-2">
+                                                <Settings className="w-5 h-5 text-blue-500" />
+                                                Advanced AI Settings
+                                            </span>
+                                            {showAdvanced ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                                        </button>
+                                        
+                                        {showAdvanced && (
+                                            <div className="p-5 border-t border-gray-200 dark:border-gray-700 space-y-5 bg-white dark:bg-gray-800 text-left">
+                                                {/* Model Selection */}
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">AI Model</label>
+                                                    <select 
+                                                        value={aiModel}
+                                                        onChange={(e) => setAiModel(e.target.value)}
+                                                        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                                                    >
+                                                        <option value="isnet-general-use">IS-Net General Use (Good default)</option>
+                                                        <option value="birefnet-general">BiRefNet (Best for complex edges & hair)</option>
+                                                        <option value="u2net_human_seg">U2Net Human (Best for portraits)</option>
+                                                        <option value="u2net_cloth_seg">U2Net Cloth (Best for clothing)</option>
+                                                    </select>
+                                                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">Note: Selecting a new model for the first time will take 1-2 minutes to download.</p>
+                                                </div>
+
+                                                {/* Alpha Matting Toggle */}
+                                                <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4">
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-gray-900 dark:text-white">Alpha Matting</h4>
+                                                        <p className="text-xs text-gray-500">Improves edge quality and transparency</p>
+                                                    </div>
+                                                    <label className="relative inline-flex items-center cursor-pointer">
+                                                        <input type="checkbox" className="sr-only peer" checked={alphaMatting} onChange={(e) => setAlphaMatting(e.target.checked)} />
+                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                                    </label>
+                                                </div>
+
+                                                {/* Thresholds */}
+                                                {alphaMatting && (
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Foreground Threshold: {fgThreshold}</label>
+                                                            <input type="range" min="0" max="255" value={fgThreshold} onChange={(e) => setFgThreshold(parseInt(e.target.value))} className="w-full" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Background Threshold: {bgThreshold}</label>
+                                                            <input type="range" min="0" max="255" value={bgThreshold} onChange={(e) => setBgThreshold(parseInt(e.target.value))} className="w-full" />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Erode Size: {erodeSize}</label>
+                                                            <input type="range" min="0" max="50" value={erodeSize} onChange={(e) => setErodeSize(parseInt(e.target.value))} className="w-full" />
+                                                            <p className="text-[10px] text-gray-500 mt-1 text-center">Decrease if object gets cut off</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="flex flex-col md:flex-row gap-6 w-full justify-center">

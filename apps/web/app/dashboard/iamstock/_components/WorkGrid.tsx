@@ -308,9 +308,9 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                             </div>
                         </div>
 
-                            {/* Metadata Area for List / Half mode */}
-                            {layoutMode !== 'grid' && (
-                                <div className={`flex flex-col p-3 ${layoutMode === 'list' ? 'flex-1 overflow-y-auto custom-scrollbar border-l border-white/50 dark:border-gray-700' : 'h-[160px] overflow-y-auto custom-scrollbar border-t border-white/50 dark:border-gray-700 bg-white dark:bg-gray-800'}`}>
+                            {/* Metadata Area for List mode */}
+                            {layoutMode === 'list' && (
+                                <div className="flex flex-col p-3 flex-1 overflow-y-auto custom-scrollbar border-l border-white/50 dark:border-gray-700">
                                     <div className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2 line-clamp-2">
                                         {item.title_work || "No title provided"}
                                     </div>
