@@ -53,7 +53,7 @@ const sendEmail = async (options: EmailOptions) => {
     transporter = nodemailer.createTransport({
       host: host,
       port: port,
-      secure: port === 465, // true for port 465
+      secure: port === 465,
       auth: {
         user: user,
         pass: pass,
@@ -101,6 +101,9 @@ const sendEmail = async (options: EmailOptions) => {
         <body>
           <div class="container">
             <div class="header">
+              <div style="background-color: #2563eb; width: 48px; height: 48px; border-radius: 12px; margin: 0 auto 15px auto; text-align: center; line-height: 48px; color: #ffffff; font-size: 24px; font-weight: bold; font-family: sans-serif;">
+                M
+              </div>
               <h1>${senderName}</h1>
             </div>
             <div class="content">
