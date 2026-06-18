@@ -269,12 +269,12 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                                         return (
                                                             <React.Fragment key={idx}>
                                                                 <span 
-                                                                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[13px] border text-gray-700 dark:text-gray-200 shadow-sm cursor-help transition-transform hover:scale-105 ${theme?.bg || themes[0].bg}`}
+                                                                    className={`flex items-center gap-1.5 px-2 py-1 rounded text-[13px] border text-gray-700 dark:text-gray-200 shadow-sm cursor-help transition-transform hover:scale-105 ${theme?.bg || themes[0]?.bg || ''}`}
                                                                     onMouseEnter={(e) => setKeywordTooltip({ kw, x: e.clientX, y: e.clientY })}
                                                                     onMouseLeave={() => setKeywordTooltip(null)}
                                                                     onMouseMove={(e) => setKeywordTooltip({ kw, x: e.clientX, y: e.clientY })}
                                                                 >
-                                                                    <span className={`w-2 h-2 rounded-full ${theme?.dot || themes[0].dot}`}></span>
+                                                                    <span className={`w-2 h-2 rounded-full ${theme?.dot || themes[0]?.dot || ''}`}></span>
                                                                     {kw.title_keyword}
                                                                     {kw.is_trademark === 1 && <span className="text-[10px] text-red-500 font-bold ml-0.5" title="Trademark">™</span>}
                                                                 </span>
