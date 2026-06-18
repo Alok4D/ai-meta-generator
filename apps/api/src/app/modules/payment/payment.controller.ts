@@ -173,11 +173,16 @@ export const verifyCheckoutSession = async (req: Request, res: Response): Promis
         plan = await SubscriptionPlan.findById(planId);
         
         if (plan) {
-          let creditsToAssign = 30;
-          if (plan.name === 'Pro') creditsToAssign = 2000;
-          if (plan.name === 'Agency') creditsToAssign = 9999999;
-
-          const planExpireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+          const creditsToAssign = plan.credits || (plan.name?.toLowerCase() === 'unlimited' ? 9999999 : plan.name?.toLowerCase() === 'max' ? 2000 : plan.name?.toLowerCase() === 'pro' ? 1000 : plan.name?.toLowerCase() === 'lite' ? 400 : 30);
+          
+          let validityDays = plan.validityDays || 30;
+          if (!plan.validityDays || plan.validityDays === 30) {
+            if (plan.name?.toLowerCase() === 'lite') validityDays = 90;
+            else if (plan.name?.toLowerCase() === 'pro') validityDays = 180;
+            else if (plan.name?.toLowerCase() === 'max' || plan.name?.toLowerCase() === 'unlimited') validityDays = 365;
+          }
+          
+          const planExpireDate = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
 
           const updatedUser = await User.findByIdAndUpdate(userId, {
             activePlan: plan._id,
@@ -335,11 +340,16 @@ export const verifyManualPayment = async (req: Request, res: Response): Promise<
     if (status === 'completed') {
       const plan = await SubscriptionPlan.findById(transaction.plan);
       if (plan) {
-        let creditsToAssign = 30;
-        if (plan.name === 'Pro') creditsToAssign = 2000;
-        if (plan.name === 'Agency') creditsToAssign = 9999999;
+        const creditsToAssign = plan.credits || (plan.name?.toLowerCase() === 'unlimited' ? 9999999 : plan.name?.toLowerCase() === 'max' ? 2000 : plan.name?.toLowerCase() === 'pro' ? 1000 : plan.name?.toLowerCase() === 'lite' ? 400 : 30);
+        
+        let validityDays = plan.validityDays || 30;
+        if (!plan.validityDays || plan.validityDays === 30) {
+          if (plan.name?.toLowerCase() === 'lite') validityDays = 90;
+          else if (plan.name?.toLowerCase() === 'pro') validityDays = 180;
+          else if (plan.name?.toLowerCase() === 'max' || plan.name?.toLowerCase() === 'unlimited') validityDays = 365;
+        }
 
-        const planExpireDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const planExpireDate = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
 
         await User.findByIdAndUpdate(transaction.user, {
           activePlan: plan._id,

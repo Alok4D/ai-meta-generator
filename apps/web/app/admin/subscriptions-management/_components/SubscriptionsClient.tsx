@@ -28,7 +28,9 @@ export function SubscriptionsClient() {
     period: "month",
     features: [""],
     isPopular: false,
-    buttonText: "Upgrade"
+    buttonText: "Upgrade",
+    credits: 0,
+    validityDays: 30
   });
 
   const handleOpenModal = (plan: any = null) => {
@@ -41,7 +43,9 @@ export function SubscriptionsClient() {
         period: plan.period,
         features: plan.features.length ? plan.features : [""],
         isPopular: plan.isPopular,
-        buttonText: plan.buttonText
+        buttonText: plan.buttonText,
+        credits: plan.credits || 0,
+        validityDays: plan.validityDays || 30
       });
     } else {
       setEditingPlan(null);
@@ -52,7 +56,9 @@ export function SubscriptionsClient() {
         period: "month",
         features: [""],
         isPopular: false,
-        buttonText: "Upgrade"
+        buttonText: "Upgrade",
+        credits: 0,
+        validityDays: 30
       });
     }
     setIsModalOpen(true);

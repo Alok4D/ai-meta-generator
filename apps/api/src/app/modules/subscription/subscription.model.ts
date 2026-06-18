@@ -8,6 +8,8 @@ export interface ISubscriptionPlan {
   features: string[];
   isPopular: boolean;
   buttonText: string;
+  credits: number;
+  validityDays: number;
 }
 
 const subscriptionPlanSchema = new Schema<ISubscriptionPlan>({
@@ -17,7 +19,9 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>({
   period: { type: String, required: true, default: 'month' },
   features: { type: [String], required: true },
   isPopular: { type: Boolean, default: false },
-  buttonText: { type: String, default: 'Upgrade' }
+  buttonText: { type: String, default: 'Upgrade' },
+  credits: { type: Number, required: true, default: 0 },
+  validityDays: { type: Number, required: true, default: 30 }
 }, {
   timestamps: true,
 });
