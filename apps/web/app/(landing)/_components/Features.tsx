@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, Upload, Layers, Zap, Shield, FileSpreadsheet, SlidersHorizontal, Cpu, ArrowRight } from "lucide-react";
+import { Sparkles, Upload, Layers, Zap, Shield, FileSpreadsheet, SlidersHorizontal, Cpu, ArrowRight, Eraser } from "lucide-react";
 import { Space_Grotesk } from 'next/font/google';
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -52,6 +52,11 @@ export default function Features({ limit }: FeaturesProps) {
       icon: <Cpu size={18} className="text-[#14181F]" />,
       title: "Multiple AI Providers",
       description: "Choose between Google Gemini and other AI providers. Bring your own API key for maximum flexibility.",
+    },
+    {
+      icon: <Eraser size={18} className="text-[#14181F]" />,
+      title: "AI Background Remover",
+      description: "Instantly remove backgrounds from your images with high precision using advanced AI models.",
     },
   ];
 
