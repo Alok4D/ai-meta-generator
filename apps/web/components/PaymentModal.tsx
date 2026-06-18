@@ -80,29 +80,14 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
 
   const handleStripeFlow = async () => {
     Swal.fire({
-      title: 'Redirecting to Stripe...',
-      text: 'Please wait while we prepare your checkout session',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
+      icon: 'info',
+      title: 'Stripe Unavailable',
+      text: 'Stripe is currently under maintenance. Please use bKash or Nagad.',
+      confirmButtonText: 'Okay',
+      confirmButtonColor: '#6366f1',
+    }).then(() => {
+      onClose();
     });
-
-    try {
-      const response = await createCheckoutSession({ planId: plan._id }).unwrap();
-      if (response.url) {
-        window.location.href = response.url;
-      }
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to initiate checkout. Please try again.',
-        confirmButtonColor: '#0f172a'
-      }).then(() => {
-        onClose();
-      });
-    }
   };
 
   const handleManualGatewayFlow = async (method: 'bkash' | 'nagad') => {
