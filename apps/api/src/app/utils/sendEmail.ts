@@ -4,6 +4,8 @@ interface EmailOptions {
   email: string;
   subject: string;
   message: string;
+  fromName?: string;
+  fromEmail?: string;
 }
 
 const sendEmail = async (options: EmailOptions) => {
@@ -21,6 +23,8 @@ const sendEmail = async (options: EmailOptions) => {
           subject: options.subject,
           message: options.message,
           secretKey,
+          fromName: options.fromName,
+          fromEmail: options.fromEmail
         }),
       });
 
@@ -68,12 +72,46 @@ const sendEmail = async (options: EmailOptions) => {
     });
   }
 
+  const senderName = options.fromName || process.env.FROM_NAME || 'Meta Gen AI';
+  const senderEmail = options.fromEmail || process.env.FROM_EMAIL || process.env.EMAIL_USER || 'noreply@metagenerator.com';
+  
   const message = {
-    from: process.env.EMAIL_FROM || `${process.env.FROM_NAME || 'Meta Gen AI'} <${process.env.FROM_EMAIL || 'noreply@metagenerator.com'}>`,
+    from: `${senderName} <${senderEmail}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,
-    html: `<p>${options.message.replace(/\n/g, '<br/>')}</p>`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${options.subject}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+            .container { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; margin-top: 20px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h1 { color: #111827; font-size: 24px; margin: 0; }
+            .content { background: #fff; padding: 20px; border-radius: 6px; border: 1px solid #f3f4f6; font-size: 15px; }
+            .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #6b7280; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>${senderName}</h1>
+            </div>
+            <div class="content">
+              ${options.message.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br/>')}
+            </div>
+            <div class="footer">
+              <p>This is an automated message. Please do not reply directly to this email.</p>
+              <p>&copy; ${new Date().getFullYear()} ${senderName}. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `,
   };
 
   const info = await transporter.sendMail(message);

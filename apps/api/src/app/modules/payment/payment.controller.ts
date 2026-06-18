@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import SubscriptionPlan from '../subscription/subscription.model';
 import Transaction from './transaction.model';
 import User from '../auth/user.model';
+import sendEmail from '../../utils/sendEmail';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -292,6 +293,29 @@ export const submitManualPayment = async (req: Request, res: Response): Promise<
       stripeSessionId: `manual_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       status: 'pending',
     });
+
+    try {
+      // Send email to admin
+      const adminEmails = process.env.ADMIN_EMAIL || 'alokroy602701@gmail.com';
+      await sendEmail({
+        email: adminEmails,
+        fromName: 'MetaGen AI Payments',
+        subject: `New Manual Payment Request - ${paymentMethod.toUpperCase()}`,
+        message: `A new manual payment request has been submitted.\n\nUser: ${req.user?.name || 'Customer'} (${req.user?.email})\nMethod: ${paymentMethod.toUpperCase()}\nSender Number: ${senderNumber}\nTrxID: ${trxId}\nAmount: ${amount || plan.price} BDT\nPlan: ${plan.name}\n\nPlease verify and approve from the Admin Dashboard.`
+      });
+
+      // Send confirmation email to user
+      if (req.user?.email) {
+        await sendEmail({
+          email: req.user.email,
+          fromName: 'MetaGen AI Support',
+          subject: `Payment Request Received - MetaGen AI`,
+          message: `Hello ${req.user.name || 'Valued Customer'},\n\nWe have received your manual payment request for the ${plan.name} plan via ${paymentMethod.toUpperCase()}.\n\nTransaction ID: ${trxId}\nAmount: ${amount || plan.price} BDT\n\nOur admin team is currently verifying your payment. Your account will be upgraded shortly.\n\nThank you for choosing MetaGen AI!`
+        });
+      }
+    } catch (err) {
+      console.error('Failed to send email notifications:', err);
+    }
 
     res.status(200).json({ success: true, message: 'Payment submitted successfully. Please wait for verification.', transaction: newTx });
   } catch (error: any) {

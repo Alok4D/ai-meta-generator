@@ -28,18 +28,18 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
           <p>You are about to purchase the <strong>${plan.name}</strong> plan for <strong>$${plan.price}/${plan.period}</strong>.</p>
         </div>
         <div style="display: flex; flex-direction: column; gap: 12px;">
-          <button id="btn-stripe" class="swal2-confirm swal2-styled" style="width: 100%; margin: 0; background-color: #0f172a; display: flex; align-items: center; justify-content: center; gap: 10px;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-            Pay with Card (Stripe)
+          <button id="btn-stripe" class="swal2-confirm swal2-styled" style="width: 100%; margin: 0; background-color: #635BFF; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; border-radius: 6px;">
+            Pay with Stripe
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </button>
           
           <button id="btn-bkash" class="swal2-cancel swal2-styled" style="width: 100%; margin: 0; background-color: #e2136e; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M11.608 2.016l1.968 1.936-2.064 2.144 2.304 2.176h-5.28V2.016h3.072zm-3.072 6.256h4.16l-1.92-1.808 2.064-2.144-1.28-1.264H8.536v5.216zm3.328 1.072l2.304 2.176-2.064 2.144 1.968 1.936h-3.072V9.344h.864zM10.4 15.6h-1.864v-6.256h3.072l-1.28 1.264 2.064 2.144-1.992 2.848z"/></svg>
+            <img src="/bkash.png" alt="bKash" style="height: 24px; object-fit: contain; background: white; padding: 2px; border-radius: 4px;" onerror="this.style.display='none'" />
             Pay with bKash
           </button>
           
           <button id="btn-nagad" class="swal2-cancel swal2-styled" style="width: 100%; margin: 0; background-color: #ed1c24; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: bold;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            <img src="/nagad.png" alt="Nagad" style="height: 24px; object-fit: contain; background: white; padding: 2px; border-radius: 4px;" onerror="this.style.display='none'" />
             Pay with Nagad
           </button>
         </div>
@@ -111,8 +111,8 @@ export default function PaymentModal({ isOpen, onClose, plan }: PaymentModalProp
     const isBkash = method === 'bkash';
     const primaryColor = isBkash ? '#e2136e' : '#ed1c24';
     const logoHtml = isBkash 
-      ? `<div style="color: #e2136e; font-weight: 900; font-size: 24px; font-style: italic;">bKash</div>`
-      : `<div style="color: #ed1c24; font-weight: 900; font-size: 24px;">Nagad</div>`;
+      ? `<img src="/bkash.png" alt="bKash" style="height: 30px; object-fit: contain;" onerror="this.outerHTML='<div style=\\'color: #e2136e; font-weight: 900; font-size: 24px; font-style: italic;\\'>bKash</div>'" />`
+      : `<img src="/nagad.png" alt="Nagad" style="height: 30px; object-fit: contain;" onerror="this.outerHTML='<div style=\\'color: #ed1c24; font-weight: 900; font-size: 24px;\\'>Nagad</div>'" />`;
     
     const headerHtml = `
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid ${primaryColor}; padding-bottom: 10px; margin-bottom: 15px;">
