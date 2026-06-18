@@ -1,8 +1,9 @@
+import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X, GripVertical } from "lucide-react";
 
 interface SubscriptionModalProps {
   isOpen: boolean;
@@ -27,6 +28,22 @@ export function SubscriptionModal({
   addFeature,
   removeFeature
 }: SubscriptionModalProps) {
+  const dragItem = useRef<number | null>(null);
+  const dragOverItem = useRef<number | null>(null);
+
+  const handleSort = () => {
+    if (dragItem.current !== null && dragOverItem.current !== null) {
+      const _features = [...formData.features];
+      const draggedItemContent = _features.splice(dragItem.current, 1)[0];
+      _features.splice(dragOverItem.current, 0, draggedItemContent);
+      
+      dragItem.current = null;
+      dragOverItem.current = null;
+      
+      setFormData({ ...formData, features: _features });
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -143,18 +160,30 @@ export function SubscriptionModal({
               </Button>
             </Label>
             {formData.features.map((feature: string, index: number) => (
-              <div key={index} className="flex gap-2">
+              <div 
+                key={index} 
+                className="flex items-center gap-2 bg-secondary/20 p-2 rounded-md border border-border/50"
+                draggable
+                onDragStart={() => (dragItem.current = index)}
+                onDragEnter={() => (dragOverItem.current = index)}
+                onDragEnd={handleSort}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                <div className="cursor-grab hover:text-primary active:cursor-grabbing text-muted-foreground p-1">
+                  <GripVertical className="w-5 h-5" />
+                </div>
                 <Input 
                   value={feature} 
                   onChange={e => handleFeatureChange(index, e.target.value)} 
                   placeholder="e.g. 500 images per day"
+                  className="flex-1"
                 />
                 <Button 
                   type="button" 
                   variant="ghost" 
                   size="icon" 
                   onClick={() => removeFeature(index)}
-                  className="text-destructive hover:bg-destructive/10"
+                  className="text-destructive hover:bg-destructive/10 shrink-0"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
