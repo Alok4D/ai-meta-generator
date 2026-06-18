@@ -14,6 +14,12 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 ## 🚀 Key Features
 
 ### 🎨 Creative Tools
+* **AI Background Remover**: An advanced, machine-learning powered background removal tool featuring multiple models for different use cases:
+  * **BiRefNet (1GB)**: Best for complex edges, fine details, and hair.
+  * **IS-Net General Use (176MB)**: Excellent default for general objects.
+  * **U2Net Human Seg**: Specialized for human portraits.
+  * **U2Net Cloth Seg**: Specialized for clothing apparel.
+  * **U2Netp (4MB)**: Lightweight, fast model for low-resource environments.
 * **AI Meta/Image Generator**: Leverage advanced AI models (Vision/LLMs via OpenRouter/Gemini) to analyze images and generate high-quality metadata, captions, and descriptions.
 * **Batch Image Converter**: A powerful, 100% offline client-side converter. Upload multiple images and instantly convert them between `JPG`, `PNG`, `WEBP`, `AVIF`, and `PDF`.
 * **Trace to Vector (SVG)**: Convert raster images (JPG/PNG) into pure mathematical SVG vectors using advanced geometric tracing algorithms—all happening locally in your browser.
@@ -41,7 +47,11 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 * **Subscription Management**: Users can cancel their subscriptions anytime and automatically fallback to a free tier.
 * **Advanced Transaction History**: Comprehensive payment logs for both Users and Admins, featuring real-time search, plan filtering, status filtering, and custom shadcn deletion modals.
 
-### ⚡ Infrastructure & DevOps
+### ⚡ Infrastructure & Deployment
+* **Multi-Cloud Architecture**:
+  * **Frontend**: Hosted on **Vercel** for edge-optimized performance.
+  * **Main Backend (Node.js)**: API hosted on cloud providers (e.g. Render) for robust database and authentication management.
+  * **AI Microservice (Python)**: Hosted on **HuggingFace Spaces** (16GB RAM / 2 vCPUs) to smoothly execute heavy Machine Learning models (like the 1GB BiRefNet) completely for free without Out-of-Memory crashes.
 * **Serverless Email Proxy**: Custom Vercel Next.js API route functioning as a secure proxy to bypass strict SMTP port blockages on free-tier backend hosting (like Render), ensuring guaranteed email delivery for OTPs and notifications.
 
 ---
@@ -58,11 +68,17 @@ This project is structured as a highly scalable **Turborepo Monorepo**, ensuring
 * **State Management**: Redux Toolkit (RTK) & RTK Query
 * **Icons**: Lucide React
 
-**Backend (`apps/api`)**
+**Main Backend (`apps/api`)**
 * **Runtime**: Node.js & Express.js
 * **Database**: MongoDB (Mongoose)
 * **Authentication**: JWT (JSON Web Tokens)
 * **Email Service**: Hostinger SMTP Integration
+
+**AI Microservice (`apps/bg-remover-service`)**
+* **Runtime**: Python 3.10
+* **Framework**: FastAPI & Uvicorn
+* **AI Engine**: `rembg` (ONNX Runtime)
+* **Image Processing**: Pillow (PIL)
 
 **Tooling & Shared Packages**
 * **Monorepo**: Turborepo
@@ -111,9 +127,13 @@ ai-meta-generator/
 │   │   ├── app/           # App Router (Dashboard, Admin, Auth, Landing)
 │   │   ├── components/    # Reusable UI components
 │   │   └── lib/           # Redux slices, RTK Query API, Utilities
-│   └── api/               # Node.js Express Backend
-│       ├── src/           # Controllers, Routes, Models, Middleware
-│       └── .env           # Server configuration
+│   ├── api/               # Node.js Express Backend
+│   │   ├── src/           # Controllers, Routes, Models, Middleware
+│   │   └── .env           # Server configuration
+│   └── bg-remover-service/# Python FastAPI Microservice for AI models
+│       ├── main.py        # FastAPI server & inference logic
+│       ├── Dockerfile     # HuggingFace Spaces deployment config
+│       └── requirements.txt
 ├── packages/
 │   ├── ui/                # Shared React components library
 │   ├── eslint-config/     # Shared linting rules
