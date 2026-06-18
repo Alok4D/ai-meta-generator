@@ -6,6 +6,7 @@ interface EmailOptions {
   message: string;
   fromName?: string;
   fromEmail?: string;
+  replyTo?: string;
 }
 
 const sendEmail = async (options: EmailOptions) => {
@@ -78,6 +79,7 @@ const sendEmail = async (options: EmailOptions) => {
   const message = {
     from: `${senderName} <${senderEmail}>`,
     to: options.email,
+    ...(options.replyTo && { replyTo: options.replyTo }),
     subject: options.subject,
     text: options.message,
     html: `

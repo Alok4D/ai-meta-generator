@@ -294,17 +294,21 @@ export const submitManualPayment = async (req: Request, res: Response): Promise<
       status: 'pending',
     });
 
+    // Send email to admin
     try {
-      // Send email to admin
       const adminEmails = process.env.ADMIN_EMAIL || 'alokroy602701@gmail.com';
       await sendEmail({
         email: adminEmails,
         fromName: 'MetaGen AI Payments',
         subject: `New Manual Payment Request - ${paymentMethod.toUpperCase()}`,
-        message: `A new manual payment request has been submitted.\n\nUser: ${req.user?.name || 'Customer'} (${req.user?.email})\nMethod: ${paymentMethod.toUpperCase()}\nSender Number: ${senderNumber}\nTrxID: ${trxId}\nAmount: ${amount || plan.price} BDT\nPlan: ${plan.name}\n\nPlease verify and approve from the Admin Dashboard.`
+        message: `A new manual payment request has been submitted.\n\nUser: ${req.user?.name || 'Customer'} (<a href="mailto:${req.user?.email}">${req.user?.email}</a>)\nMethod: ${paymentMethod.toUpperCase()}\nSender Number: ${senderNumber}\nTrxID: ${trxId}\nAmount: ${amount || plan.price} BDT\nPlan: ${plan.name}\n\nPlease verify and approve from the Admin Dashboard.`
       });
+    } catch (err) {
+      console.error('Failed to send admin email notification:', err);
+    }
 
-      // Send confirmation email to user
+    // Send confirmation email to user
+    try {
       if (req.user?.email) {
         await sendEmail({
           email: req.user.email,
@@ -314,7 +318,7 @@ export const submitManualPayment = async (req: Request, res: Response): Promise<
         });
       }
     } catch (err) {
-      console.error('Failed to send email notifications:', err);
+      console.error('Failed to send user email notification:', err);
     }
 
     res.status(200).json({ success: true, message: 'Payment submitted successfully. Please wait for verification.', transaction: newTx });
