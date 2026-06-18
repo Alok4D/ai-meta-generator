@@ -28,7 +28,8 @@ export default function BatchUploadPage() {
   const [uploadImage] = useUploadImageMutation();
 
   const planName = user?.activePlan?.name?.toLowerCase();
-  const hasAccess = planName === 'pro' || planName === 'agency';
+  const isFreePlan = !user?.activePlan || planName === 'free';
+  const hasAccess = !isFreePlan;
 
   const isProcessingRef = useRef(false);
 
