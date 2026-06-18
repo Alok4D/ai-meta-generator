@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Image as ImageIcon, Download, Loader2, ArrowRight, Settings, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Upload, Image as ImageIcon, Download, Loader2, ArrowRight, Settings, ChevronDown, ChevronUp, X, Loader } from "lucide-react";
 import { toast } from "sonner";
 
 export default function BackgroundRemoverPage() {
@@ -16,7 +16,7 @@ export default function BackgroundRemoverPage() {
     const [showDownloadModal, setShowDownloadModal] = useState(false);
     
     // Advanced AI Settings
-    const [aiModel, setAiModel] = useState('isnet-general-use');
+    const [aiModel, setAiModel] = useState('birefnet-general');
     const [alphaMatting, setAlphaMatting] = useState(true);
     const [fgThreshold, setFgThreshold] = useState(240);
     const [bgThreshold, setBgThreshold] = useState(10);
@@ -28,6 +28,10 @@ export default function BackgroundRemoverPage() {
     const processFile = (file: File) => {
         if (!file.type.startsWith('image/')) {
             toast.error("Please upload an image file");
+            return;
+        }
+        if (file.type === 'image/svg+xml') {
+            toast.error("SVG files are not supported. Please upload JPG, PNG, WEBP, or AVIF.");
             return;
         }
         setSelectedFile(file);
@@ -178,12 +182,12 @@ export default function BackgroundRemoverPage() {
                     >
                         <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">Click or drag image to upload</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Supports JPG, PNG, WEBP</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Supports JPG, PNG, WEBP, AVIF</p>
                         <input 
                             type="file" 
+                            accept="image/jpeg, image/png, image/webp, image/avif"
                             ref={fileInputRef} 
                             onChange={handleFileChange} 
-                            accept="image/*" 
                             className="hidden" 
                         />
                     </div>
@@ -210,7 +214,7 @@ export default function BackgroundRemoverPage() {
                                 <div className="w-full aspect-square bg-[url('https://transparenttextures.com/patterns/cubes.png')] bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center relative shadow-inner border border-blue-200 dark:border-blue-900/50">
                                     {isProcessing ? (
                                         <div className="flex flex-col items-center text-blue-500">
-                                            <Loader2 className="w-10 h-10 animate-spin mb-3" />
+                                            <Loader className="w-10 h-10 animate-spin mb-3" />
                                             <span className="font-medium">Removing Background...</span>
                                             <span className="text-xs text-gray-500 mt-2 text-center max-w-[200px]">This might take a few seconds...<br/>(If this is the first time, downloading the AI model takes longer)</span>
                                         </div>
