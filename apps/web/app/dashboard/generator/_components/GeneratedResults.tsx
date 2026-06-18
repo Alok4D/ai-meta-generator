@@ -3,6 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, RefreshCw } from "lucide-react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/lib/redux/store";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 
 interface GeneratedResultsProps {
   metadata: any;
@@ -21,6 +25,30 @@ export function GeneratedResults({
   handleRegenerate,
   isRegenerating
 }: GeneratedResultsProps) {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const router = useRouter();
+  const isFreePlan = !user?.activePlan || user?.activePlan?.name?.toLowerCase() === 'free';
+
+  const onCsvClick = () => {
+    if (isFreePlan) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Upgrade Required',
+        text: 'CSV download is only available for premium plans. Please upgrade your plan to unlock this feature.',
+        confirmButtonText: 'View Pricing',
+        confirmButtonColor: '#6366f1',
+        showCancelButton: true,
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push('/dashboard/pricing');
+        }
+      });
+    } else {
+      handleDownloadCSV();
+    }
+  };
+
   return (
     <Card className="flex-1 border-muted/60 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-4 border-b">
@@ -28,7 +56,7 @@ export function GeneratedResults({
         {metadata && (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleDownloadTXT}><Download className="w-3 h-3 mr-1"/> TXT</Button>
-            <Button variant="outline" size="sm" onClick={handleDownloadCSV}><Download className="w-3 h-3 mr-1"/> CSV</Button>
+            <Button variant="outline" size="sm" onClick={onCsvClick}><Download className="w-3 h-3 mr-1"/> CSV</Button>
           </div>
         )}
       </CardHeader>
