@@ -8,7 +8,7 @@ import { Check } from "lucide-react";
 import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/redux/store";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import PaymentModal from "@/components/PaymentModal";
 import PaymentSuccessModal from "@/components/PaymentSuccessModal";
 import { toast } from "sonner";
@@ -29,6 +29,7 @@ export default function PricingPage() {
   const dispatch = useDispatch();
   const [cancelSubscription, { isLoading: isCanceling }] = useCancelSubscriptionMutation();
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const hasVerified = useRef(false);
 
   const handleCancelSubscription = async () => {
     try {
@@ -49,8 +50,8 @@ export default function PricingPage() {
     const success = searchParams.get('success');
     const canceled = searchParams.get('canceled');
 
-    if (success && sessionId) {
-      // Remove query params to prevent re-triggering on tab change/back button
+    if (success && sessionId && !hasVerified.current) {
+      hasVerified.current = true;
       router.replace('/dashboard/pricing', { scroll: false });
       
       verifySession({ sessionId })
@@ -66,8 +67,8 @@ export default function PricingPage() {
           console.error(err);
           toast.error('Could not verify payment session.');
         });
-    } else if (canceled) {
-      // Remove query params
+    } else if (canceled && !hasVerified.current) {
+      hasVerified.current = true;
       router.replace('/dashboard/pricing', { scroll: false });
       toast.error('Payment was canceled.');
     }
