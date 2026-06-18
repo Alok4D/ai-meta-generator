@@ -79,7 +79,7 @@ const sendEmail = async (options: EmailOptions) => {
   const message = {
     from: `${senderName} <${senderEmail}>`,
     to: options.email,
-    ...(options.replyTo && { replyTo: options.replyTo }),
+    replyTo: options.replyTo,
     subject: options.subject,
     text: options.message,
     html: `

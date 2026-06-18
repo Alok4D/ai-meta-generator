@@ -300,6 +300,7 @@ export const submitManualPayment = async (req: Request, res: Response): Promise<
       await sendEmail({
         email: adminEmails,
         fromName: 'MetaGen AI Payments',
+        replyTo: req.user?.email ? `"${req.user.name || 'User'}" <${req.user.email}>` : undefined,
         subject: `New Manual Payment Request - ${paymentMethod.toUpperCase()}`,
         message: `A new manual payment request has been submitted.\n\nUser: ${req.user?.name || 'Customer'} (<a href="mailto:${req.user?.email}">${req.user?.email}</a>)\nMethod: ${paymentMethod.toUpperCase()}\nSender Number: ${senderNumber}\nTrxID: ${trxId}\nAmount: ${amount || plan.price} BDT\nPlan: ${plan.name}\n\nPlease verify and approve from the Admin Dashboard.`
       });
