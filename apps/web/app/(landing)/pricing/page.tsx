@@ -74,11 +74,11 @@ function PricingContent() {
           </motion.div>
 
           {/* Pricing Grid */}
-          <div className="grid md:grid-cols-3 gap-8 pt-8 max-w-5xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-8 pt-8 max-w-6xl mx-auto">
             {isLoading ? (
               <>
                 {[1, 2, 3].map((_, index) => (
-                  <Card key={index} className="flex flex-col relative animate-pulse">
+                  <Card key={index} className="flex flex-col relative animate-pulse w-full md:w-[calc(33.333%-1.5rem)] min-w-[300px] max-w-[350px]">
                     <CardHeader>
                       <div className="h-8 bg-muted rounded-md w-1/2 mb-2"></div>
                       <div className="h-4 bg-muted rounded-md w-full mb-1"></div>
@@ -105,10 +105,10 @@ function PricingContent() {
                 ))}
               </>
             ) : plans.length === 0 ? (
-              <div className="col-span-3 text-center py-12 text-muted-foreground">No pricing plans available.</div>
+              <div className="w-full text-center py-12 text-muted-foreground">No pricing plans available.</div>
             ) : (
               plans.map((plan: any) => (
-                <motion.div variants={itemVariants} key={plan._id} className="flex h-full">
+                <motion.div variants={itemVariants} key={plan._id} className="flex w-full md:w-[calc(33.333%-1.5rem)] min-w-[300px] max-w-[380px]">
                   <Card className={`flex flex-col relative w-full ${plan.isPopular ? 'border-primary shadow-lg scale-105 z-10' : ''}`}>
                     {plan.isPopular && (
                       <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
