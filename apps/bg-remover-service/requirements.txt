@@ -3,3 +3,4 @@ uvicorn[standard]==0.29.0
 python-multipart==0.0.9
 rembg>=2.0.68
 Pillow>=10.2.0
+onnxruntime>=1.17.0
