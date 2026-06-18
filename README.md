@@ -1,11 +1,12 @@
 # AI Meta Generator ✨
 
-Welcome to **AI Meta Generator** — a powerful, modern, and feature-rich monorepo application designed to streamline image processing, AI generation, and asset management for creators, marketers, and developers.
+Welcome to **AI Meta Generator** — a powerful, modern, and feature-rich monorepo application designed to streamline high-quality AI background removal, image processing, AI generation, and asset management for creators, marketers, and developers.
 
-Built with cutting-edge web technologies, this platform offers a stunning **Glassmorphism UI** with seamless interactions and enterprise-grade architecture.
+Built with cutting-edge web technologies, this platform offers a stunning **Glassmorphism UI** with seamless interactions, backed by a robust Node.js API and a dedicated Python AI Microservice.
 
-### 🌐 Live Demo
-**[https://metagen-ai-bd.vercel.app](https://metagen-ai-bd.vercel.app)**
+### 🌐 Live Links
+* **Frontend Application**: [https://metagen-ai-bd.vercel.app](https://metagen-ai-bd.vercel.app)
+* **AI Microservice API (HuggingFace)**: [https://alok561-bg-remover-api.hf.space](https://alok561-bg-remover-api.hf.space)
 
 ![AI Meta Generator Banner](apps/web/public/image.png)
 
@@ -14,12 +15,19 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 ## 🚀 Key Features
 
 ### 🎨 Creative Tools
-* **AI Background Remover**: An advanced, machine-learning powered background removal tool featuring multiple models for different use cases:
-  * **BiRefNet (1GB)**: Best for complex edges, fine details, and hair.
-  * **IS-Net General Use (176MB)**: Excellent default for general objects.
-  * **U2Net Human Seg**: Specialized for human portraits.
-  * **U2Net Cloth Seg**: Specialized for clothing apparel.
-  * **U2Netp (4MB)**: Lightweight, fast model for low-resource environments.
+* **AI Background Remover (Full-Stack)**: An advanced, machine-learning powered background removal tool featuring a highly interactive frontend and a dedicated Python microservice:
+  * **Frontend UI/UX Features**:
+    * **Interactive Comparison Slider**: A beautiful, touch-friendly "Before & After" image slider to instantly preview the background removal results.
+    * **Drag-and-Drop Zone**: Seamless file upload experience with visual feedback.
+    * **Advanced Settings Panel**: Users can fine-tune the AI output using Alpha Matting, Foreground Threshold, and Erode Size controls for pixel-perfect edges.
+    * **Dynamic Downloader**: Export the processed image in multiple formats (`PNG`, `JPG`, `WEBP`) with custom filename prefixes directly from the UI.
+    * **Glassmorphism Design**: Sleek, modern, and responsive UI built with Tailwind CSS and Framer Motion animations.
+  * **Backend AI Models** (Hosted on HuggingFace Spaces):
+    * **BiRefNet (1GB)**: Best for complex edges, fine details, and hair.
+    * **IS-Net General Use (176MB)**: Excellent default for general objects.
+    * **U2Net Human Seg**: Specialized for human portraits.
+    * **U2Net Cloth Seg**: Specialized for clothing apparel.
+    * **U2Netp (4MB)**: Lightweight, fast model for low-resource environments.
 * **AI Meta/Image Generator**: Leverage advanced AI models (Vision/LLMs via OpenRouter/Gemini) to analyze images and generate high-quality metadata, captions, and descriptions.
 * **Batch Image Converter**: A powerful, 100% offline client-side converter. Upload multiple images and instantly convert them between `JPG`, `PNG`, `WEBP`, `AVIF`, and `PDF`.
 * **Trace to Vector (SVG)**: Convert raster images (JPG/PNG) into pure mathematical SVG vectors using advanced geometric tracing algorithms—all happening locally in your browser.
