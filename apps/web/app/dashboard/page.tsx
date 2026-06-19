@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Wand2, User as UserIcon, Zap, History } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function DashboardOverview() {
   
@@ -45,7 +45,7 @@ export default function DashboardOverview() {
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(today.getDate() - i);
-      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+      const dayName = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
       const count = history.filter((item: any) => {
         if (!item.createdAt) return false;
@@ -54,8 +54,8 @@ export default function DashboardOverview() {
                itemDate.getMonth() === d.getMonth() && 
                itemDate.getFullYear() === d.getFullYear();
       }).length;
-      
-      data.push({ name: dayName, generations: count });
+      const cost = count * 1.5; // Example metric for the bar chart
+      data.push({ name: dayName, generations: count, cost: cost });
     }
     return data;
   }, [history]);
@@ -187,29 +187,18 @@ export default function DashboardOverview() {
           <CardContent>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorGenerations" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
+                <ComposedChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" />
                   <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis yAxisId="left" hide={true} />
+                  <YAxis yAxisId="right" orientation="right" hide={true} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
                     itemStyle={{ color: 'hsl(var(--foreground))' }}
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="generations" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorGenerations)" 
-                  />
-                </AreaChart>
+                  <Bar yAxisId="left" dataKey="cost" fill="#1A73E8" barSize={40} />
+                  <Line yAxisId="right" type="linear" dataKey="generations" stroke="#FF4081" strokeWidth={2} dot={{ r: 4, stroke: '#FF4081', strokeWidth: 2, fill: 'white' }} activeDot={{ r: 6 }} />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
@@ -224,7 +213,12 @@ export default function DashboardOverview() {
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl uppercase overflow-hidden">
                 {user.avatar ? (
-                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  <img 
+                    src={user.avatar.includes('res.cloudinary.com') ? user.avatar.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/') : user.avatar} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover" 
+                    style={{ imageRendering: '-webkit-optimize-contrast' as any }}
+                  />
                 ) : (
                   user.name.charAt(0)
                 )}

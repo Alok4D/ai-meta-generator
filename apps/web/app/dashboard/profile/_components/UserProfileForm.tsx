@@ -80,9 +80,10 @@ export function UserProfileForm() {
             <div className="w-20 h-20 rounded-full bg-primary/20 text-primary flex items-center justify-center text-2xl font-bold uppercase overflow-hidden relative">
               {(avatarPreview || user.avatar) ? (
                 <img 
-                  src={avatarPreview || user.avatar} 
+                  src={(avatarPreview || user.avatar).includes('res.cloudinary.com') ? (avatarPreview || user.avatar).replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/') : (avatarPreview || user.avatar)} 
                   alt="Avatar" 
                   className="w-full h-full object-cover"
+                  style={{ imageRendering: '-webkit-optimize-contrast' as any }}
                 />
               ) : (
                 user.name.substring(0, 2)

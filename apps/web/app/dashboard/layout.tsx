@@ -230,7 +230,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </div>
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs uppercase overflow-hidden relative shrink-0">
                 {user.avatar ? (
-                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  <img 
+                    src={user.avatar.includes('res.cloudinary.com') ? user.avatar.replace('/upload/', '/upload/w_100,h_100,c_fill,q_auto,f_auto/') : user.avatar} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover" 
+                    style={{ imageRendering: '-webkit-optimize-contrast' as any }}
+                  />
                 ) : (
                   user.name.charAt(0)
                 )}
