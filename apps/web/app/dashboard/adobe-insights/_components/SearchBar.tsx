@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Loader, Info, X } from 'lucide-react';
+import { Search, Loader, Info, X, Settings } from 'lucide-react';
 
 interface SearchBarProps {
     searchTerm: string;
@@ -77,24 +77,35 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 </div>
                 
                 {/* Auth Token Input (Right Side) */}
-                <div className={`flex items-center gap-2 px-4 bg-white dark:bg-gray-800 rounded-2xl border shadow-sm transition-colors ${isLimitReached ? 'border-red-300 dark:border-red-800/50' : 'border-gray-200 dark:border-gray-700'}`}>
-                    <span className={`text-[11px] font-medium uppercase tracking-wider whitespace-nowrap ${isLimitReached ? 'text-red-700 dark:text-red-400' : 'text-gray-500'}`}>Auth Token:</span>
-                    <input
-                        type="text"
-                        placeholder="Paste access_token..."
-                        value={sessionId}
-                        onChange={(e) => setSessionId(e.target.value)}
-                        className="text-xs w-[180px] py-4 bg-transparent outline-none text-gray-700 dark:text-gray-300"
-                    />
+                {!showInstructions ? (
                     <button 
                         type="button" 
-                        onClick={() => setShowInstructions(!showInstructions)} 
-                        className={`p-1.5 rounded-full transition-colors ${showInstructions ? 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
-                        title="Toggle instructions"
+                        onClick={() => setShowInstructions(true)}
+                        className="px-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center shrink-0"
+                        title="Advanced Settings"
                     >
-                        {showInstructions ? <X className="w-4 h-4" /> : <Info className="w-4 h-4" />}
+                        <Settings className="w-5 h-5" />
                     </button>
-                </div>
+                ) : (
+                    <div className={`flex items-center gap-2 px-4 bg-white dark:bg-gray-800 rounded-2xl border shadow-sm transition-colors shrink-0 ${isLimitReached ? 'border-red-300 dark:border-red-800/50' : 'border-gray-200 dark:border-gray-700'}`}>
+                        <span className={`text-[11px] font-medium uppercase tracking-wider whitespace-nowrap ${isLimitReached ? 'text-red-700 dark:text-red-400' : 'text-gray-500'}`}>Auth Token:</span>
+                        <input
+                            type="text"
+                            placeholder="Paste access_token..."
+                            value={sessionId}
+                            onChange={(e) => setSessionId(e.target.value)}
+                            className="text-xs w-[180px] py-4 bg-transparent outline-none text-gray-700 dark:text-gray-300"
+                        />
+                        <button 
+                            type="button" 
+                            onClick={() => setShowInstructions(false)} 
+                            className={`p-1.5 rounded-full transition-colors bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300`}
+                            title="Close settings"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Collapsible Instructions Box */}
