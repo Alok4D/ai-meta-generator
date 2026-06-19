@@ -31,6 +31,13 @@ export default function BatchUploadPage() {
   const isFreePlan = !user?.activePlan || planName === 'free';
   const hasAccess = !isFreePlan;
 
+  let maxBatchSize = 0;
+  if (planName === 'lite') maxBatchSize = 50;
+  else if (planName === 'pro') maxBatchSize = 100;
+  else if (planName === 'max') maxBatchSize = 200;
+  else if (planName === 'unlimited') maxBatchSize = Infinity;
+  else if (hasAccess) maxBatchSize = 50;
+
   const isProcessingRef = useRef(false);
 
   useEffect(() => {
@@ -126,8 +133,8 @@ export default function BatchUploadPage() {
       return;
     }
     
-    if (acceptedFiles.length > 50) {
-      toast.error("You can only upload up to 50 images at once");
+    if (maxBatchSize !== Infinity && acceptedFiles.length > maxBatchSize) {
+      toast.error(`You can only upload up to ${maxBatchSize} images at once on your current plan`);
       return;
     }
 
@@ -170,7 +177,7 @@ export default function BatchUploadPage() {
       'image/*': ['.jpeg', '.jpg', '.png', '.svg', '.webp', '.avif'],
       'application/postscript': ['.eps']
     },
-    maxFiles: 50
+    maxFiles: maxBatchSize === Infinity ? 0 : maxBatchSize
   });
 
   const startProcessing = async () => {
@@ -329,6 +336,7 @@ export default function BatchUploadPage() {
               hasAccess={hasAccess} 
               onUpgradeClick={() => setShowUpgradeModal(true)} 
               dropzone={dropzone} 
+              maxBatchSize={maxBatchSize}
             />
           ) : (
             <div className="space-y-4">
