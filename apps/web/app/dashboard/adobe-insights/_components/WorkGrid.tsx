@@ -37,14 +37,21 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
         let x = rect.right - 850;
         // If it goes off-screen to the left, align left edge instead
         if (x < 10) x = rect.left;
-
+        
         // Default to opening downwards
         let y = rect.bottom + 8;
-        // If it goes off-screen at the bottom, open upwards
-        if (typeof window !== 'undefined' && y + 500 > window.innerHeight) {
-            y = rect.top - 500 - 8;
+        
+        if (typeof window !== 'undefined') {
+            // If it goes off-screen at the bottom, open upwards
+            if (y + 500 > window.innerHeight) {
+                y = rect.top - 500 - 8;
+            }
+            
+            // Final safety clamp to ensure it's ALWAYS visible in the viewport
+            x = Math.max(10, Math.min(window.innerWidth - 860, x));
+            y = Math.max(10, Math.min(window.innerHeight - 510, y));
         }
-
+        
         setPopoverPos({ x, y });
         setHoveredInfoId(id);
     };
