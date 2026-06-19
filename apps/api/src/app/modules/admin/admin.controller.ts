@@ -72,6 +72,19 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
       });
     }
 
+    // Recent Users
+    const recentUsers = await User.find({}, '-password')
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('activePlan');
+
+    // Recent Transactions
+    const recentTransactions = await Transaction.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .populate('user', 'name email')
+      .populate('plan', 'name');
+
     res.json({
       totalUsers,
       totalUploads,
@@ -79,7 +92,9 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
       totalPremiumUsers,
       pendingSupportTickets,
       userGrowth,
-      uploadGrowth
+      uploadGrowth,
+      recentUsers,
+      recentTransactions
     });
   } catch (error) {
     res.status(500).json({ error: 'Server error fetching overview stats' });

@@ -2,7 +2,8 @@
 
 import { useGetAdminOverviewQuery } from "@/lib/feature/admin/adminApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Image as ImageIcon, Coins, Activity, DollarSign, Crown, MessageSquare } from "lucide-react";
+import { Users, Image as ImageIcon, Coins, Activity, DollarSign, Crown, MessageSquare, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { 
   LineChart, 
   Line, 
@@ -78,6 +79,21 @@ export default function AdminOverview() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card className="bg-gradient-to-br from-card to-emerald-500/5 border-emerald-500/20 shadow-sm relative overflow-hidden">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <DollarSign className="h-4 w-4 text-emerald-500" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold">${stats?.totalRevenue?.toFixed(2) || '0.00'}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Earnings from subscriptions
+            </p>
+          </CardContent>
+        </Card>
         <Card className="bg-gradient-to-br from-card to-primary/5 border-primary/20 shadow-sm relative overflow-hidden">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/10 rounded-full blur-2xl"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -110,21 +126,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-card to-emerald-500/5 border-emerald-500/20 shadow-sm relative overflow-hidden">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-              <DollarSign className="h-4 w-4 text-emerald-500" />
-            </div>
-          </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold">${stats?.totalRevenue?.toFixed(2) || '0.00'}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Earnings from subscriptions
-            </p>
-          </CardContent>
-        </Card>
+      
 
         <Card className="bg-gradient-to-br from-card to-purple-500/5 border-purple-500/20 shadow-sm relative overflow-hidden">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl"></div>
@@ -221,6 +223,82 @@ export default function AdminOverview() {
                   <Bar dataKey="uploads" fill="url(#colorUploads)" radius={[4, 4, 0, 0]} maxBarSize={50} />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Recent Users Card */}
+        <Card className="shadow-sm border-muted/60">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-lg">Recent Users</CardTitle>
+              <CardDescription>Latest registered accounts</CardDescription>
+            </div>
+            <Link href="/admin/users" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+              View All <ArrowRight className="h-4 w-4" />
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats?.recentUsers?.map((user: any) => (
+                <div key={user._id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium">
+                      {user.name?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">{user.email}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
+                      {user.activePlan ? 'Premium' : 'Free'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {(!stats?.recentUsers || stats.recentUsers.length === 0) && (
+                <p className="text-sm text-muted-foreground text-center py-4">No recent users.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Transactions Card */}
+        <Card className="shadow-sm border-muted/60">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-lg">Recent Transactions</CardTitle>
+              <CardDescription>Latest platform payments</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats?.recentTransactions?.map((trx: any) => (
+                <div key={trx._id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                      <DollarSign className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{trx.user?.name || 'Unknown User'}</p>
+                      <p className="text-xs text-muted-foreground">{trx.plan?.name || 'Subscription'}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-sm text-emerald-500">+${trx.amount}</p>
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">
+                      {trx.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {(!stats?.recentTransactions || stats.recentTransactions.length === 0) && (
+                <p className="text-sm text-muted-foreground text-center py-4">No recent transactions.</p>
+              )}
             </div>
           </CardContent>
         </Card>
