@@ -363,21 +363,21 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                     <button 
                         onClick={handleCopyKeywords}
                         disabled={selectedKeywords.length === 0}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-[3px] transition-colors disabled:opacity-50"
                     >
                         <Copy className="w-4 h-4" /> Copy to clipboard
                     </button>
                     <button 
                         onClick={handleExportTXT}
                         disabled={selectedKeywords.length === 0}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-[3px] transition-colors disabled:opacity-50"
                     >
                         <Download className="w-4 h-4" /> Export TXT
                     </button>
                     <button 
                         onClick={handleExportCSV}
                         disabled={selectedKeywords.length === 0}
-                        className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-[3px] transition-colors disabled:opacity-50"
                     >
                         <Download className="w-4 h-4" /> Export CSV
                     </button>
