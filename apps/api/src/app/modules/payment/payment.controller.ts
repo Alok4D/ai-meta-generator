@@ -90,10 +90,20 @@ export const handleWebhook = async (req: Request, res: Response): Promise<void> 
       const plan = await SubscriptionPlan.findById(planId);
       
       if (plan) {
-        const existingUser = await User.findById(userId);
+        const existingUser = await User.findById(userId).populate('activePlan');
         let currentCredits = 0;
-        if (existingUser && typeof existingUser.credits === 'number' && existingUser.credits > 0) {
-          currentCredits = existingUser.credits;
+        let shouldUpdatePlan = true;
+
+        if (existingUser) {
+          if (typeof existingUser.credits === 'number' && existingUser.credits > 0) {
+            currentCredits = existingUser.credits;
+          }
+          if (existingUser.activePlan) {
+            const currentPlan = existingUser.activePlan as any;
+            if (currentPlan.price !== undefined && plan.price !== undefined && currentPlan.price > plan.price) {
+              shouldUpdatePlan = false;
+            }
+          }
         }
 
         const creditsToAssign = plan.credits || (plan.name?.toLowerCase() === 'unlimited' ? 9999999 : plan.name?.toLowerCase() === 'max' ? 2000 : plan.name?.toLowerCase() === 'pro' ? 1000 : plan.name?.toLowerCase() === 'lite' ? 400 : 30);
@@ -108,11 +118,16 @@ export const handleWebhook = async (req: Request, res: Response): Promise<void> 
         const planExpireDate = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
         const newTotalCredits = currentCredits + creditsToAssign;
 
-        await User.findByIdAndUpdate(userId, {
-          activePlan: plan._id,
+        const updateData: any = {
           credits: newTotalCredits,
-          planExpireDate,
-        });
+        };
+
+        if (shouldUpdatePlan) {
+          updateData.activePlan = plan._id;
+          updateData.planExpireDate = planExpireDate;
+        }
+
+        await User.findByIdAndUpdate(userId, updateData);
 
         await Transaction.create({
           user: userId,
@@ -186,10 +201,20 @@ export const verifyCheckoutSession = async (req: Request, res: Response): Promis
         plan = await SubscriptionPlan.findById(planId);
         
         if (plan) {
-          const existingUser = await User.findById(userId);
+          const existingUser = await User.findById(userId).populate('activePlan');
           let currentCredits = 0;
-          if (existingUser && typeof existingUser.credits === 'number' && existingUser.credits > 0) {
-            currentCredits = existingUser.credits;
+          let shouldUpdatePlan = true;
+
+          if (existingUser) {
+            if (typeof existingUser.credits === 'number' && existingUser.credits > 0) {
+              currentCredits = existingUser.credits;
+            }
+            if (existingUser.activePlan) {
+              const currentPlan = existingUser.activePlan as any;
+              if (currentPlan.price !== undefined && plan.price !== undefined && currentPlan.price > plan.price) {
+                shouldUpdatePlan = false;
+              }
+            }
           }
 
           const creditsToAssign = plan.credits || (plan.name?.toLowerCase() === 'unlimited' ? 9999999 : plan.name?.toLowerCase() === 'max' ? 2000 : plan.name?.toLowerCase() === 'pro' ? 1000 : plan.name?.toLowerCase() === 'lite' ? 400 : 30);
@@ -204,11 +229,16 @@ export const verifyCheckoutSession = async (req: Request, res: Response): Promis
           const planExpireDate = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
           const newTotalCredits = currentCredits + creditsToAssign;
 
-          const updatedUser = await User.findByIdAndUpdate(userId, {
-            activePlan: plan._id,
+          const updateData: any = {
             credits: newTotalCredits,
-            planExpireDate,
-          }, { new: true });
+          };
+
+          if (shouldUpdatePlan) {
+            updateData.activePlan = plan._id;
+            updateData.planExpireDate = planExpireDate;
+          }
+
+          const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
           const newTx = await Transaction.create({
             user: userId,
@@ -388,10 +418,20 @@ export const verifyManualPayment = async (req: Request, res: Response): Promise<
     if (status === 'completed') {
       const plan = await SubscriptionPlan.findById(transaction.plan);
       if (plan) {
-        const existingUser = await User.findById(transaction.user);
+        const existingUser = await User.findById(transaction.user).populate('activePlan');
         let currentCredits = 0;
-        if (existingUser && typeof existingUser.credits === 'number' && existingUser.credits > 0) {
-          currentCredits = existingUser.credits;
+        let shouldUpdatePlan = true;
+
+        if (existingUser) {
+          if (typeof existingUser.credits === 'number' && existingUser.credits > 0) {
+            currentCredits = existingUser.credits;
+          }
+          if (existingUser.activePlan) {
+            const currentPlan = existingUser.activePlan as any;
+            if (currentPlan.price !== undefined && plan.price !== undefined && currentPlan.price > plan.price) {
+              shouldUpdatePlan = false;
+            }
+          }
         }
 
         const creditsToAssign = plan.credits || (plan.name?.toLowerCase() === 'unlimited' ? 9999999 : plan.name?.toLowerCase() === 'max' ? 2000 : plan.name?.toLowerCase() === 'pro' ? 1000 : plan.name?.toLowerCase() === 'lite' ? 400 : 30);
@@ -406,11 +446,16 @@ export const verifyManualPayment = async (req: Request, res: Response): Promise<
         const planExpireDate = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
         const newTotalCredits = currentCredits + creditsToAssign;
 
-        await User.findByIdAndUpdate(transaction.user, {
-          activePlan: plan._id,
+        const updateData: any = {
           credits: newTotalCredits,
-          planExpireDate,
-        });
+        };
+
+        if (shouldUpdatePlan) {
+          updateData.activePlan = plan._id;
+          updateData.planExpireDate = planExpireDate;
+        }
+
+        await User.findByIdAndUpdate(transaction.user, updateData);
       }
     }
 
