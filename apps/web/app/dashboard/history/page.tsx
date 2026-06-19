@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HistoryPage() {
+  
   const user = useSelector((state: RootState) => state.auth.user);
   const { data: history = [], isLoading: loading } = useGetHistoryQuery(undefined, {
     skip: !user,
@@ -21,6 +22,8 @@ export default function HistoryPage() {
   const [deleteHistory] = useDeleteHistoryMutation();
   const [viewItem, setViewItem] = useState<any>(null);
   const [filterPlatform, setFilterPlatform] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 10;
 
   const planName = user?.activePlan?.name?.toLowerCase();
   const hasProAccess = planName === 'pro' || planName === 'agency';
@@ -30,6 +33,9 @@ export default function HistoryPage() {
     if (filterPlatform === "general") return !item.platform || item.platform === "general";
     return item.platform === filterPlatform;
   });
+
+  const totalPages = Math.ceil(filteredHistory.length / ITEMS_PER_PAGE);
+  const paginatedHistory = filteredHistory.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const handleCopy = (keywords: string[]) => {
     navigator.clipboard.writeText(keywords.join(", "));
@@ -93,7 +99,7 @@ export default function HistoryPage() {
         </div>
         
         <div className="w-full sm:w-auto">
-          <Select value={filterPlatform} onValueChange={(val) => { if (val) setFilterPlatform(val) }}>
+          <Select value={filterPlatform} onValueChange={(val) => { if (val) { setFilterPlatform(val); setCurrentPage(1); } }}>
             <SelectTrigger className="w-full sm:w-[200px] py-5 bg-card border-border shadow-sm hover:bg-muted/50 transition-colors h-10 font-medium">
               <div className="flex items-center gap-2.5 text-foreground/80 w-full">
                 <Filter className="w-4 h-4 text-primary flex-shrink-0" />
@@ -164,7 +170,7 @@ export default function HistoryPage() {
                     <th className="px-6 py-4 font-medium">Title / Description</th>
                     <th className="px-6 py-4 font-medium">Category</th>
                     <th className="px-6 py-4 font-medium">Date</th>
-                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                    <th className="px-6 py-4 font-medium text-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -213,11 +219,11 @@ export default function HistoryPage() {
                     <th className="px-6 py-4 font-medium">Title / Description</th>
                     <th className="px-6 py-4 font-medium">Category</th>
                     <th className="px-6 py-4 font-medium">Date</th>
-                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                    <th className="px-6 py-4 font-medium text-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {filteredHistory?.map((item: any) => (
+                  {paginatedHistory.map((item: any) => (
                     <tr key={item._id} className="bg-card hover:bg-muted/30 transition-colors">
                       <td className="px-6 py-4">
                         {item.imageUrl ? (
@@ -266,6 +272,35 @@ export default function HistoryPage() {
                 </tbody>
               </table>
             </div>
+
+            {totalPages > 1 && (
+              <div className="flex justify-between items-center px-6 py-4 border-t">
+                <span className="text-sm text-muted-foreground">
+                  Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredHistory.length)} of {filteredHistory.length} entries
+                </span>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  <div className="flex items-center justify-center min-w-[2rem] text-sm font-medium">
+                    {currentPage}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}
