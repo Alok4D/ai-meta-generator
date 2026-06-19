@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useSearchImstockerMutation } from "@/lib/feature/iamstock/iamstockApi";
-import { toast } from "sonner";
+import Swal from "sweetalert2";
 import { SearchBar } from "./_components/SearchBar";
 import { WorkGrid } from "./_components/WorkGrid";
 import { KeywordPanel } from "./_components/KeywordPanel";
@@ -20,20 +20,34 @@ const IAMStockPage = () => {
 
     const handleSearch = async () => {
         if (!searchTerm.trim()) {
-            toast.error("Please enter a search term");
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: 'Please enter a search term'
+            });
             return;
         }
 
         try {
             const selectedType = typeFilter === "any" ? undefined : [parseInt(typeFilter)];
             await searchImstocker({ search: searchTerm, sessionId, count: 100, type: selectedType }).unwrap();
-            toast.success("Search completed!");
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Search completed successfully!',
+                timer: 2000,
+                showConfirmButton: false
+            });
             // Reset selections on new search
             setSelectedWorkIds([]);
             setSelectedKeywords([]);
         } catch (error: any) {
             const errorMsg = error?.data?.error || error?.data?.message || error?.error || error?.message || "Failed to fetch data from IMStocker";
-            toast.error(errorMsg);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMsg
+            });
             if (errorMsg.includes('API_FLOOD') || errorMsg.includes('Rate limit')) {
                 setIsLimitReached(true);
             }
@@ -41,10 +55,11 @@ const IAMStockPage = () => {
     };
 
     const handleToggleWork = (id: number) => {
-        setSelectedWorkIds(prev => 
+        setSelectedWorkIds(prev =>
             prev.includes(id) ? prev.filter(wId => wId !== id) : [...prev, id]
         );
     };
+
 
     const handleSelectAllWorks = () => {
         if (data?.res?.list) {
@@ -57,7 +72,7 @@ const IAMStockPage = () => {
     };
 
     const handleToggleKeyword = (keyword: string) => {
-        setSelectedKeywords(prev => 
+        setSelectedKeywords(prev =>
             prev.includes(keyword) ? prev.filter(k => k !== keyword) : [...prev, keyword]
         );
     };
@@ -72,12 +87,12 @@ const IAMStockPage = () => {
     return (
         <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] -m-4 md:-m-8 w-[calc(100%+2rem)] md:w-[calc(100%+4rem)] bg-gray-50 dark:bg-gray-900 overflow-hidden">
             {/* Top Search Area */}
-            <div 
+            <div
                 className="p-4 border-b border-gray-200 dark:border-gray-800 z-10 shrink-0 shadow-sm bg-cover bg-center"
                 style={{ backgroundImage: "url('/adobe-insight-banner-top.webp')" }}
             >
                 <div className="max-w-7xl mx-auto flex gap-4 items-center">
-                    <SearchBar 
+                    <SearchBar
                         searchTerm={searchTerm}
                         setSearchTerm={setSearchTerm}
                         typeFilter={typeFilter}
@@ -96,9 +111,9 @@ const IAMStockPage = () => {
                 {/* Left side: Image Grid */}
                 <div className={`w-full ${layoutMode === 'half' ? 'lg:w-[100%]' : 'lg:w-[60%]'} flex flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden transition-all duration-300`}>
                     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                        <WorkGrid 
-                            works={works} 
-                            selectedWorkIds={selectedWorkIds} 
+                        <WorkGrid
+                            works={works}
+                            selectedWorkIds={selectedWorkIds}
                             onToggleWork={handleToggleWork}
                             onSelectAll={handleSelectAllWorks}
                             onSelectNone={handleSelectNoneWorks}
@@ -112,7 +127,7 @@ const IAMStockPage = () => {
                 {layoutMode !== 'half' && (
                     <div className="w-full lg:w-[40%] flex flex-col bg-gray-50 dark:bg-gray-900 overflow-hidden transition-all duration-300">
                         <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                            <KeywordPanel 
+                            <KeywordPanel
                                 selectedWorks={selectedWorksFull}
                                 selectedKeywords={selectedKeywords}
                                 onToggleKeyword={handleToggleKeyword}
