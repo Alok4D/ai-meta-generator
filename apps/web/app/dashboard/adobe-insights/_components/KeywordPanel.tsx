@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { X, Copy, Trash2, Download } from 'lucide-react';
+import { X, Copy, Trash2, Download, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface KeywordPanelProps {
@@ -19,6 +19,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
     const [description, setDescription] = useState("");
     const [activeFilters, setActiveFilters] = useState<string[]>([]);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [customCount, setCustomCount] = useState("");
     console.log(activeFilters)
 
     // Aggregate keywords from selected works
@@ -26,7 +27,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
         if (selectedWorks.length === 0) return [];
 
         const keywordDataMap: Record<string, { keyword: string, count: number, raw: any }> = {};
-        
+
         selectedWorks.forEach(work => {
             if (work.keywords && Array.isArray(work.keywords)) {
                 work.keywords.forEach((kw: any) => {
@@ -50,22 +51,22 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
 
     const filteredKeywords = useMemo(() => {
         if (activeFilters.length === 0) return suggestedKeywords;
-        
+
         return suggestedKeywords.filter(({ raw }) => {
             const rank = parseFloat(raw?.result_rank);
             const isUnknown = !raw || raw.result_rank === undefined || raw.result_rank === null;
-            
+
             const badges: string[] = [];
             if (raw?.is_getty === 1) badges.push('gt');
             if (raw?.is_trademark === 1) badges.push('tm');
-            
+
             if (isUnknown) badges.push('unknown');
             else if (rank >= 0.8) badges.push('excellent');
             else if (rank >= 0.6) badges.push('good');
             else if (rank >= 0.4) badges.push('normal');
             else if (rank >= 0.2) badges.push('low');
             else badges.push('bad');
-            
+
             return activeFilters.some(filter => badges.includes(filter));
         });
     }, [suggestedKeywords, activeFilters]);
@@ -110,11 +111,11 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
         // Select exactly the top 'num' keywords from filtered valid keywords
         const validKws = filteredKeywords.filter(k => k.raw?.is_trademark !== 1);
         const topKws = validKws.slice(0, num).map(k => k.keyword);
-        
+
         validKws.forEach(kw => {
             const shouldBeSelected = topKws.includes(kw.keyword);
             const isSelected = selectedKeywords.includes(kw.keyword);
-            
+
             if (shouldBeSelected !== isSelected) {
                 onToggleKeyword(kw.keyword);
             }
@@ -156,15 +157,15 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
 
     const getFilterClass = (filterKey: string, baseClass: string) => {
         if (activeFilters.length === 0) return `${baseClass} cursor-pointer opacity-100 transition-all hover:scale-110`;
-        return activeFilters.includes(filterKey) 
+        return activeFilters.includes(filterKey)
             ? `${baseClass} cursor-pointer ring-2 ring-offset-1 ring-offset-gray-50 dark:ring-offset-gray-800 ring-gray-400 dark:ring-gray-500 opacity-100 transition-all scale-110`
             : `${baseClass} cursor-pointer opacity-30 hover:opacity-60 transition-all`;
     };
 
     const toggleFilter = (filterKey: string) => {
-        setActiveFilters(prev => 
-            prev.includes(filterKey) 
-                ? prev.filter(k => k !== filterKey) 
+        setActiveFilters(prev =>
+            prev.includes(filterKey)
+                ? prev.filter(k => k !== filterKey)
                 : [...prev, filterKey]
         );
     };
@@ -192,7 +193,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                         <h3 className="font-semibold text-gray-800 dark:text-gray-200">Suggested keywords:</h3>
                         <span className="text-xs text-gray-500">{filteredKeywords.length} found</span>
                     </div>
-                    
+
                     {/* Rank Legend / Filters */}
                     <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shadow-sm w-fit select-none">
                         <button onClick={() => toggleFilter('gt')} className={getFilterClass('gt', 'flex items-center justify-center w-[16px] h-[16px] shrink-0 rounded-full bg-black text-white text-[8px] font-bold')} title="Filter: Keywords used on Getty/iStock">gt</button>
@@ -213,7 +214,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                         )}
                     </div>
                 </div>
-                
+
                 <div className="flex-1 overflow-y-auto mb-3 content-start">
                     {suggestedKeywords.length === 0 ? (
                         <div className="text-sm text-gray-400 italic">Select works from the grid to see suggested keywords.</div>
@@ -229,19 +230,18 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                             {filteredKeywords.map(({ keyword, count, raw }) => {
                                 const isSelected = selectedKeywords.includes(keyword);
                                 const isTrademark = raw?.is_trademark === 1;
-                                
+
                                 return (
                                     <button
                                         key={keyword}
                                         onClick={() => !isTrademark && onToggleKeyword(keyword)}
                                         disabled={isTrademark}
-                                        className={`px-2 py-1 text-xs rounded-md border flex items-center gap-1.5 transition-colors ${
-                                            isTrademark 
+                                        className={`px-2 py-1 text-xs rounded-md border flex items-center gap-1.5 transition-colors ${isTrademark
                                                 ? 'bg-red-50/50 dark:bg-red-900/10 border-red-200 dark:border-red-800 text-red-400 dark:text-red-500/60 opacity-60 cursor-not-allowed'
-                                                : isSelected 
-                                                    ? 'bg-blue-500 border-blue-600 text-white shadow-sm' 
+                                                : isSelected
+                                                    ? 'bg-blue-500 border-blue-600 text-white shadow-sm'
                                                     : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30'
-                                        }`}
+                                            }`}
                                         title={isTrademark ? "Trademark keywords cannot be selected for commercial use" : ""}
                                     >
                                         {raw?.is_getty === 1 && <span className={`flex items-center justify-center w-3.5 h-3.5 shrink-0 rounded-full ${isTrademark ? 'bg-gray-400' : 'bg-black'} text-white text-[7px] font-bold`} title="Used on Getty/iStock">gt</span>}
@@ -261,60 +261,84 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                 {suggestedKeywords.length > 0 && (
                     <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700/50 mt-auto">
                         <span className="text-xs text-gray-500">Select up to:</span>
-                        
+
                         {/* Dynamic First Box */}
-                        <button 
-                            onClick={() => handleSelectTop(filteredKeywords.length)} 
+                        <button
+                            onClick={() => handleSelectTop(filteredKeywords.length)}
                             className="text-xs px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors font-medium"
                             title={`Select all ${filteredKeywords.length} keywords`}
                         >
                             {filteredKeywords.length}
                         </button>
-                        
+
                         {/* Fixed Options */}
                         {[10, 20, 30, 40, 49, 50].map(num => (
-                            <button 
+                            <button
                                 key={num}
-                                onClick={() => handleSelectTop(num)} 
+                                onClick={() => handleSelectTop(num)}
                                 className="text-xs px-2.5 py-1 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 rounded hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             >
                                 {num}
                             </button>
                         ))}
-                        
+
                         <div className="relative">
-                            <button 
+                            <button
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="text-xs px-2.5 py-1 text-blue-600 dark:text-blue-400 rounded border border-blue-600 dark:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-bold tracking-widest transition-colors"
+                                className="text-xs px-2.5 py-1 text-blue-600 dark:text-blue-400 rounded border border-blue-600 dark:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-bold flex items-center transition-colors"
                             >
-                                ...
+                                Custom <ChevronDown className="w-3 h-3 ml-0.5" />
                             </button>
-                            
+
                             {isMenuOpen && (
                                 <>
-                                    <div 
-                                        className="fixed inset-0 z-10" 
+                                    <div
+                                        className="fixed inset-0 z-10"
                                         onClick={() => setIsMenuOpen(false)}
                                     ></div>
                                     <div className="absolute left-0 bottom-full mb-1 z-20 w-36 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-1 overflow-hidden divide-y divide-gray-100 dark:divide-gray-700">
-                                        <button 
+                                        <button
                                             onClick={handleSelectAll}
                                             className="w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                                         >
                                             Select all
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={handleDeselectAll}
                                             className="w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                                         >
                                             Deselect all
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={handleInvertSelection}
                                             className="w-full text-left px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                                         >
                                             Invert selection
                                         </button>
+                                        <div className="p-2 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700">
+                                            <label className="block text-[10px] text-gray-500 dark:text-gray-400 mb-1.5 leading-tight">
+                                                Type a number to select that many top keywords:
+                                            </label>
+                                            <form onSubmit={(e) => {
+                                                e.preventDefault();
+                                                const num = parseInt(customCount);
+                                                if (!isNaN(num) && num > 0) {
+                                                    handleSelectTop(num);
+                                                    setCustomCount("");
+                                                    setIsMenuOpen(false);
+                                                }
+                                            }}>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    max={filteredKeywords.length}
+                                                    placeholder="e.g. 31"
+                                                    value={customCount}
+                                                    onChange={(e) => setCustomCount(e.target.value)}
+                                                    className="w-full px-2 py-1.5 text-xs border border-gray-200 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                                                />
+                                            </form>
+                                        </div>
                                     </div>
                                 </>
                             )}
@@ -327,7 +351,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
             <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm flex flex-col flex-1 overflow-hidden">
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="font-semibold text-gray-800 dark:text-gray-200">Your keywords <span className="font-normal text-sm text-gray-500">({selectedKeywords.length})</span></h3>
-                    <button 
+                    <button
                         onClick={onClearKeywords}
                         disabled={selectedKeywords.length === 0}
                         className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50 flex items-center gap-1"
@@ -347,7 +371,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                                     className="px-2 py-1 text-xs bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md flex items-center gap-1.5 text-gray-700 dark:text-gray-300 shadow-sm"
                                 >
                                     {keyword}
-                                    <button 
+                                    <button
                                         onClick={() => onToggleKeyword(keyword)}
                                         className="text-gray-400 hover:text-red-500 focus:outline-none"
                                     >
@@ -360,21 +384,21 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                 </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
-                    <button 
+                    <button
                         onClick={handleCopyKeywords}
                         disabled={selectedKeywords.length === 0}
                         className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-[3px] transition-colors disabled:opacity-50"
                     >
                         <Copy className="w-4 h-4" /> Copy to clipboard
                     </button>
-                    <button 
+                    <button
                         onClick={handleExportTXT}
                         disabled={selectedKeywords.length === 0}
                         className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-[3px] transition-colors disabled:opacity-50"
                     >
                         <Download className="w-4 h-4" /> Export TXT
                     </button>
-                    <button 
+                    <button
                         onClick={handleExportCSV}
                         disabled={selectedKeywords.length === 0}
                         className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-[3px] transition-colors disabled:opacity-50"
