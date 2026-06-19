@@ -8,7 +8,7 @@ export const uploadApi = baseApi.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
-      invalidatesTags: ['History'],
+      invalidatesTags: ['History', 'Uploads'],
     }),
     getHistory: builder.query({
       query: () => '/upload/history',
@@ -19,7 +19,7 @@ export const uploadApi = baseApi.injectEndpoints({
         url: `/upload/history/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['History'],
+      invalidatesTags: ['History', 'Uploads'],
     }),
     regenerateMetadata: builder.mutation({
       query: (data) => ({
@@ -27,7 +27,7 @@ export const uploadApi = baseApi.injectEndpoints({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['History'],
+      invalidatesTags: ['History', 'Uploads'],
     }),
   }),
   overrideExisting: true,
