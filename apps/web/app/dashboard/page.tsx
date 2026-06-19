@@ -110,7 +110,7 @@ export default function DashboardOverview() {
           <h2 className="text-3xl font-medium tracking-tight">Overview</h2>
           <p className="text-muted-foreground">Welcome back, {user.name}. Here's what's happening today.</p>
         </div>
-        <Button onClick={() => router.push("/dashboard/generator")} className="gap-2">
+        <Button onClick={() => router.push("/dashboard/generator")} className="gap-2 rounded-[4px] py-5">
           <Wand2 className="h-4 w-4" />
           Generate Metadata
         </Button>
