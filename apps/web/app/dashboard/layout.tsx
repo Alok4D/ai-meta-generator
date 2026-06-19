@@ -74,9 +74,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <div className="h-screen flex bg-muted/20 overflow-hidden">
       {/* Sidebar */}
       <aside className={`${isCollapsed ? "w-20" : "w-64"} bg-background border-r flex flex-col hidden md:flex shrink-0 transition-all duration-300 ease-in-out`}>
-        <div className="h-16 flex items-center px-6 border-b shrink-0 overflow-hidden">
+        <div className={`h-16 flex items-center ${isCollapsed ? "justify-center" : "px-6"} border-b shrink-0 overflow-hidden`}>
           <Link href="/" className="flex items-center gap-2 overflow-hidden">
-            <div className=" flex justify-center text-primary-foreground font-bold overflow-hidden shrink-0">
+            <div className="flex justify-center text-primary-foreground font-bold overflow-hidden shrink-0">
               <img src="/logo.png" alt="MetaGen AI Logo" className="w-10 h-10 object-contain" />
             </div>
             {!isCollapsed && <span className="text-xl font-bold tracking-tight whitespace-nowrap">MetaGen AI</span>}
