@@ -1,21 +1,21 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import User from '../auth/user.model';
 import MetaData from '../upload/metaData.model';
 import SupportMessage from '../support/support.model';
+import Transaction from '../payment/transaction.model';
 
 export const getOverviewStats = async (req: Request, res: Response): Promise<void> => {
   try {
     const totalUsers = await User.countDocuments();
     const totalUploads = await MetaData.countDocuments();
     
-    // Calculate total credits used
-    const users = await User.find({}, 'credits activePlan');
-    const totalCreditsRemaining = users.reduce((acc, user) => acc + user.credits, 0);
-    const totalCreditsDistributed = totalUsers * 100;
-    const totalCreditsUsed = totalCreditsDistributed - totalCreditsRemaining;
+    // Calculate total revenue from completed transactions
+    const completedTransactions = await Transaction.find({ status: 'completed' }, 'amount');
+    const totalRevenue = completedTransactions.reduce((acc, trx) => acc + (trx.amount || 0), 0);
     
     // Total premium users
-    const totalPremiumUsers = users.filter(u => u.activePlan != null).length;
+    const totalPremiumUsers = await User.countDocuments({ activePlan: { $ne: null } });
     
     // Pending support tickets
     const pendingSupportTickets = await SupportMessage.countDocuments({ status: 'pending' });
@@ -75,7 +75,7 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
     res.json({
       totalUsers,
       totalUploads,
-      totalCreditsUsed: totalCreditsUsed > 0 ? totalCreditsUsed : 0,
+      totalRevenue,
       totalPremiumUsers,
       pendingSupportTickets,
       userGrowth,

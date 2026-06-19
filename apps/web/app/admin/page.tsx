@@ -2,7 +2,7 @@
 
 import { useGetAdminOverviewQuery } from "@/lib/feature/admin/adminApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Image as ImageIcon, Coins, Activity, Zap, Crown, MessageSquare } from "lucide-react";
+import { Users, Image as ImageIcon, Coins, Activity, DollarSign, Crown, MessageSquare } from "lucide-react";
 import { 
   LineChart, 
   Line, 
@@ -21,7 +21,46 @@ export default function AdminOverview() {
   const { data: stats, isLoading, isError } = useGetAdminOverviewQuery(undefined);
 
   if (isLoading) {
-    return <div className="text-center py-12 text-muted-foreground animate-pulse">Loading overview data...</div>;
+    return (
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight mb-2">Platform Overview</h2>
+          <p className="text-muted-foreground">High-level metrics and performance analytics for your AI Meta Generator.</p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i} className="shadow-sm border-muted/30">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
+                <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-16 bg-muted animate-pulse rounded mt-2"></div>
+                <div className="h-3 w-32 bg-muted animate-pulse rounded mt-3"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Card key={i} className="shadow-sm border-muted/60">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-5 bg-muted animate-pulse rounded-full"></div>
+                  <div className="h-5 w-32 bg-muted animate-pulse rounded"></div>
+                </div>
+                <div className="h-4 w-48 bg-muted animate-pulse rounded mt-2"></div>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px] w-full mt-4 bg-muted/30 animate-pulse rounded-md"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (isError) {
@@ -71,18 +110,18 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-card to-orange-500/5 border-orange-500/20 shadow-sm relative overflow-hidden">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl"></div>
+        <Card className="bg-gradient-to-br from-card to-emerald-500/5 border-emerald-500/20 shadow-sm relative overflow-hidden">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium">API Credits Used</CardTitle>
-            <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center">
-              <Zap className="h-4 w-4 text-orange-500" />
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <DollarSign className="h-4 w-4 text-emerald-500" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-3xl font-bold">{stats?.totalCreditsUsed || 0}</div>
+            <div className="text-3xl font-bold">${stats?.totalRevenue?.toFixed(2) || '0.00'}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Credits consumed globally
+              Earnings from subscriptions
             </p>
           </CardContent>
         </Card>
