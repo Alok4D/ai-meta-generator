@@ -74,7 +74,7 @@ export function BatchItemCard({ item, isProcessing, onRemove }: BatchItemCardPro
           </div>
 
           <div className="flex-1 flex flex-col justify-center">
-            {(item.status === 'pending' || item.status === 'processing') && (
+            {item.status === 'pending' && (
               <div className="grid grid-cols-3 gap-4 animate-in fade-in">
                 <div className="bg-muted/30 p-3 rounded-lg border border-muted/50">
                   <span className="text-muted-foreground text-[10px] uppercase tracking-wider block mb-1">Size</span>
@@ -91,6 +91,38 @@ export function BatchItemCard({ item, isProcessing, onRemove }: BatchItemCardPro
                       item.dimensions.width === 0 ? "Vector" : `${item.dimensions.width}x${item.dimensions.height}`
                     ) : "..."}
                   </p>
+                </div>
+              </div>
+            )}
+
+            {item.status === 'processing' && (
+              <div className="flex flex-col gap-3 animate-in fade-in duration-500">
+                {/* Title Section Skeleton */}
+                <div className="bg-muted/30 p-3 rounded-lg border border-muted/50">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Generating Title...</span>
+                  </div>
+                  <div className="h-4 w-3/4 bg-muted animate-pulse rounded"></div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  {/* Category Section Skeleton */}
+                  <div className="bg-muted/30 p-3 rounded-lg border border-muted/50">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Category</span>
+                    <div className="h-4 w-1/2 bg-muted animate-pulse rounded"></div>
+                  </div>
+
+                  {/* Keywords Section Skeleton */}
+                  <div className="md:col-span-3 bg-muted/30 p-3 rounded-lg border border-muted/50">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Extracting Keywords...</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: 12 }).map((_, i) => (
+                        <div key={i} className="h-6 bg-muted animate-pulse rounded" style={{ width: `${Math.floor(Math.random() * 40) + 60}px` }}></div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -134,12 +166,12 @@ export function BatchItemCard({ item, isProcessing, onRemove }: BatchItemCardPro
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {item.metadata.keywords.slice(0, 18).map((kw: string, i: number) => (
-                        <span key={i} className="px-2 py-1 bg-background border shadow-sm text-foreground rounded text-[11px] font-medium">
+                        <span key={i} className="px-2 py-1 bg-background border shadow-sm text-foreground rounded text-[12px] font-medium">
                           {kw}
                         </span>
                       ))}
                       {item.metadata.keywords.length > 18 && (
-                        <span className="px-2 py-1 bg-primary/10 text-primary border border-primary/10 rounded text-[11px] font-semibold">
+                        <span className="px-2 py-1 bg-primary/10 text-primary border border-primary/10 rounded text-[12px] font-semibold">
                           +{item.metadata.keywords.length - 18} more
                         </span>
                       )}
