@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const checkScreenSize = () => {
-      if (window.innerWidth <= 1024) {
+      if (window.innerWidth <= 1024 || pathname === '/dashboard/adobe-insights') {
         setIsCollapsed(true);
       } else {
         setIsCollapsed(false);
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (user?.role === 'admin') {

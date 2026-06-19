@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { X, Copy, Trash2, Edit, Download } from 'lucide-react';
+import { X, Copy, Trash2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface KeywordPanelProps {

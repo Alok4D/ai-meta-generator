@@ -82,8 +82,18 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
 
     if (!works || works.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-gray-500">
-                No works found. Start searching.
+            <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center p-8 bg-white dark:bg-gray-900/50 rounded-md border border-gray-100 dark:border-gray-800/60 m-2 shadow-sm">
+                <img 
+                    src="/gradient-career-cushioning-illustration_52683-140257.avif" 
+                    alt="Start Searching" 
+                    className="w-80 h-80 md:w-[450px] md:h-[450px] object-contain mb-8 drop-shadow-sm hover:scale-105 transition-transform duration-500"
+                />
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-3">
+                    Discover Premium Stock Insights
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 max-w-[450px] text-base leading-relaxed">
+                    Search for trending works, analyze top-performing images, and extract highly optimized keywords for your own portfolio.
+                </p>
             </div>
         );
     }
