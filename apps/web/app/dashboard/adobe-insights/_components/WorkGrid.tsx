@@ -105,7 +105,7 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
             <div className="flex flex-col sm:flex-row items-center justify-between bg-gray-100 dark:bg-gray-800 p-3 rounded-lg gap-3">
                 <div className="text-sm text-gray-600 dark:text-gray-300 font-medium flex items-center gap-2">
                     <span className="text-blue-600 dark:text-blue-400 font-bold">{selectedWorkIds.length}</span>
-                    works selected
+                    Assets selected
                 </div>
 
                 <div className="flex items-center text-xs text-gray-500 font-medium">
