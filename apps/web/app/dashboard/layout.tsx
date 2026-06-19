@@ -59,15 +59,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/generator", label: "Generator", icon: Wand2 },
     { href: "/dashboard/batch", label: "Batch", icon: Layers },
     { href: "/dashboard/history", label: "Generation History", icon: History },
-    { href: "/dashboard/transactions", label: "Transactions", icon: CreditCard },
     { href: "/dashboard/pricing", label: "Pricing", icon: CreditCard },
+    { href: "/dashboard/transactions", label: "Transactions", icon: CreditCard },
     { href: "/dashboard/events", label: "Events", icon: Calendar },
-    { href: "/dashboard/color-palette", label: "Color Palette", icon: Palette },
     { href: "/dashboard/image-converter", label: "Image Converter", icon: ImageIcon },
     { href: "/dashboard/bg-remover", label: "BG Remover", icon: Scissors },
-    { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
+    { href: "/dashboard/adobe-insights", label: "Adobe Insights", icon: Sparkles },
+    { href: "/dashboard/color-palette", label: "Color Palette", icon: Palette },
     { href: "/dashboard/support", label: "Support", icon: LifeBuoy },
-    { href: "/dashboard/iamstock", label: "IAMStock", icon: Sparkles },
+    { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
   ];
 
   return (
