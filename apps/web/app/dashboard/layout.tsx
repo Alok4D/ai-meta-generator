@@ -9,7 +9,7 @@ import { logout, setUser } from "@/lib/feature/auth/authSlice";
 import { useGetMeQuery } from "@/lib/feature/auth/authApi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles, Scissors } from "lucide-react";
+import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles, Scissors, Gem, Receipt } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   
@@ -59,8 +59,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/generator", label: "Generator", icon: Wand2 },
     { href: "/dashboard/batch", label: "Batch", icon: Layers },
     { href: "/dashboard/history", label: "Generation History", icon: History },
-    { href: "/dashboard/pricing", label: "Pricing", icon: CreditCard },
-    { href: "/dashboard/transactions", label: "Transactions", icon: CreditCard },
+    { href: "/dashboard/pricing", label: "Pricing", icon: Gem },
+    { href: "/dashboard/transactions", label: "Transactions", icon: Receipt },
     { href: "/dashboard/events", label: "Events", icon: Calendar },
     { href: "/dashboard/image-converter", label: "Image Converter", icon: ImageIcon },
     { href: "/dashboard/bg-remover", label: "BG Remover", icon: Scissors },
