@@ -69,6 +69,8 @@ export function UserProfileForm() {
     }
   };
 
+  const displayAvatar = avatarPreview || user.avatar;
+
   return (
     <TabsContent value="profile" className="mt-0">
       <Card className="border-border">
@@ -78,9 +80,9 @@ export function UserProfileForm() {
         <CardContent className="space-y-8">
           <div className="flex items-center gap-6">
             <div className="w-20 h-20 rounded-full bg-primary/20 text-primary flex items-center justify-center text-2xl font-bold uppercase overflow-hidden relative">
-              {(avatarPreview || user.avatar) ? (
+              {displayAvatar ? (
                 <img 
-                  src={(avatarPreview || user.avatar).includes('res.cloudinary.com') ? (avatarPreview || user.avatar).replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/') : (avatarPreview || user.avatar)} 
+                  src={displayAvatar.includes('res.cloudinary.com') ? displayAvatar.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/') : displayAvatar} 
                   alt="Avatar" 
                   className="w-full h-full object-cover"
                   style={{ imageRendering: '-webkit-optimize-contrast' as any }}
