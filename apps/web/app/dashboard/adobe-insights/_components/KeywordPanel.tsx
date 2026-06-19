@@ -191,7 +191,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                 <div className="flex flex-col xl:flex-row xl:justify-between xl:items-center gap-3 mb-4">
                     <div className="flex items-baseline gap-2">
                         <h3 className="font-semibold text-gray-800 dark:text-gray-200">Suggested keywords:</h3>
-                        <span className="text-xs text-gray-500">{filteredKeywords.length} found</span>
+                        <span className="text-sm text-gray-500"><span className="text-blue-600 dark:text-blue-400 font-bold text-base">{filteredKeywords.length}</span> found</span>
                     </div>
 
                     {/* Rank Legend / Filters */}
