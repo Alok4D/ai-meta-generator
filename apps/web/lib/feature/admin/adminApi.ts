@@ -32,6 +32,16 @@ export const adminApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['Users'],
     }),
+    getAllGenerations: builder.query({
+      query: ({ page = 1, limit = 10, search = '' }: { page?: number; limit?: number; search?: string } = {}) => {
+        const params = new URLSearchParams();
+        if (page) params.append('page', page.toString());
+        if (limit) params.append('limit', limit.toString());
+        if (search) params.append('search', search);
+        return `/admin/images?${params.toString()}`;
+      },
+      providesTags: ['Uploads'],
+    }),
   }),
   overrideExisting: true,
 });
@@ -41,4 +51,5 @@ export const {
   useGetAllUsersQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
+  useGetAllGenerationsQuery,
 } = adminApi;
