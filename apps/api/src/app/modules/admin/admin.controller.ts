@@ -9,10 +9,16 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
     const totalUploads = await MetaData.countDocuments();
     
     // Calculate total credits used
-    const users = await User.find({}, 'credits');
+    const users = await User.find({}, 'credits activePlan');
     const totalCreditsRemaining = users.reduce((acc, user) => acc + user.credits, 0);
     const totalCreditsDistributed = totalUsers * 100;
     const totalCreditsUsed = totalCreditsDistributed - totalCreditsRemaining;
+    
+    // Total premium users
+    const totalPremiumUsers = users.filter(u => u.activePlan != null).length;
+    
+    // Pending support tickets
+    const pendingSupportTickets = await SupportMessage.countDocuments({ status: 'pending' });
 
     // Last 7 days data
     const sevenDaysAgo = new Date();
@@ -70,6 +76,8 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
       totalUsers,
       totalUploads,
       totalCreditsUsed: totalCreditsUsed > 0 ? totalCreditsUsed : 0,
+      totalPremiumUsers,
+      pendingSupportTickets,
       userGrowth,
       uploadGrowth
     });

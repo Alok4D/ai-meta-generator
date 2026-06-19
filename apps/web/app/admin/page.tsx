@@ -2,7 +2,7 @@
 
 import { useGetAdminOverviewQuery } from "@/lib/feature/admin/adminApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Image as ImageIcon, Coins, Activity, Zap } from "lucide-react";
+import { Users, Image as ImageIcon, Coins, Activity, Zap, Crown, MessageSquare } from "lucide-react";
 import { 
   LineChart, 
   Line, 
@@ -71,7 +71,7 @@ export default function AdminOverview() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-card to-orange-500/5 border-orange-500/20 shadow-sm relative overflow-hidden md:col-span-2 lg:col-span-1">
+        <Card className="bg-gradient-to-br from-card to-orange-500/5 border-orange-500/20 shadow-sm relative overflow-hidden">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-orange-500/10 rounded-full blur-2xl"></div>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
             <CardTitle className="text-sm font-medium">API Credits Used</CardTitle>
@@ -83,6 +83,38 @@ export default function AdminOverview() {
             <div className="text-3xl font-bold">{stats?.totalCreditsUsed || 0}</div>
             <p className="text-xs text-muted-foreground mt-1">
               Credits consumed globally
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-card to-purple-500/5 border-purple-500/20 shadow-sm relative overflow-hidden">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl"></div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium">Premium Users</CardTitle>
+            <div className="w-8 h-8 rounded-full bg-purple-500/10 flex items-center justify-center">
+              <Crown className="h-4 w-4 text-purple-500" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold">{stats?.totalPremiumUsers || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Accounts on active plans
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-card to-red-500/5 border-red-500/20 shadow-sm relative overflow-hidden">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-red-500/10 rounded-full blur-2xl"></div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium">Pending Tickets</CardTitle>
+            <div className="w-8 h-8 rounded-full bg-red-500/10 flex items-center justify-center">
+              <MessageSquare className="h-4 w-4 text-red-500" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold">{stats?.pendingSupportTickets || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Unresolved support requests
             </p>
           </CardContent>
         </Card>
@@ -103,18 +135,18 @@ export default function AdminOverview() {
                 <AreaChart data={userGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.5}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                  <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                    itemStyle={{ color: 'hsl(var(--foreground))' }}
+                    contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                    itemStyle={{ color: 'var(--foreground)' }}
                   />
-                  <Area type="monotone" dataKey="users" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
+                  <Area type="monotone" dataKey="users" stroke="#8b5cf6" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -133,15 +165,21 @@ export default function AdminOverview() {
             <div className="h-[300px] w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={uploadGrowth} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <defs>
+                    <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#0ea5e9" stopOpacity={1}/>
+                      <stop offset="100%" stopColor="#2563eb" stopOpacity={0.8}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                  <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
-                    itemStyle={{ color: 'hsl(var(--foreground))' }}
-                    cursor={{ fill: 'hsl(var(--muted))' }}
+                    contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                    itemStyle={{ color: 'var(--foreground)' }}
+                    cursor={{ fill: 'transparent' }}
                   />
-                  <Bar dataKey="uploads" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                  <Bar dataKey="uploads" fill="url(#colorUploads)" radius={[4, 4, 0, 0]} maxBarSize={50} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
