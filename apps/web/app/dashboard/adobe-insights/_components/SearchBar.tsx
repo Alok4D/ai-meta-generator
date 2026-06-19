@@ -40,7 +40,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-full">
             <div className="flex gap-3 w-full">
-                <div className="flex-1 flex items-center bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
+                <div className="flex-1 flex items-center bg-white dark:bg-gray-800 rounded-md shadow-xs overflow-hidden focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 transition-all">
                     <div className="pl-4 pr-2 text-gray-400">
                         <Search className="h-5 w-5" />
                     </div>
@@ -75,16 +75,26 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                         {isLoading ? <Loader className="animate-spin h-5 w-5" /> : "Search"}
                     </button>
                 </div>
-                
+
                 {/* Auth Token Input (Right Side) */}
                 {!showInstructions ? (
-                    <button 
-                        type="button" 
+                    <button
+                        type="button"
                         onClick={() => setShowInstructions(true)}
-                        className="px-5 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center shrink-0"
+                        className="p-2 flex items-center justify-center shrink-0 outline-none"
                         title="Advanced Settings"
                     >
-                        <Settings className="w-5 h-5" />
+                        <style>{`
+                            @keyframes premiumGlowPulse {
+                                0% { transform: scale(1); color: #ffffff; filter: drop-shadow(0 0 2px rgba(255,255,255,0.4)); }
+                                50% { transform: scale(1.15); color: #fde047; filter: drop-shadow(0 0 12px rgba(253,224,71,0.9)); }
+                                100% { transform: scale(1); color: #ffffff; filter: drop-shadow(0 0 2px rgba(255,255,255,0.4)); }
+                            }
+                        `}</style>
+                        <Settings 
+                            className="w-8 h-8 transition-colors" 
+                            style={{ animation: 'premiumGlowPulse 3s ease-in-out infinite' }} 
+                        />
                     </button>
                 ) : (
                     <div className={`flex items-center gap-2 px-4 bg-white dark:bg-gray-800 rounded-2xl border shadow-sm transition-colors shrink-0 ${isLimitReached ? 'border-red-300 dark:border-red-800/50' : 'border-gray-200 dark:border-gray-700'}`}>
@@ -96,9 +106,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                             onChange={(e) => setSessionId(e.target.value)}
                             className="text-xs w-[180px] py-4 bg-transparent outline-none text-gray-700 dark:text-gray-300"
                         />
-                        <button 
-                            type="button" 
-                            onClick={() => setShowInstructions(false)} 
+                        <button
+                            type="button"
+                            onClick={() => setShowInstructions(false)}
                             className={`p-1.5 rounded-full transition-colors bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300`}
                             title="Close settings"
                         >
@@ -110,22 +120,19 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
             {/* Collapsible Instructions Box */}
             {showInstructions && (
-                <div className={`flex flex-col gap-2 px-4 py-3 rounded-xl border transition-colors ${
-                    isLimitReached 
-                    ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/20' 
-                    : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800'
-                }`}>
-                    <div className={`text-[12px] ${
-                        isLimitReached ? 'text-red-800 dark:text-red-300' : 'text-gray-600 dark:text-gray-400'
+                <div className={`flex flex-col gap-2 px-4 py-3 rounded-xl border transition-colors ${isLimitReached
+                        ? 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/20'
+                        : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-800'
                     }`}>
+                    <div className={`text-[12px] ${isLimitReached ? 'text-red-800 dark:text-red-300' : 'text-gray-600 dark:text-gray-400'
+                        }`}>
                         {isLimitReached ? (
                             <span><span className="font-semibold text-red-700 dark:text-red-400">Search Limit Reached!</span> To continue searching, please provide an auth token:</span>
                         ) : (
                             <span className="font-medium text-gray-700 dark:text-gray-300">How to get an Auth Token (optional, to bypass limits):</span>
                         )}
-                        <ol className={`list-decimal ml-5 mt-1.5 space-y-1 ${
-                            isLimitReached ? 'text-red-700 dark:text-red-400' : 'text-gray-500 dark:text-gray-500'
-                        }`}>
+                        <ol className={`list-decimal ml-5 mt-1.5 space-y-1 ${isLimitReached ? 'text-red-700 dark:text-red-400' : 'text-gray-500 dark:text-gray-500'
+                            }`}>
                             <li>Go to <a href="https://imstocker.com/en/keyworder" target="_blank" rel="noopener noreferrer" className={`underline hover:text-blue-600 ${isLimitReached ? 'font-medium' : ''}`}>imstocker.com</a> and login.</li>
                             <li>Press <kbd className={`px-1.5 py-0.5 rounded text-[10px] font-mono ${isLimitReached ? 'bg-red-100 dark:bg-red-800/50' : 'bg-gray-200 dark:bg-gray-700'}`}>F12</kbd> to open Developer Tools, and search for any work on their site.</li>
                             <li>Go to the <strong>Network</strong> tab, click the <code>searchWorks</code> request, and open the <strong>Payload</strong> tab.</li>

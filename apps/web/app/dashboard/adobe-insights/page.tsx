@@ -91,7 +91,7 @@ const IAMStockPage = () => {
                 className="p-4 border-b border-gray-200 dark:border-gray-800 z-10 shrink-0 shadow-sm bg-cover bg-center"
                 style={{ backgroundImage: "url('/adobe-insight-banner-top.webp')" }}
             >
-                <div className="max-w-7xl mx-auto flex gap-4 items-center">
+                <div className="max-w-4xl mx-auto flex gap-4 items-center">
                     <SearchBar
                         searchTerm={searchTerm}
                         setSearchTerm={setSearchTerm}
