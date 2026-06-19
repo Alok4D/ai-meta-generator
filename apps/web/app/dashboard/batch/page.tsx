@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useDropzone } from "react-dropzone";
 import { useRouter } from "next/navigation";
+import Swal from 'sweetalert2';
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import { updateCredits } from "@/lib/feature/auth/authSlice";
@@ -238,6 +239,25 @@ export default function BatchUploadPage() {
     }
   };
 
+  const handleStopProcessing = () => {
+    Swal.fire({
+      title: 'Halt Batch Processing?',
+      text: "Are you sure you want to interrupt the current batch? Any pending items will remain in the queue, but you will need to restart the process manually to finish them.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#3b82f6',
+      confirmButtonText: 'Yes, stop processing',
+      cancelButtonText: 'Continue processing'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        isProcessingRef.current = false; 
+        setIsProcessing(false); 
+        toast.info("Batch processing was halted by the user.");
+      }
+    });
+  };
+
   const handleDownloadAllCSV = () => {
     const successfulItems = items.filter(item => item.status === 'success' && item.metadata);
     if (successfulItems.length === 0) return;
@@ -305,7 +325,7 @@ export default function BatchUploadPage() {
               <Button onClick={startProcessing}>Start Processing</Button>
             )}
             {isProcessing && (
-              <Button variant="secondary" onClick={() => { isProcessingRef.current = false; setIsProcessing(false); toast.info("Processing stopped"); }}>Stop Processing</Button>
+              <Button variant="secondary" onClick={handleStopProcessing}>Stop Processing</Button>
             )}
             <Button variant="outline" onClick={() => setItems([])} disabled={isProcessing}>Clear All</Button>
             {completedCount > 0 && (
