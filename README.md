@@ -12,6 +12,15 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 
 ---
 
+## ✨ Recent Enhancements
+* **High-Watermark Credit Top-up System**: Advanced payment logic across Stripe and Manual payments. If a user buys a lower-tier plan while on a premium tier, the system intelligently retains their premium status while stacking their new credits, preventing accidental downgrades.
+* **Dynamic Batch Processing Limits**: Batch upload capacities are now dynamically tied to subscription plans (e.g., Lite: 50, Pro: 100, Unlimited: 500) for better resource management.
+* **Premium Skeleton Loading UI**: Completely revamped the pending/processing states during AI generation with beautiful, structural shimmer effects (skeleton loaders) to match the final output layout.
+* **History Pagination**: Improved performance and UX in the Generation History page with smooth client-side pagination.
+* **Professional Iconography**: Upgraded dashboard navigation icons with more contextual and premium SVGs.
+
+---
+
 ## 🚀 Key Features
 
 ### 🎨 Creative Tools
