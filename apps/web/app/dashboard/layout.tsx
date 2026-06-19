@@ -219,7 +219,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <PanelLeft className="h-5 w-5" />
               <span className="sr-only">Toggle sidebar</span>
             </Button>
-            <div className="font-bold text-lg hidden md:block">User Dashboard</div>
+            <div className="font-bold text-lg hidden md:block">Welcome to MetaGen AI</div>
             <div className="font-bold md:hidden">{user.name}</div>
           </div>
           <div className="flex items-center gap-4">
