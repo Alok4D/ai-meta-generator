@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "@/lib/feature/auth/authSlice";
 
 export default function PricingPage() {
+
   const { data: plans = [], isLoading } = useGetSubscriptionsQuery(undefined);
   const user = useSelector((state: RootState) => state.auth.user);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -189,7 +190,7 @@ export default function PricingPage() {
                 {user?.activePlan?._id === plan._id || user?.activePlan === plan._id || (plan.name?.toLowerCase() === 'free' && !user?.activePlan) ? (
                   <Button 
                     variant={plan.isPopular ? 'default' : 'outline'} 
-                    className="w-full opacity-50 cursor-not-allowed"
+                    className="w-full opacity-50 cursor-not-allowed rounded-md py-5"
                     disabled
                   >
                     {plan.buttonText}
@@ -197,7 +198,7 @@ export default function PricingPage() {
                 ) : (
                   <Button 
                     variant={plan.isPopular ? 'default' : 'outline'} 
-                    className="w-full"
+                    className="w-full rounded-md py-5"
                     onClick={() => handlePlanClick(plan)}
                   >
                     {plan.buttonText}
