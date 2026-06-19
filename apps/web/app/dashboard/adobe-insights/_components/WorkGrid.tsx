@@ -338,7 +338,7 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                             )}
 
                             {/* Overlay Bottom Strip */}
-                            <div className={`absolute bottom-0 left-0 w-full h-10 bg-[#dce3de]/90 flex items-center px-3 transition-opacity duration-150 z-20 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                            <div className={`absolute bottom-0 left-0 w-full h-8 bg-[#dce3de]/90 flex items-center px-3 transition-opacity duration-150 z-20 ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                 {/* Checkbox */}
                                 <div className="w-4 h-4 border border-gray-600 bg-transparent flex items-center justify-center mr-2 shrink-0 rounded-sm">
                                     {isSelected && (
@@ -347,7 +347,7 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                         </svg>
                                     )}
                                 </div>
-                                <span className="text-[#294859] text-[15px]">Select work</span>
+                                <span className="text-[#294859] text-sm">Select work</span>
                             </div>
                         </div>
                     );
