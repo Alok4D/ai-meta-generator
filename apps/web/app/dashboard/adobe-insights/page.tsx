@@ -72,7 +72,10 @@ const IAMStockPage = () => {
     return (
         <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] -m-4 md:-m-8 w-[calc(100%+2rem)] md:w-[calc(100%+4rem)] bg-gray-50 dark:bg-gray-900 overflow-hidden">
             {/* Top Search Area */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 z-10 shrink-0 shadow-sm">
+            <div 
+                className="p-4 border-b border-gray-200 dark:border-gray-800 z-10 shrink-0 shadow-sm bg-cover bg-center"
+                style={{ backgroundImage: "url('/adobe-insight-banner-top.webp')" }}
+            >
                 <div className="max-w-7xl mx-auto flex gap-4 items-center">
                     <SearchBar 
                         searchTerm={searchTerm}
