@@ -1,5 +1,5 @@
 import express from 'express';
-import { getOverviewStats, getAllUsers, updateUser, deleteUser, getAllSupportMessages, updateSupportMessageStatus, getAllGenerations } from './admin.controller';
+import { getOverviewStats, getAllUsers, updateUser, deleteUser, getAllSupportMessages, updateSupportMessageStatus, getAllGenerations, getUserGenerationStats } from './admin.controller';
 import { protect, admin } from '../../middlewares/auth';
 
 const router = express.Router();
@@ -13,6 +13,7 @@ router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 
 router.get('/images', getAllGenerations);
+router.get('/generation-stats', getUserGenerationStats);
 
 router.get('/support', getAllSupportMessages);
 router.patch('/support/:id/status', updateSupportMessageStatus);

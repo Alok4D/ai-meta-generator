@@ -124,8 +124,13 @@ export const getAllGenerations = async (req: Request, res: Response): Promise<vo
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const search = req.query.search as string;
+    const userId = req.query.userId as string;
 
     const query: any = {};
+
+    if (userId) {
+      query.user = userId;
+    }
 
     if (search) {
       // Search in title, description or category
@@ -154,6 +159,76 @@ export const getAllGenerations = async (req: Request, res: Response): Promise<vo
   } catch (error) {
     console.error('Error fetching generations:', error);
     res.status(500).json({ error: 'Server error fetching generations' });
+  }
+};
+
+export const getUserGenerationStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 12;
+    const search = req.query.search as string;
+
+    // We can fetch all users that match search and then get their stats
+    // But aggregation is better
+    const matchStage: any = {};
+    
+    // First, find users matching the search criteria if any
+    let userIds: mongoose.Types.ObjectId[] = [];
+    if (search) {
+      const users = await User.find({
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+        ]
+      }, '_id');
+      userIds = users.map(u => u._id);
+      matchStage.user = { $in: userIds };
+    }
+
+    const skip = (page - 1) * limit;
+
+    const pipeline = [
+      ...(Object.keys(matchStage).length > 0 ? [{ $match: matchStage }] : []),
+      {
+        $group: {
+          _id: '$user',
+          totalGenerations: { $sum: 1 },
+          lastGenerationDate: { $max: '$createdAt' }
+        }
+      },
+      { $sort: { totalGenerations: -1 as const } },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [{ $skip: skip }, { $limit: limit }]
+        }
+      }
+    ];
+
+    const result = await MetaData.aggregate(pipeline);
+    
+    const total = result[0].metadata[0]?.total || 0;
+    let stats = result[0].data;
+
+    // Populate user details
+    stats = await User.populate(stats, { path: '_id', select: 'name email avatar' });
+
+    // Rename _id to user for cleaner frontend consumption
+    const formattedStats = stats.map((stat: any) => ({
+      user: stat._id,
+      totalGenerations: stat.totalGenerations,
+      lastGenerationDate: stat.lastGenerationDate
+    })).filter((stat: any) => stat.user != null); // filter out if user was deleted
+
+    res.json({
+      stats: formattedStats,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    console.error('Error fetching user generation stats:', error);
+    res.status(500).json({ error: 'Server error fetching generation stats' });
   }
 };
 
