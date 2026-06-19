@@ -7,12 +7,13 @@ export const adminApi = baseApi.injectEndpoints({
       providesTags: ['Users'],
     }),
     getAllUsers: builder.query({
-      query: ({ page = 1, limit = 12, search = '', role = 'all' }: { page?: number; limit?: number; search?: string; role?: string } = {}) => {
+      query: ({ page = 1, limit = 12, search = '', role = 'all', plan = 'all' }: { page?: number; limit?: number; search?: string; role?: string; plan?: string } = {}) => {
         const params = new URLSearchParams();
         if (page) params.append('page', page.toString());
         if (limit) params.append('limit', limit.toString());
         if (search) params.append('search', search);
         if (role && role !== 'all') params.append('role', role);
+        if (plan && plan !== 'all') params.append('plan', plan);
         return `/admin/users?${params.toString()}`;
       },
       providesTags: ['Users'],

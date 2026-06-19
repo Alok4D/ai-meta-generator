@@ -52,7 +52,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/admin/manual-payments", label: "Manual Payments", icon: FileCheck },
     { href: "/admin/images", label: "Images", icon: ImageIcon },
     { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
-    { href: "/admin/support", label: "Support", icon: LifeBuoy },
+ 
     { href: "/admin/profile", label: "Profile", icon: UserIcon },
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ];

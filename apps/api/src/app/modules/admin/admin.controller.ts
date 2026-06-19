@@ -78,12 +78,15 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
   }
 };
 
+import SubscriptionPlan from '../subscription/subscription.model';
+
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 12;
     const search = req.query.search as string;
     const role = req.query.role as string;
+    const plan = req.query.plan as string;
 
     const query: any = {};
 
@@ -98,6 +101,19 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
       query.role = role;
     }
 
+    if (plan && plan !== 'all') {
+      if (plan.toLowerCase() === 'free') {
+        query.activePlan = { $exists: false };
+      } else {
+        const subscriptionPlan = await SubscriptionPlan.findOne({ name: { $regex: `^${plan}$`, $options: 'i' } });
+        if (subscriptionPlan) {
+          query.activePlan = subscriptionPlan._id;
+        } else {
+          query.activePlan = new mongoose.Types.ObjectId('000000000000000000000000');
+        }
+      }
+    }
+
     const skip = (page - 1) * limit;
 
     const total = await User.countDocuments(query);
@@ -108,8 +124,15 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
       .skip(skip)
       .limit(limit);
 
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const imagesGenerated = await MetaData.countDocuments({ user: user._id });
+        return { ...user.toObject(), imagesGenerated };
+      })
+    );
+
     res.json({
-      users,
+      users: usersWithStats,
       total,
       page,
       pages: Math.ceil(total / limit),

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useGetAllUsersQuery, useUpdateUserMutation, useDeleteUserMutation } from "@/lib/feature/admin/adminApi";
+import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,13 +28,17 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [planFilter, setPlanFilter] = useState("all");
 
   const { data, isLoading, isFetching } = useGetAllUsersQuery({ 
     page, 
     limit: 12, 
     search, 
-    role: roleFilter 
+    role: roleFilter,
+    plan: planFilter
   });
+  
+  const { data: plans = [] } = useGetSubscriptionsQuery(undefined);
   
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
@@ -55,6 +60,13 @@ export default function AdminUsersPage() {
   const handleRoleFilterChange = (val: string | null) => {
     if (val) {
       setRoleFilter(val);
+      setPage(1); // Reset to page 1 on new filter
+    }
+  };
+
+  const handlePlanFilterChange = (val: string | null) => {
+    if (val) {
+      setPlanFilter(val);
       setPage(1); // Reset to page 1 on new filter
     }
   };
@@ -107,9 +119,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  if (isLoading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading users...</div>;
-  }
+  // Removed early return for isLoading to show skeleton instead
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -130,7 +140,22 @@ export default function AdminUsersPage() {
           />
         </form>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+          <Select value={planFilter} onValueChange={handlePlanFilterChange}>
+            <SelectTrigger className="w-full sm:w-[150px] bg-background">
+              <SelectValue placeholder="All Plans" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Plans</SelectItem>
+              {!plans.some((p: any) => p.name.toLowerCase() === 'free') && (
+                <SelectItem value="free">Free Plan</SelectItem>
+              )}
+              {plans.map((plan: any) => (
+                <SelectItem key={plan._id} value={plan.name.toLowerCase()}>{plan.name} Plan</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select value={roleFilter} onValueChange={handleRoleFilterChange}>
             <SelectTrigger className="w-full sm:w-[150px] bg-background">
               <SelectValue placeholder="All Roles" />
@@ -147,11 +172,6 @@ export default function AdminUsersPage() {
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto relative min-h-[300px]">
-            {isFetching && (
-              <div className="absolute inset-0 bg-background/50 z-10 flex items-center justify-center">
-                <div className="animate-pulse font-medium">Loading...</div>
-              </div>
-            )}
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
                 <tr>
@@ -167,7 +187,26 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {users.length === 0 ? (
+                {isLoading || isFetching ? (
+                  Array.from({ length: 5 }).map((_, idx) => (
+                    <tr key={idx} className="bg-card">
+                      <td className="px-6 py-4"><div className="h-4 bg-muted animate-pulse rounded w-24"></div></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-muted animate-pulse rounded w-32"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 bg-muted animate-pulse rounded-md w-16"></div></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-muted animate-pulse rounded w-8"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 bg-muted animate-pulse rounded w-16"></div></td>
+                      <td className="px-6 py-4"><div className="h-6 bg-muted animate-pulse rounded-md w-12"></div></td>
+                      <td className="px-6 py-4"><div className="h-8 bg-muted animate-pulse rounded w-20"></div></td>
+                      <td className="px-6 py-4"><div className="h-4 bg-muted animate-pulse rounded w-20"></div></td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <div className="h-8 bg-muted animate-pulse rounded w-12"></div>
+                          <div className="h-8 bg-muted animate-pulse rounded w-12"></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : users.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-6 py-12 text-center text-muted-foreground">
                       No users found.
@@ -183,7 +222,7 @@ export default function AdminUsersPage() {
                           {user.activePlan?.name || 'Free'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 font-medium">0</td>
+                      <td className="px-6 py-4 font-medium">{user.imagesGenerated || 0}</td>
                       <td className="px-6 py-4">
                         {editingUserId === user._id ? (
                           <div className="flex items-center gap-2">
