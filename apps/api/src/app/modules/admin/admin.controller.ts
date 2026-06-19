@@ -101,6 +101,104 @@ export const getOverviewStats = async (req: Request, res: Response): Promise<voi
   }
 };
 
+export const getAnalyticsStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const totalRequests = await MetaData.countDocuments();
+    
+    // Today's requests
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const todayRequests = await MetaData.countDocuments({ createdAt: { $gte: startOfToday } });
+    
+    // Total distinct categories
+    const categoriesList = await MetaData.distinct('category');
+    const totalCategories = categoriesList.length;
+    
+    // Avg keywords per generation
+    const avgKwData = await MetaData.aggregate([
+      { $project: { kwCount: { $size: { $ifNull: ["$keywords", []] } } } },
+      { $group: { _id: null, avg: { $avg: "$kwCount" } } }
+    ]);
+    const avgKeywords = avgKwData.length > 0 ? Number(avgKwData[0].avg.toFixed(1)) : 0;
+
+    // Daily Requests (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+    
+    const dailyRaw = await MetaData.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 } } }
+    ]);
+    
+    const dailyRequests = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(thirtyDaysAgo);
+      d.setDate(d.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const shortDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const found = dailyRaw.find(x => x._id === dateStr);
+      dailyRequests.push({ name: shortDate, date: dateStr, requests: found ? found.count : 0 });
+    }
+
+    // Monthly Requests (last 12 months)
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+    twelveMonthsAgo.setDate(1);
+    twelveMonthsAgo.setHours(0, 0, 0, 0);
+    
+    const monthlyRaw = await MetaData.aggregate([
+      { $match: { createdAt: { $gte: twelveMonthsAgo } } },
+      { $group: { _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } }, count: { $sum: 1 } } }
+    ]);
+    
+    const monthlyRequests = [];
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(twelveMonthsAgo);
+      d.setMonth(d.getMonth() + i);
+      const monthStr = d.toISOString().slice(0, 7); // YYYY-MM
+      const shortMonth = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      const found = monthlyRaw.find(x => x._id === monthStr);
+      monthlyRequests.push({ name: shortMonth, month: monthStr, requests: found ? found.count : 0 });
+    }
+
+    // Category Analytics
+    const categoryRaw = await MetaData.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+    
+    const categoryAnalytics = categoryRaw.map(c => ({
+      name: c._id || 'Unknown',
+      percentage: totalRequests > 0 ? Math.round((c.count / totalRequests) * 100) : 0,
+      count: c.count
+    }));
+
+    // Top Keywords
+    const topKeywords = await MetaData.aggregate([
+      { $unwind: "$keywords" },
+      { $group: { _id: { $toLower: "$keywords" }, count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 },
+      { $project: { _id: 0, keyword: "$_id", count: 1 } }
+    ]);
+
+    res.json({
+      totalRequests,
+      todayRequests,
+      totalCategories,
+      avgKeywords,
+      dailyRequests,
+      monthlyRequests,
+      categoryAnalytics,
+      topKeywords
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error fetching analytics' });
+  }
+};
+
 import SubscriptionPlan from '../subscription/subscription.model';
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {

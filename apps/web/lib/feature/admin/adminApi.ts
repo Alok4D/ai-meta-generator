@@ -4,7 +4,11 @@ export const adminApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAdminOverview: builder.query({
       query: () => '/admin/overview',
-      providesTags: ['Users'],
+      providesTags: ['Users', 'Uploads', 'Transactions'],
+    }),
+    getAnalytics: builder.query({
+      query: () => '/admin/analytics',
+      providesTags: ['Uploads'],
     }),
     getAllUsers: builder.query({
       query: ({ page = 1, limit = 12, search = '', role = 'all', plan = 'all' }: { page?: number; limit?: number; search?: string; role?: string; plan?: string } = {}) => {
@@ -60,6 +64,7 @@ export const adminApi = baseApi.injectEndpoints({
 
 export const {
   useGetAdminOverviewQuery,
+  useGetAnalyticsQuery,
   useGetAllUsersQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
