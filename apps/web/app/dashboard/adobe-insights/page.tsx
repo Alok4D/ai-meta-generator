@@ -15,7 +15,7 @@ const IAMStockPage = () => {
     const [layoutMode, setLayoutMode] = useState<'list' | 'grid' | 'half'>('grid');
     const [searchImstocker, { isLoading, data }] = useSearchImstockerMutation();
 
-    const [selectedWorkIds, setSelectedWorkIds] = useState<number[]>([]);
+    const [selectedWorksMap, setSelectedWorksMap] = useState<Record<number, any>>({});
     const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
 
     const handleSearch = async () => {
@@ -38,9 +38,6 @@ const IAMStockPage = () => {
                 timer: 2000,
                 showConfirmButton: false
             });
-            // Reset selections on new search
-            setSelectedWorkIds([]);
-            setSelectedKeywords([]);
         } catch (error: any) {
             const errorMsg = error?.data?.error || error?.data?.message || error?.error || error?.message || "Failed to fetch data from IMStocker";
             Swal.fire({
@@ -54,21 +51,38 @@ const IAMStockPage = () => {
         }
     };
 
+    const searchWorks = data?.res?.list || [];
+    const combinedWorks = [
+        ...Object.values(selectedWorksMap),
+        ...searchWorks.filter((sw: any) => !selectedWorksMap[sw.id_work])
+    ];
+
     const handleToggleWork = (id: number) => {
-        setSelectedWorkIds(prev =>
-            prev.includes(id) ? prev.filter(wId => wId !== id) : [...prev, id]
-        );
+        setSelectedWorksMap(prev => {
+            const newMap = { ...prev };
+            if (newMap[id]) {
+                delete newMap[id];
+            } else {
+                const work = combinedWorks.find((w: any) => w.id_work === id);
+                if (work) newMap[id] = work;
+            }
+            return newMap;
+        });
     };
 
 
     const handleSelectAllWorks = () => {
-        if (data?.res?.list) {
-            setSelectedWorkIds(data.res.list.map((w: any) => w.id_work));
-        }
+        setSelectedWorksMap(prev => {
+            const newMap = { ...prev };
+            combinedWorks.forEach((w: any) => {
+                newMap[w.id_work] = w;
+            });
+            return newMap;
+        });
     };
 
     const handleSelectNoneWorks = () => {
-        setSelectedWorkIds([]);
+        setSelectedWorksMap({});
     };
 
     const handleToggleKeyword = (keyword: string) => {
@@ -81,8 +95,9 @@ const IAMStockPage = () => {
         setSelectedKeywords([]);
     };
 
-    const works = data?.res?.list || [];
-    const selectedWorksFull = works.filter((w: any) => selectedWorkIds.includes(w.id_work));
+    const works = combinedWorks;
+    const selectedWorksFull = Object.values(selectedWorksMap);
+    const selectedWorkIds = Object.keys(selectedWorksMap).map(Number);
 
     return (
         <div className="flex flex-col h-[calc(100vh-theme(spacing.16))] -m-4 md:-m-8 w-[calc(100%+2rem)] md:w-[calc(100%+4rem)] bg-gray-50 dark:bg-gray-900 overflow-hidden">
