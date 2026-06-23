@@ -1,4 +1,3 @@
-
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
 import HowItWorks from "./_components/HowItWorks";
