@@ -162,6 +162,8 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                 {works.map((item: any) => {
                     const isSelected = selectedWorkIds.includes(item.id_work);
                     const imgSrc = item.small_preview_link_work || item.big_preview_link_work || item.thumbnail || item.preview;
+                    const isVideo = item.id_work_type === 4 && item.additional?.video_formats?.length > 0;
+                    const videoSrc = isVideo ? item.additional.video_formats[0].src : null;
 
                     return (
                         <div
@@ -173,7 +175,18 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                 className={`relative overflow-hidden ${layoutMode === 'list' ? 'w-64 h-full shrink-0' : 'w-full h-full flex-1'}`}
                                 onClick={() => onToggleWork(item.id_work)}
                             >
-                                {imgSrc ? (
+                                {isVideo ? (
+                                    <video
+                                        src={videoSrc}
+                                        className="w-full h-full object-cover"
+                                        muted
+                                        loop
+                                        playsInline
+                                        poster={imgSrc}
+                                        onMouseEnter={(e) => { e.currentTarget.play().catch(()=>{}); }}
+                                        onMouseLeave={(e) => { e.currentTarget.pause(); }}
+                                    />
+                                ) : imgSrc ? (
                                     <img
                                         src={imgSrc}
                                         alt={item.title_work || "Artwork"}
@@ -210,7 +223,17 @@ export const WorkGrid: React.FC<WorkGridProps> = ({
                                         >
                                             {/* Left Side: Image Preview */}
                                             <div className="w-1/2 bg-[#eaeaea] dark:bg-gray-900 flex items-center justify-center p-4">
-                                                {imgSrc ? (
+                                                {isVideo ? (
+                                                    <video
+                                                        src={videoSrc}
+                                                        className="max-w-full max-h-full object-contain drop-shadow-md"
+                                                        autoPlay
+                                                        controls
+                                                        muted
+                                                        loop
+                                                        poster={item.big_preview_link_work || imgSrc}
+                                                    />
+                                                ) : imgSrc ? (
                                                     <img src={item.big_preview_link_work || imgSrc} className="max-w-full max-h-full object-contain drop-shadow-md" alt="Preview" />
                                                 ) : (
                                                     <span className="text-gray-400">No Preview</span>
