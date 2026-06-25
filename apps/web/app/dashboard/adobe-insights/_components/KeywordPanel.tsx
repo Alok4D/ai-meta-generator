@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { X, Copy, Trash2, Download, ChevronDown } from 'lucide-react';
+import { X, Copy, Trash2, Download, ChevronDown, Filter } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface KeywordPanelProps {
@@ -210,7 +210,9 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                             </button>
                         )}
                         {activeFilters.length === 0 && (
-                            <span className="text-gray-500 dark:text-gray-400 text-[11px] ml-1 flex items-center whitespace-nowrap">→ Filter</span>
+                            <span className="text-gray-500 dark:text-gray-400 text-[11px] ml-1 flex items-center whitespace-nowrap gap-1">
+                                <Filter className="w-3 h-3" /> Filter
+                            </span>
                         )}
                     </div>
                 </div>
