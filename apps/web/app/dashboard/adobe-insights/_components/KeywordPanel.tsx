@@ -55,12 +55,14 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
         return suggestedKeywords.filter(({ raw }) => {
             const rank = parseFloat(raw?.result_rank);
             const isUnknown = !raw || raw.result_rank === undefined || raw.result_rank === null;
+            const downloadRank = parseFloat(raw?.downloads_rank);
 
             const badges: string[] = [];
             if (raw?.is_getty === 1) badges.push('gt');
             if (raw?.is_trademark === 1) badges.push('tm');
 
             if (isUnknown) badges.push('unknown');
+            else if (downloadRank === 1) badges.push('gold');
             else if (rank >= 0.8) badges.push('excellent');
             else if (rank >= 0.6) badges.push('good');
             else if (rank >= 0.4) badges.push('normal');
@@ -147,6 +149,10 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
 
     const getKeywordRankDot = (raw: any) => {
         if (!raw || raw.result_rank === undefined || raw.result_rank === null) return 'border-gray-300 dark:border-gray-600 bg-transparent border';
+        
+        const downloadRank = parseFloat(raw.downloads_rank);
+        if (downloadRank === 1) return 'bg-[#FFD700]';
+
         const rank = parseFloat(raw.result_rank);
         if (rank >= 0.8) return 'bg-purple-500';
         if (rank >= 0.6) return 'bg-blue-500';
@@ -180,6 +186,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
             case 'normal': return <div key={filterKey} className="w-4 h-4 shrink-0 rounded-full bg-emerald-500" title="Rank: Normal"></div>;
             case 'good': return <div key={filterKey} className="w-4 h-4 shrink-0 rounded-full bg-blue-500" title="Rank: Good"></div>;
             case 'excellent': return <div key={filterKey} className="w-4 h-4 shrink-0 rounded-full bg-purple-500" title="Rank: Excellent"></div>;
+            case 'gold': return <div key={filterKey} className="w-4 h-4 shrink-0 rounded-full bg-[#FFD700]" title="Rank: Top Download"></div>;
             default: return null;
         }
     };
@@ -195,7 +202,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                     </div>
 
                     {/* Rank Legend / Filters */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shadow-sm w-fit select-none">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-[2.5px] border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shadow-xs w-fit select-none">
                         <button onClick={() => toggleFilter('gt')} className={getFilterClass('gt', 'flex items-center justify-center w-[16px] h-[16px] shrink-0 rounded-full bg-black text-white text-[8px] font-bold')} title="Filter: Keywords used on Getty/iStock">gt</button>
                         <button onClick={() => toggleFilter('tm')} className={getFilterClass('tm', 'flex items-center justify-center w-[16px] h-[16px] shrink-0 rounded-full bg-red-600 text-white text-[8px] font-bold')} title="Filter: Trademark">TM</button>
                         <button onClick={() => toggleFilter('unknown')} className={getFilterClass('unknown', 'w-3.5 h-3.5 shrink-0 rounded-full border border-gray-300 dark:border-gray-500 bg-transparent ml-1')} title="Filter: Not enough info"></button>
@@ -204,6 +211,7 @@ export const KeywordPanel: React.FC<KeywordPanelProps> = ({
                         <button onClick={() => toggleFilter('normal')} className={getFilterClass('normal', 'w-3.5 h-3.5 shrink-0 rounded-full bg-emerald-500')} title="Filter: Rank Normal"></button>
                         <button onClick={() => toggleFilter('good')} className={getFilterClass('good', 'w-3.5 h-3.5 shrink-0 rounded-full bg-blue-500')} title="Filter: Rank Good"></button>
                         <button onClick={() => toggleFilter('excellent')} className={getFilterClass('excellent', 'w-3.5 h-3.5 shrink-0 rounded-full bg-purple-500')} title="Filter: Rank Excellent"></button>
+                        <button onClick={() => toggleFilter('gold')} className={getFilterClass('gold', 'w-3.5 h-3.5 shrink-0 rounded-full bg-[#FFD700]')} title="Filter: Top Download"></button>
                         {activeFilters.length > 0 && (
                             <button onClick={() => setActiveFilters([])} className="ml-1 text-gray-400 hover:text-red-500 transition-colors" title="Clear filters">
                                 <X className="w-3.5 h-3.5" />
