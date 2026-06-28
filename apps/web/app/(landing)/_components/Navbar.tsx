@@ -31,6 +31,7 @@ export default function Navbar() {
     { name: "How it works", href: "/how-it-works" },
     { name: "Pricing", href: "/pricing" },
     { name: "Features", href: "/features" },
+    { name: "Contributor Insights", href: "/contributor-insights" },
   ];
 
   return (
