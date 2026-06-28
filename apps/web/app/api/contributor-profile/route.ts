@@ -111,7 +111,7 @@ export async function POST(req: Request) {
         }
 
         // Location
-        let location = $('.creator-location, .profile-location').text().trim() || "Location not public";
+        let location = $('.creator-location, .profile-location').text().trim() || "";
 
         // Thumbnails
         const latestAssets: any[] = [];

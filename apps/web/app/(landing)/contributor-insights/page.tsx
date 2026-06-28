@@ -159,13 +159,13 @@ export default function ContributorInsights() {
                                         </h2>
                                         
                                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-gray-500 dark:text-gray-400 text-sm font-medium">
-                                            {profileData.location && (
+                                            {profileData.location && profileData.location !== "Location not public" && (
                                                 <div className="flex items-center gap-1.5">
                                                     <MapPin className="w-4 h-4" />
                                                     {profileData.location}
                                                 </div>
                                             )}
-                                            {profileData.location && <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></div>}
+                                            {profileData.location && profileData.location !== "Location not public" && <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-700"></div>}
                                             <div className="flex items-center gap-1.5 text-blue-500">
                                                 <Briefcase className="w-4 h-4" />
                                                 Adobe Stock Contributor
