@@ -239,13 +239,9 @@ export default function ContributorInsights() {
 
                                             {/* Bottom Info */}
                                             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <p className="text-white text-xs line-clamp-2 font-medium leading-relaxed mb-1.5">
+                                                <p className="text-white text-xs line-clamp-2 font-medium leading-relaxed">
                                                     {asset.title}
                                                 </p>
-                                                <div className="flex items-center justify-between text-[10px] text-gray-300">
-                                                    {asset.id && <span>ID: {asset.id}</span>}
-                                                    {asset.width > 0 && <span>{asset.width} x {asset.height}</span>}
-                                                </div>
                                             </div>
                                         </div>
                                     ))}
