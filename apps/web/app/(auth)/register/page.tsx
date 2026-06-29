@@ -221,7 +221,7 @@ export default function Register() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create a password"
+              placeholder="Enter your password"
               className="h-10 pr-10 bg-white border-gray-300 focus-visible:ring-[#1473E6] rounded-sm text-sm"
             />
             <Button

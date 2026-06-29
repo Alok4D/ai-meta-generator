@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { AuthBackground } from "./_components/AuthBackground";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

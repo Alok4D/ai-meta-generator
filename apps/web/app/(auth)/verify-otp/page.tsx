@@ -73,10 +73,10 @@ function VerifyOtpForm() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-1.5">
           <Label htmlFor="otpCode" className="text-[12px] font-semibold text-[#505050]">Verification Code</Label>
-          <Input 
-            id="otpCode" 
-            type="text" 
-            required 
+          <Input
+            id="otpCode"
+            type="text"
+            required
             value={otpCode}
             onChange={(e) => setOtpCode(e.target.value)}
             placeholder="Enter 6-digit code"
@@ -85,7 +85,16 @@ function VerifyOtpForm() {
           />
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex items-center justify-between pt-2">
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={isResending}
+            className="text-[13px] text-[#1473E6] hover:underline font-medium disabled:opacity-50"
+          >
+            {isResending ? "Resending..." : "Resend code"}
+          </button>
+
           <Button
             type="submit"
             className="px-8 h-9 font-bold text-[13px] rounded-full bg-[#1473E6] hover:bg-[#0d66d0] text-white transition-colors"
@@ -93,20 +102,6 @@ function VerifyOtpForm() {
           >
             {isLoading ? "Verifying..." : "Verify OTP"}
           </Button>
-        </div>
-
-        <div className="mt-4 text-center">
-          <p className="text-[13px] text-gray-600">
-            Didn't receive the code?{" "}
-            <button 
-              type="button" 
-              onClick={handleResend} 
-              disabled={isResending} 
-              className="text-[#1473E6] hover:underline font-medium disabled:opacity-50"
-            >
-              {isResending ? "Resending..." : "Click to resend"}
-            </button>
-          </p>
         </div>
       </form>
 
