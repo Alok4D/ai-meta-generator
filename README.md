@@ -13,10 +13,7 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 ---
 
 ## ✨ Recent Enhancements
-* **Premium Authentication UI**: Transformed the authentication experience (Login, Register, Forgot Password) with dynamic HD video backgrounds, refined form layouts, right-aligned action buttons, clear placeholders, and intelligent caching checks for instant video rendering.
-* **SweetAlert-style Modals**: Redesigned dashboard upgrade popups with a clean, borderless, centered aesthetic (matching SweetAlert2) featuring custom iconography and modern drop-shadows.
-* **HTML Email Support**: Upgraded the backend email utility to send beautifully formatted, professional HTML emails instead of plain text for OTPs and notifications.
-* **Layout Consistency**: Fixed missing global navigation (Navbar/Footer) on sub-landing pages (like Contributor Insights) to maintain architectural and brand consistency.
+
 * **High-Watermark Credit Top-up System**: Advanced payment logic across Stripe and Manual payments. If a user buys a lower-tier plan while on a premium tier, the system intelligently retains their premium status while stacking their new credits, preventing accidental downgrades.
 * **Dynamic Batch Processing Limits**: Batch upload capacities are now dynamically tied to subscription plans (e.g., Lite: 50, Pro: 100, Unlimited: 500) for better resource management.
 * **Premium Skeleton Loading UI**: Completely revamped the pending/processing states during AI generation with beautiful, structural shimmer effects (skeleton loaders) to match the final output layout.
