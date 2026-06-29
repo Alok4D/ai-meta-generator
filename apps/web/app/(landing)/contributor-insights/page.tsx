@@ -4,6 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { Search, MapPin, Grid, Camera, Briefcase, ExternalLink, RefreshCw } from "lucide-react";
 import Swal from "sweetalert2";
+import Navbar from "../_components/Navbar";
+import Footer from "../_components/Footer";
 
 export default function ContributorInsights() {
     
@@ -64,7 +66,9 @@ export default function ContributorInsights() {
     const handlePrevPage = () => fetchProfile(currentPage > 1 ? currentPage - 1 : 1);
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] pt-28 pb-12">
+        <>
+            <Navbar />
+            <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] pt-28 pb-12">
             <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
                 
                 {/* Header Section */}
@@ -99,17 +103,7 @@ export default function ContributorInsights() {
                             </button>
                         </div>
                         
-                        <select 
-                            value={filterType}
-                            onChange={(e) => handleFilterChange(e.target.value)}
-                            className="w-full sm:w-auto px-4 py-4 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm appearance-none min-w-[140px]"
-                        >
-                            <option value="all">All Assets</option>
-                            <option value="photos">Photos</option>
-                            <option value="vectors">Vectors</option>
-                            <option value="illustrations">Illustrations</option>
-                            <option value="videos">Videos</option>
-                        </select>
+                    
                     </form>
                 </div>
 
@@ -276,5 +270,7 @@ export default function ContributorInsights() {
                 )}
             </div>
         </div>
+        <Footer />
+        </>
     );
 }
