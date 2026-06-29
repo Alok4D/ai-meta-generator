@@ -4,6 +4,7 @@ interface EmailOptions {
   email: string;
   subject: string;
   message: string;
+  html?: string;
   fromName?: string;
   fromEmail?: string;
   replyTo?: string;
@@ -23,6 +24,7 @@ const sendEmail = async (options: EmailOptions) => {
           email: options.email,
           subject: options.subject,
           message: options.message,
+          html: options.html,
           secretKey,
           fromName: options.fromName,
           fromEmail: options.fromEmail
@@ -82,7 +84,7 @@ const sendEmail = async (options: EmailOptions) => {
     replyTo: options.replyTo,
     subject: options.subject,
     text: options.message,
-    html: `
+    html: options.html || `
       <!DOCTYPE html>
       <html>
         <head>

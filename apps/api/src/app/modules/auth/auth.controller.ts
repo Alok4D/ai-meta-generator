@@ -9,6 +9,41 @@ import { v2 as cloudinary } from 'cloudinary';
 import * as fs from 'fs';
 import { isDisposableEmail } from 'disposable-email-domains-js';
 
+const generateEmailTemplate = (title: string, contentHTML: string) => `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9f9f9; }
+      .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; }
+      .header { background-color: #3b82f6; padding: 20px; text-align: center; color: #ffffff; }
+      .header h1 { margin: 0; font-size: 24px; display: inline-flex; align-items: center; gap: 10px; }
+      .title { text-align: center; font-size: 20px; color: #333; padding: 20px; border-bottom: 1px solid #eeeeee; margin: 0; }
+      .content { padding: 30px; font-size: 14px; }
+      .otp-box { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin: 20px 0; }
+      .footer { margin-top: 30px; font-size: 14px; color: #555; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Meta Generator</h1>
+      </div>
+      <h2 class="title">${title}</h2>
+      <div class="content">
+        ${contentHTML}
+        <div class="footer">
+          Best Regards,<br>
+          Meta Generator Team
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+`;
+
 const blockedDomains = [
   "mailinator.com",
   "10minutemail.com",
@@ -81,10 +116,19 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     if (user) {
       try {
+        const message = `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`;
+        const html = generateEmailTemplate(
+          'Verify your email address',
+          `<p>Hi,</p>
+           <p>Welcome to Meta Generator! Please enter the following verification code to verify your email address:</p>
+           <div class="otp-box">${otp}</div>
+           <p>This code will expire in 10 minutes.</p>`
+        );
         await sendEmail({
           email: user.email,
           subject: 'Verify your email address - MetaGen AI',
-          message: `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+          message,
+          html,
         });
         
         res.status(201).json({
@@ -177,10 +221,19 @@ export const resendOtp = async (req: Request, res: Response): Promise<void> => {
     user.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
     await user.save();
 
+    const message = `Your new verification code is: ${otp}\n\nThis code will expire in 10 minutes.`;
+    const html = generateEmailTemplate(
+      'Verify your email address',
+      `<p>Hi,</p>
+       <p>Please enter the following new verification code to verify your email address:</p>
+       <div class="otp-box">${otp}</div>
+       <p>This code will expire in 10 minutes.</p>`
+    );
     await sendEmail({
       email: user.email,
       subject: 'Verify your email address - MetaGen AI',
-      message: `Your new verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+      message,
+      html,
     });
 
     res.json({ message: 'OTP sent successfully' });
@@ -204,10 +257,19 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
         await user.save();
 
         try {
+          const message = `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`;
+          const html = generateEmailTemplate(
+            'Verify your email address',
+            `<p>Hi,</p>
+             <p>Please enter the following verification code to verify your email address before logging in:</p>
+             <div class="otp-box">${otp}</div>
+             <p>This code will expire in 10 minutes.</p>`
+          );
           await sendEmail({
             email: user.email,
             subject: 'Verify your email address - MetaGen AI',
-            message: `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+            message,
+            html,
           });
         } catch (err) {
           // Ignore email send error here, prompt them to verify
@@ -351,6 +413,14 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
     await user.save({ validateBeforeSave: false });
 
     const message = `Hello,\n\nYour verification code is:\n\n${otp}\n\nThis code will expire in 5 minutes.\n\nIf you did not request a password reset, please ignore this email.\n\nMeta Generator Team`;
+    const html = generateEmailTemplate(
+      'Reset your password',
+      `<p>Hi,</p>
+       <p>You have requested to reset your password for your Meta Generator account. Please enter the following verification code to proceed:</p>
+       <div class="otp-box">${otp}</div>
+       <p>This code will expire in 5 minutes.</p>
+       <p>If you did not request a password reset, please ignore this email.</p>`
+    );
 
     console.log(`[DEV] OTP for ${user.email} is ${otp}`);
 
@@ -359,6 +429,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
         email: user.email,
         subject: 'Password Reset Verification Code',
         message,
+        html,
       });
     } catch (err) {
       console.error('Email sending failed. Please check SMTP settings. OTP is printed in console for dev.');
@@ -387,6 +458,15 @@ export const resendOTP = async (req: Request, res: Response): Promise<void> => {
     await user.save({ validateBeforeSave: false });
 
     const message = `Hello,\n\nYour new verification code is:\n\n${otp}\n\nThis code will expire in 5 minutes.\n\nIf you did not request a password reset, please ignore this email.\n\nMeta Generator Team`;
+    const html = generateEmailTemplate(
+      'Reset your password',
+      `<p>Hi,</p>
+       <p>You have requested to reset your password for your Meta Generator account. Please enter the following new verification code to proceed:</p>
+       <div class="otp-box">${otp}</div>
+       <p>This code will expire in 5 minutes.</p>
+       <p>If you did not request a password reset, please ignore this email.</p>`
+    );
+
     console.log(`[DEV] New OTP for ${user.email} is ${otp}`);
 
     try {
@@ -394,6 +474,7 @@ export const resendOTP = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
         subject: 'New Password Reset Verification Code',
         message,
+        html,
       });
     } catch (err) {
       console.error('Email sending failed. Please check SMTP settings. OTP is printed in console for dev.');

@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { forgotPassword } from "@/actions/auth";
 
 export default function ForgotPassword() {
@@ -34,46 +33,49 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-muted/30">
-      <Card className="w-full max-w-md shadow-lg rounded-2xl border-muted/50">
-        <div className="flex justify-center pt-8 pb-2">
-          <Link href="/">
-            <img src="/auth-logo.png" alt="MetaGen AI" className="h-24 w-auto object-contain" />
-          </Link>
+    <div className="w-full text-gray-900">
+      {/* Heading */}
+      <div className="mb-8">
+        <h1 className="text-[32px] font-bold tracking-tight text-gray-900 mb-2">Forgot Password</h1>
+        <p className="mt-1 text-[13px] text-gray-600">
+          Enter your email address and we will send you a link to reset your password.
+        </p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-[12px] font-semibold text-[#505050]">Email address</Label>
+          <Input 
+            id="email" 
+            type="email" 
+            required 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            className="h-10 bg-white border-gray-300 focus-visible:ring-[#1473E6] rounded-sm text-sm"
+          />
         </div>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight text-center">Forgot Password</CardTitle>
-          <CardDescription className="text-center">
-            Enter your email address and we will send you a link to reset your password.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="m@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full text-md h-10" disabled={isLoading}>
-              {isLoading ? "Sending..." : "Send Reset Link"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4 pt-4 border-t">
-          <div className="text-sm text-center text-muted-foreground">
-            Remember your password?{" "}
-            <Link href="/login" className="text-primary hover:underline font-medium">
-              Log in
-            </Link>
-          </div>
-        </CardFooter>
-      </Card>
+
+        <div className="flex justify-end pt-4">
+          <Button
+            type="submit"
+            className="px-8 h-9 font-bold text-[13px] rounded-full bg-[#1473E6] hover:bg-[#0d66d0] text-white transition-colors"
+            disabled={isLoading}
+          >
+            {isLoading ? "Sending..." : "Send Reset Link"}
+          </Button>
+        </div>
+      </form>
+
+      <div className="mt-8 text-center">
+        <p className="text-[13px] text-gray-600">
+          Remember your password?{" "}
+          <Link href="/login" className="text-[#1473E6] hover:underline font-medium">
+            Sign in
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
