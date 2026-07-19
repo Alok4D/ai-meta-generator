@@ -11,13 +11,18 @@ const SHUTTERSTOCK_CATEGORIES = ["Abstract", "Animals/Wildlife", "Arts", "Backgr
 const smartTrim = (text: string, maxLength: number) => {
   if (!text) return text;
   if (text.length <= maxLength) return text;
-  const trimmed = text.substring(0, maxLength);
+  let trimmed = text.substring(0, maxLength);
   const lastSpace = trimmed.lastIndexOf(' ');
-  return lastSpace > 0 ? trimmed.substring(0, lastSpace).trim() : trimmed;
+  if (lastSpace > 0) {
+    trimmed = trimmed.substring(0, lastSpace).trim();
+  }
+  // Remove dangling commas, hyphens, or common prepositions/conjunctions at the end
+  trimmed = trimmed.replace(/(,|\s+and|\s+for|\s+with|\s+the|\s+a|\s+of|\s+in|\s+to|\s+or|\s+\-)$/i, '').trim();
+  return trimmed;
 };
 
 const getTargetLengthRule = (length: number, isShutterstock: boolean) => {
-  const minLength = isShutterstock ? 50 : Math.max(20, length - 20);
+  const minLength = isShutterstock ? 50 : Math.max(20, length - 40);
   return `between ${minLength} and ${length} characters. Do NOT exceed ${length} characters.`;
 };
 
@@ -45,8 +50,8 @@ const generatePrompt = (options: any, isRetry: boolean = false) => {
     return `You are a professional metadata expert for both Adobe Stock and Shutterstock.
 Analyze the image and return ONLY valid JSON.
 Rules:
-1. Generate an SEO-optimized title for Adobe Stock (max 200 characters).${retryInstruction}
-2. Generate a detailed description for Shutterstock (between 50 and ${descriptionLength} characters). Do NOT exceed ${descriptionLength} characters.
+1. Generate an SEO-optimized title for Adobe Stock. The title MUST be ${getTargetLengthRule(titleLength, false)}${retryInstruction}
+2. Generate a detailed description for Shutterstock. The description MUST be ${getTargetLengthRule(descriptionLength, true)}
 3. Generate ${keywordCount} unique keywords highly relevant to the image.
 4. Select EXACTLY ONE category for Adobe from this list:
 ${ADOBE_CATEGORIES.join(', ')}
@@ -131,6 +136,7 @@ const validatePlatformData = (metadata: any, options: any) => {
     if (!SHUTTERSTOCK_CATEGORIES.includes(metadata.category)) metadata.category = SHUTTERSTOCK_CATEGORIES[0];
   } else if (platform === 'both') {
     if (metadata.title && metadata.title.length > titleLength) isValid = false;
+    if (metadata.description && metadata.description.length > (options.descriptionLength || 2048)) isValid = false;
     if (!ADOBE_CATEGORIES.includes(metadata.adobeCategory)) metadata.adobeCategory = ADOBE_CATEGORIES[0];
     if (!SHUTTERSTOCK_CATEGORIES.includes(metadata.shutterstockCategory)) metadata.shutterstockCategory = SHUTTERSTOCK_CATEGORIES[0];
   } else {
@@ -207,10 +213,13 @@ const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => 
   }
 
   if (!isValid && finalMetadata) {
-    if (options.platform === 'shutterstock' && finalMetadata.description) {
-      finalMetadata.description = smartTrim(finalMetadata.description, options.titleLength);
-    } else if (finalMetadata.title) {
-      finalMetadata.title = smartTrim(finalMetadata.title, options.titleLength);
+    if (options.platform === 'shutterstock') {
+      if (finalMetadata.description) finalMetadata.description = smartTrim(finalMetadata.description, options.descriptionLength || options.titleLength);
+    } else if (options.platform === 'both') {
+      if (finalMetadata.title) finalMetadata.title = smartTrim(finalMetadata.title, options.titleLength);
+      if (finalMetadata.description) finalMetadata.description = smartTrim(finalMetadata.description, options.descriptionLength || 2048);
+    } else {
+      if (finalMetadata.title) finalMetadata.title = smartTrim(finalMetadata.title, options.titleLength);
     }
   }
 
