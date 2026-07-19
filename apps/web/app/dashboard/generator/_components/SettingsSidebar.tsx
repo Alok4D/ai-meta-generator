@@ -13,6 +13,8 @@ interface SettingsSidebarProps {
   setTitleLength: (val: number[]) => void;
   maxTitleLength: number;
   minTitleLength: number;
+  descriptionLength: number[];
+  setDescriptionLength: (val: number[]) => void;
   keywordCount: number[];
   setKeywordCount: (val: number[]) => void;
   maxKeywords: number;
@@ -30,6 +32,7 @@ interface SettingsSidebarProps {
 export function SettingsSidebar({
   platform, setPlatform,
   titleLength, setTitleLength, maxTitleLength, minTitleLength,
+  descriptionLength, setDescriptionLength,
   keywordCount, setKeywordCount, maxKeywords, minKeywords,
   prefix, setPrefix,
   suffix, setSuffix,
@@ -53,7 +56,8 @@ export function SettingsSidebar({
               {[
                 { id: 'general', label: 'General', icon: <Sparkles className="w-3.5 h-3.5"/> },
                 { id: 'adobe', label: 'Adobe Stock' },
-                { id: 'shutterstock', label: 'Shutterstock' }
+                { id: 'shutterstock', label: 'Shutterstock' },
+                { id: 'both', label: 'Both (Adobe + Shutter)' }
               ].map(p => (
                 <button
                   key={p.id}
@@ -94,6 +98,29 @@ export function SettingsSidebar({
               {platform === 'adobe' && (
                 <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Max: 200 characters)</p>
               )}
+              {platform === 'both' && (
+                <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Max 200 characters for Adobe)</p>
+              )}
+              {platform === 'both' && (
+                <div className="pt-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9h16"/><path d="M4 15h16"/></svg>
+                      Shutter Description
+                    </Label>
+                    <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded">{descriptionLength[0] || 200} chars</span>
+                  </div>
+                  <Slider 
+                    value={descriptionLength} 
+                    onValueChange={(val: any) => setDescriptionLength(Array.isArray(val) ? val : [val])} 
+                    max={2048} 
+                    min={20} 
+                    step={1}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Max 2048 chars for Shutterstock)</p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-3">
@@ -117,6 +144,9 @@ export function SettingsSidebar({
               )}
               {platform === 'adobe' && (
                 <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Min: 5 - Max: 49 keywords)</p>
+              )}
+              {platform === 'both' && (
+                <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Min 7 - Max 49 keywords)</p>
               )}
             </div>
           </div>

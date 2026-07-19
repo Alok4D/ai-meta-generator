@@ -33,6 +33,7 @@ export default function Dashboard() {
   // Advanced Settings State
   const [platform, setPlatform] = useState('general');
   const [titleLength, setTitleLength] = useState([157]);
+  const [descriptionLength, setDescriptionLength] = useState([200]);
   const [keywordCount, setKeywordCount] = useState([41]);
   const [usePrefix, setUsePrefix] = useState(false);
   const [prefix, setPrefix] = useState('');
@@ -64,6 +65,7 @@ export default function Dashboard() {
         const parsed = JSON.parse(saved);
         if (parsed.platform) setPlatform(parsed.platform);
         if (parsed.titleLength) setTitleLength([parsed.titleLength]);
+        if (parsed.descriptionLength) setDescriptionLength([parsed.descriptionLength]);
         if (parsed.keywordCount) setKeywordCount([parsed.keywordCount]);
         if (parsed.usePrefix !== undefined) setUsePrefix(parsed.usePrefix);
         if (parsed.prefix) setPrefix(parsed.prefix);
@@ -84,6 +86,7 @@ export default function Dashboard() {
     const settings = {
       platform,
       titleLength: titleLength[0],
+      descriptionLength: descriptionLength[0],
       keywordCount: keywordCount[0],
       usePrefix, prefix,
       useSuffix, suffix,
@@ -91,7 +94,7 @@ export default function Dashboard() {
       useNegativeKeywords, negativeKeywords
     };
     localStorage.setItem('metaGenSettings', JSON.stringify(settings));
-  }, [platform, titleLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords]);
+  }, [platform, titleLength, descriptionLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -180,6 +183,7 @@ export default function Dashboard() {
     formData.append("image", file);
     formData.append("platform", platform);
     formData.append("titleLength", (titleLength[0] || 157).toString());
+    formData.append("descriptionLength", (descriptionLength[0] || 200).toString());
     formData.append("keywordCount", (keywordCount[0] || 41).toString());
     if (prefix) formData.append("prefix", prefix);
     if (suffix) formData.append("suffix", suffix);
@@ -224,6 +228,7 @@ export default function Dashboard() {
           imageUrl: metadata.imageUrl,
           platform,
           titleLength: titleLength[0] || 157,
+          descriptionLength: descriptionLength[0] || 200,
           keywordCount: keywordCount[0] || 41,
           prefix: prefix || '',
           suffix: suffix || '',
@@ -242,9 +247,16 @@ export default function Dashboard() {
 
   const handleDownloadTXT = () => {
     if (!metadata) return;
-    const labelText = metadata.platform === 'shutterstock' ? 'Description' : 'Title';
-    const mainText = metadata.platform === 'shutterstock' ? metadata.description : metadata.title;
-    const content = `${labelText}:\n${mainText}\n\nCategory:\n${metadata.category}\n\nKeywords:\n${metadata.keywords.join(", ")}`;
+    let content = '';
+    if (metadata.platform === 'both') {
+      content = `Adobe Title:\n${metadata.title}\n\nAdobe Category:\n${metadata.adobeCategory}\n\n`;
+      content += `Shutterstock Description:\n${metadata.description}\n\nShutterstock Category:\n${metadata.shutterstockCategory}\n\n`;
+      content += `Keywords:\n${metadata.keywords.join(", ")}`;
+    } else {
+      const labelText = metadata.platform === 'shutterstock' ? 'Description' : 'Title';
+      const mainText = metadata.platform === 'shutterstock' ? metadata.description : metadata.title;
+      content = `${labelText}:\n${mainText}\n\nCategory:\n${metadata.category}\n\nKeywords:\n${metadata.keywords.join(", ")}`;
+    }
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -259,11 +271,19 @@ export default function Dashboard() {
   const handleDownloadCSV = () => {
     if (!metadata) return;
     const filename = file?.name || 'image.jpg';
-    const mainText = metadata.platform === 'shutterstock' ? metadata.description : metadata.title;
-    const safeTitle = mainText ? mainText.replace(/"/g, '""') : '';
-    const safeKeywords = metadata.keywords ? metadata.keywords.join(",").replace(/"/g, '""') : '';
-    const labelText = metadata.platform === 'shutterstock' ? 'Description' : 'Title';
-    const csvContent = `Filename,${labelText},Keywords,Category\n"${filename}","${safeTitle}","${safeKeywords}","${metadata.category}"`;
+    let csvContent = '';
+    if (metadata.platform === 'both') {
+      const safeTitle = metadata.title ? metadata.title.replace(/"/g, '""') : '';
+      const safeDesc = metadata.description ? metadata.description.replace(/"/g, '""') : '';
+      const safeKeywords = metadata.keywords ? metadata.keywords.join(",").replace(/"/g, '""') : '';
+      csvContent = `Filename,Adobe Title,Adobe Category,Shutterstock Description,Shutterstock Category,Keywords\n"${filename}","${safeTitle}","${metadata.adobeCategory}","${safeDesc}","${metadata.shutterstockCategory}","${safeKeywords}"`;
+    } else {
+      const mainText = metadata.platform === 'shutterstock' ? metadata.description : metadata.title;
+      const safeTitle = mainText ? mainText.replace(/"/g, '""') : '';
+      const safeKeywords = metadata.keywords ? metadata.keywords.join(",").replace(/"/g, '""') : '';
+      const labelText = metadata.platform === 'shutterstock' ? 'Description' : 'Title';
+      csvContent = `Filename,${labelText},Keywords,Category\n"${filename}","${safeTitle}","${safeKeywords}","${metadata.category}"`;
+    }
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -291,12 +311,17 @@ export default function Dashboard() {
     let tMax = 200, tMin = 20, kMax = 50, kMin = 5;
     if (platform === 'adobe') { tMax = 200; kMax = 49; kMin = 5; }
     else if (platform === 'shutterstock') { tMax = 2048; kMax = 50; kMin = 7; }
+    else if (platform === 'both') { tMax = 200; kMax = 49; kMin = 7; }
 
     const curTitle = titleLength[0] || 157;
+    const curDesc = descriptionLength[0] || 200;
     const curKw = keywordCount[0] || 41;
 
     if (curTitle > tMax) setTitleLength([tMax]);
     else if (curTitle < tMin) setTitleLength([tMin]);
+    
+    if (curDesc > 2048) setDescriptionLength([2048]);
+    else if (curDesc < 20) setDescriptionLength([20]);
     
     if (curKw > kMax) setKeywordCount([kMax]);
     else if (curKw < kMin) setKeywordCount([kMin]);
@@ -316,6 +341,10 @@ export default function Dashboard() {
     maxTitleLength = 2048;
     maxKeywords = 50;
     minKeywords = 7;
+  } else if (platform === 'both') {
+    maxTitleLength = 200;
+    maxKeywords = 49;
+    minKeywords = 7;
   }
 
   if (!user) return null;
@@ -333,6 +362,7 @@ export default function Dashboard() {
         <SettingsSidebar 
           platform={platform} setPlatform={setPlatform}
           titleLength={titleLength} setTitleLength={setTitleLength} maxTitleLength={maxTitleLength} minTitleLength={minTitleLength}
+          descriptionLength={descriptionLength} setDescriptionLength={setDescriptionLength}
           keywordCount={keywordCount} setKeywordCount={setKeywordCount} maxKeywords={maxKeywords} minKeywords={minKeywords}
           prefix={prefix} setPrefix={setPrefix}
           suffix={suffix} setSuffix={setSuffix}

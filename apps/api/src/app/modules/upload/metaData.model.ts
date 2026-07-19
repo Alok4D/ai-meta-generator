@@ -5,7 +5,9 @@ export interface IMetaData extends Document {
   imageUrl: string;
   title?: string;
   description?: string;
-  category: string;
+  category?: string;
+  adobeCategory?: string;
+  shutterstockCategory?: string;
   keywords: string[];
   platform: string;
 }
@@ -15,7 +17,9 @@ const MetaDataSchema: Schema = new Schema({
   imageUrl: { type: String, required: true },
   title: { type: String, required: false },
   description: { type: String, required: false },
-  category: { type: String, required: true },
+  category: { type: String, required: false },
+  adobeCategory: { type: String, required: false },
+  shutterstockCategory: { type: String, required: false },
   keywords: [{ type: String }],
   platform: { type: String, default: 'general' }
 }, {

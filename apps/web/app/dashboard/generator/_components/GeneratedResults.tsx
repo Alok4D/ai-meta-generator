@@ -63,17 +63,48 @@ export function GeneratedResults({
       <CardContent className="pt-6">
         {metadata ? (
           <div className="space-y-6">
-            <div>
-              <div className="flex justify-between items-end mb-1">
-                <h4 className="text-md font-medium text-muted-foreground">{metadata.platform === 'shutterstock' ? 'Description' : 'Title'}</h4>
-                <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => handleCopy(metadata.platform === 'shutterstock' ? metadata.description : metadata.title, metadata.platform === 'shutterstock' ? 'Description' : 'Title')}>Copy</Button>
-              </div>
-              <div className="p-3 bg-muted rounded-md text-sm leading-relaxed">{metadata.platform === 'shutterstock' ? metadata.description : metadata.title}</div>
-            </div>
-            <div>
-              <h4 className="text-md font-medium text-muted-foreground mb-1">Category</h4>
-              <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.category}</div>
-            </div>
+            {metadata.platform === 'both' ? (
+              <>
+                <div>
+                  <div className="flex justify-between items-end mb-1">
+                    <h4 className="text-md font-medium text-muted-foreground">Adobe Title</h4>
+                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => handleCopy(metadata.title, 'Adobe Title')}>Copy</Button>
+                  </div>
+                  <div className="p-3 bg-muted rounded-md text-sm leading-relaxed">{metadata.title}</div>
+                </div>
+                <div>
+                  <h4 className="text-md font-medium text-muted-foreground mb-1">Adobe Category</h4>
+                  <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.adobeCategory}</div>
+                </div>
+                <div className="pt-4 border-t"></div>
+                <div>
+                  <div className="flex justify-between items-end mb-1">
+                    <h4 className="text-md font-medium text-muted-foreground">Shutterstock Description</h4>
+                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => handleCopy(metadata.description, 'Shutterstock Description')}>Copy</Button>
+                  </div>
+                  <div className="p-3 bg-muted rounded-md text-sm leading-relaxed">{metadata.description}</div>
+                </div>
+                <div>
+                  <h4 className="text-md font-medium text-muted-foreground mb-1">Shutterstock Category</h4>
+                  <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.shutterstockCategory}</div>
+                </div>
+                <div className="pt-4 border-t"></div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <div className="flex justify-between items-end mb-1">
+                    <h4 className="text-md font-medium text-muted-foreground">{metadata.platform === 'shutterstock' ? 'Description' : 'Title'}</h4>
+                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => handleCopy(metadata.platform === 'shutterstock' ? metadata.description : metadata.title, metadata.platform === 'shutterstock' ? 'Description' : 'Title')}>Copy</Button>
+                  </div>
+                  <div className="p-3 bg-muted rounded-md text-sm leading-relaxed">{metadata.platform === 'shutterstock' ? metadata.description : metadata.title}</div>
+                </div>
+                <div>
+                  <h4 className="text-md font-medium text-muted-foreground mb-1">Category</h4>
+                  <div className="p-3 bg-muted rounded-md text-sm capitalize">{metadata.category}</div>
+                </div>
+              </>
+            )}
             <div>
               <div className="flex justify-between items-end mb-1">
                 <h4 className="text-md font-medium text-muted-foreground">Keywords ({metadata.keywords?.length || 49})</h4>

@@ -25,6 +25,7 @@ const generatePrompt = (options: any, isRetry: boolean = false) => {
   const {
     platform = 'general',
     titleLength = 157,
+    descriptionLength = 200,
     keywordCount = 41,
     negativeTitleWords = '',
     negativeKeywords = ''
@@ -40,7 +41,30 @@ const generatePrompt = (options: any, isRetry: boolean = false) => {
 
   const retryInstruction = isRetry ? `\nCRITICAL WARNING: Your previous attempt was TOO LONG. You MUST make the text strictly under ${titleLength} characters this time!\n` : '';
 
-  if (platform === 'adobe') {
+  if (platform === 'both') {
+    return `You are a professional metadata expert for both Adobe Stock and Shutterstock.
+Analyze the image and return ONLY valid JSON.
+Rules:
+1. Generate an SEO-optimized title for Adobe Stock (max 200 characters).${retryInstruction}
+2. Generate a detailed description for Shutterstock (between 50 and ${descriptionLength} characters). Do NOT exceed ${descriptionLength} characters.
+3. Generate ${keywordCount} unique keywords highly relevant to the image.
+4. Select EXACTLY ONE category for Adobe from this list:
+${ADOBE_CATEGORIES.join(', ')}
+5. Select EXACTLY ONE category for Shutterstock from this list:
+${SHUTTERSTOCK_CATEGORIES.join(', ')}
+6. Never create your own categories.
+7. Return JSON only.
+${negativeInstructions}
+
+JSON Schema:
+{
+"title": "string",
+"description": "string",
+"adobeCategory": "string",
+"shutterstockCategory": "string",
+"keywords": ["string"]
+}`;
+  } else if (platform === 'adobe') {
     return `You are a professional Adobe Stock metadata expert.
 Analyze the image and return ONLY valid JSON.
 Rules:
@@ -105,6 +129,10 @@ const validatePlatformData = (metadata: any, options: any) => {
   } else if (platform === 'shutterstock') {
     if (metadata.description && metadata.description.length > titleLength) isValid = false;
     if (!SHUTTERSTOCK_CATEGORIES.includes(metadata.category)) metadata.category = SHUTTERSTOCK_CATEGORIES[0];
+  } else if (platform === 'both') {
+    if (metadata.title && metadata.title.length > titleLength) isValid = false;
+    if (!ADOBE_CATEGORIES.includes(metadata.adobeCategory)) metadata.adobeCategory = ADOBE_CATEGORIES[0];
+    if (!SHUTTERSTOCK_CATEGORIES.includes(metadata.shutterstockCategory)) metadata.shutterstockCategory = SHUTTERSTOCK_CATEGORIES[0];
   } else {
     if (metadata.title && metadata.title.length > titleLength) isValid = false;
   }
@@ -188,6 +216,9 @@ const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => 
 
   if (options.platform === 'shutterstock') {
     finalMetadata.description = applyPrefixSuffix(finalMetadata.description || '', options.prefix, options.suffix);
+  } else if (options.platform === 'both') {
+    finalMetadata.title = applyPrefixSuffix(finalMetadata.title || '', options.prefix, options.suffix);
+    finalMetadata.description = applyPrefixSuffix(finalMetadata.description || '', options.prefix, options.suffix);
   } else {
     finalMetadata.title = applyPrefixSuffix(finalMetadata.title || '', options.prefix, options.suffix);
   }
@@ -210,6 +241,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
 
     const platform = req.body.platform || 'general';
     const titleLength = parseInt(req.body.titleLength) || 157;
+    const descriptionLength = parseInt(req.body.descriptionLength) || 200;
     const keywordCount = parseInt(req.body.keywordCount) || 41;
     const prefix = req.body.prefix || '';
     const suffix = req.body.suffix || '';
@@ -234,7 +266,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     }
 
     const metadata = await generateAndValidateMetadata(aiImageUrl, {
-      platform, titleLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords
+      platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords
     });
 
     const metaDataDoc = await MetaData.create({
@@ -243,6 +275,8 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       title: metadata.title,
       description: metadata.description,
       category: metadata.category || 'Miscellaneous',
+      adobeCategory: metadata.adobeCategory,
+      shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],
       platform: platform
     });
@@ -288,7 +322,7 @@ export const deleteHistory = async (req: Request, res: Response): Promise<void> 
 
 export const regenerateMetadata = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { imageUrl, platform, titleLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords } = req.body;
+    const { imageUrl, platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords } = req.body;
     if (!imageUrl) {
       res.status(400).json({ error: 'Image URL is required' });
       return;
@@ -301,7 +335,7 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
     }
 
     const metadata = await generateAndValidateMetadata(imageUrl, {
-      platform, titleLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords
+      platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords
     });
 
     const metaDataDoc = await MetaData.create({
@@ -310,6 +344,8 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
       title: metadata.title,
       description: metadata.description,
       category: metadata.category || 'Miscellaneous',
+      adobeCategory: metadata.adobeCategory,
+      shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],
       platform: platform
     });
