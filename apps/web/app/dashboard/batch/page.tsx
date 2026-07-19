@@ -50,6 +50,7 @@ export default function BatchUploadPage() {
   // Advanced Settings State
   const [platform, setPlatform] = useState('general');
   const [titleLength, setTitleLength] = useState([157]);
+  const [descriptionLength, setDescriptionLength] = useState([200]);
   const [keywordCount, setKeywordCount] = useState([41]);
   const [usePrefix, setUsePrefix] = useState(false);
   const [prefix, setPrefix] = useState('');
@@ -68,6 +69,7 @@ export default function BatchUploadPage() {
         const parsed = JSON.parse(saved);
         if (parsed.platform) setPlatform(parsed.platform);
         if (parsed.titleLength) setTitleLength([parsed.titleLength]);
+        if (parsed.descriptionLength) setDescriptionLength([parsed.descriptionLength]);
         if (parsed.keywordCount) setKeywordCount([parsed.keywordCount]);
         if (parsed.usePrefix !== undefined) setUsePrefix(parsed.usePrefix);
         if (parsed.prefix) setPrefix(parsed.prefix);
@@ -88,6 +90,7 @@ export default function BatchUploadPage() {
     const settings = {
       platform,
       titleLength: titleLength[0],
+      descriptionLength: descriptionLength[0],
       keywordCount: keywordCount[0],
       usePrefix, prefix,
       useSuffix, suffix,
@@ -95,18 +98,23 @@ export default function BatchUploadPage() {
       useNegativeKeywords, negativeKeywords
     };
     localStorage.setItem('metaGenSettings', JSON.stringify(settings));
-  }, [platform, titleLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords]);
+  }, [platform, titleLength, descriptionLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords]);
 
   useEffect(() => {
     let tMax = 200, tMin = 20, kMax = 50, kMin = 5;
     if (platform === 'adobe') { tMax = 200; kMax = 49; kMin = 5; }
     else if (platform === 'shutterstock') { tMax = 2048; kMax = 50; kMin = 7; }
+    else if (platform === 'both') { tMax = 200; kMax = 49; kMin = 7; }
 
     const curTitle = titleLength[0] || 157;
+    const curDesc = descriptionLength[0] || 200;
     const curKw = keywordCount[0] || 41;
 
     if (curTitle > tMax) setTitleLength([tMax]);
     else if (curTitle < tMin) setTitleLength([tMin]);
+
+    if (curDesc > 2048) setDescriptionLength([2048]);
+    else if (curDesc < 20) setDescriptionLength([20]);
     
     if (curKw > kMax) setKeywordCount([kMax]);
     else if (curKw < kMin) setKeywordCount([kMin]);
@@ -125,6 +133,10 @@ export default function BatchUploadPage() {
   } else if (platform === 'shutterstock') {
     maxTitleLength = 2048;
     maxKeywords = 50;
+    minKeywords = 7;
+  } else if (platform === 'both') {
+    maxTitleLength = 200;
+    maxKeywords = 49;
     minKeywords = 7;
   }
 
@@ -208,6 +220,7 @@ export default function BatchUploadPage() {
       formData.append("image", item.file);
       formData.append("platform", platform);
       formData.append("titleLength", (titleLength[0] || 157).toString());
+      formData.append("descriptionLength", (descriptionLength[0] || 200).toString());
       formData.append("keywordCount", (keywordCount[0] || 41).toString());
       if (prefix) formData.append("prefix", prefix);
       if (suffix) formData.append("suffix", suffix);
@@ -340,6 +353,7 @@ export default function BatchUploadPage() {
         <SettingsSidebar 
           platform={platform} setPlatform={setPlatform}
           titleLength={titleLength} setTitleLength={setTitleLength} maxTitleLength={maxTitleLength} minTitleLength={minTitleLength}
+          descriptionLength={descriptionLength} setDescriptionLength={setDescriptionLength}
           keywordCount={keywordCount} setKeywordCount={setKeywordCount} maxKeywords={maxKeywords} minKeywords={minKeywords}
           prefix={prefix} setPrefix={setPrefix}
           suffix={suffix} setSuffix={setSuffix}
