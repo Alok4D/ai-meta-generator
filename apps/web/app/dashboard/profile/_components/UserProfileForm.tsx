@@ -7,14 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "@/lib/redux/store";
 import { useUpdateProfileMutation } from "@/lib/feature/auth/authApi";
 import { setUser } from "@/lib/feature/auth/authSlice";
+import { useAppSelector, useAppDispatch } from "@/lib/hooks/redux";
 
 export function UserProfileForm() {
-  const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  const dispatch = useAppDispatch();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -79,7 +78,7 @@ export function UserProfileForm() {
         </CardHeader>
         <CardContent className="space-y-8">
           <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-full bg-primary/20 text-primary flex items-center justify-center text-2xl font-bold uppercase overflow-hidden relative">
+            <div className="w-28 h-28 rounded-full shadow-sm bg-primary/10 border-2 border-primary/20 text-primary flex items-center justify-center text-4xl font-bold uppercase overflow-hidden relative">
               {displayAvatar ? (
                 <img 
                   src={displayAvatar.includes('res.cloudinary.com') ? displayAvatar.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/') : displayAvatar} 
@@ -116,6 +115,7 @@ export function UserProfileForm() {
               <Label htmlFor="firstName">First Name</Label>
               <Input 
                 id="firstName" 
+                className="rounded-[5px] py-5"
                 value={firstName} 
                 onChange={(e) => setFirstName(e.target.value)} 
               />
@@ -124,18 +124,20 @@ export function UserProfileForm() {
               <Label htmlFor="lastName">Last Name</Label>
               <Input 
                 id="lastName" 
+                className="rounded-[5px] py-5"
                 value={lastName} 
                 onChange={(e) => setLastName(e.target.value)} 
               />
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" defaultValue={user.email} disabled />
+              <Input id="email" type="email" className="rounded-[5px] py-5" defaultValue={user.email} disabled />
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="phone">Phone Number</Label>
               <Input 
                 id="phone" 
+                className="rounded-[5px] py-5"
                 placeholder="+1 (555) 987-6543" 
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}

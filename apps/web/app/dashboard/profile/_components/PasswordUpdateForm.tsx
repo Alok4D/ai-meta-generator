@@ -7,11 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/lib/redux/store";
+import { useAppSelector } from "@/lib/hooks/redux";
 
 export function PasswordUpdateForm() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  
+  const user = useAppSelector((state) => state.auth.user);
   
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -71,6 +71,7 @@ export function PasswordUpdateForm() {
             <Input 
               id="current" 
               type="password" 
+              className="rounded-[5px] py-5"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
             />
@@ -80,6 +81,7 @@ export function PasswordUpdateForm() {
             <Input 
               id="new" 
               type="password" 
+              className="rounded-[5px] py-5"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
@@ -89,6 +91,7 @@ export function PasswordUpdateForm() {
             <Input 
               id="confirm" 
               type="password" 
+              className="rounded-[5px] py-5"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
