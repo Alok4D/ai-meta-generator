@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import { setUser } from "@/lib/feature/auth/authSlice";
@@ -11,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
 import { Wand2, User as UserIcon, Zap, History } from "lucide-react";
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -79,7 +79,7 @@ export default function DashboardOverview() {
           <Skeleton className="h-10 w-[180px]" />
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Card><CardContent className="p-6"><Skeleton className="h-4 w-24 mb-4" /><Skeleton className="h-8 w-16 mb-2" /><Skeleton className="h-3 w-32" /></CardContent></Card>
           <Card><CardContent className="p-6"><Skeleton className="h-4 w-24 mb-4" /><Skeleton className="h-8 w-24 mb-2" /><Skeleton className="h-3 w-32" /></CardContent></Card>
           <Card><CardContent className="p-6"><Skeleton className="h-4 w-32 mb-4" /><Skeleton className="h-8 w-12 mb-2" /><Skeleton className="h-3 w-24" /></CardContent></Card>
@@ -110,13 +110,13 @@ export default function DashboardOverview() {
           <h2 className="text-3xl font-medium tracking-tight">Overview</h2>
           <p className="text-muted-foreground">Welcome back, {user.name}. Here's what's happening today.</p>
         </div>
-        <Button onClick={() => router.push("/dashboard/generator")} className="gap-2 rounded-[4px] py-5">
+        <Button onClick={() => router.push("/dashboard/generator")} className="hidden md:flex gap-2 rounded-[4px] py-5">
           <Wand2 className="h-4 w-4" />
           Generate Metadata
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Available Credits</CardTitle>
@@ -211,7 +211,7 @@ export default function DashboardOverview() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl uppercase overflow-hidden">
+              <div className="shrink-0 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl uppercase overflow-hidden">
                 {user.avatar ? (
                   <img 
                     src={user.avatar.includes('res.cloudinary.com') ? user.avatar.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto,f_auto/') : user.avatar} 
@@ -246,6 +246,10 @@ export default function DashboardOverview() {
           </CardContent>
         </Card>
       </div>
+      <Button onClick={() => router.push("/dashboard/generator")} className="md:hidden w-full gap-2 rounded-[4px] py-5 mt-4">
+        <Wand2 className="h-4 w-4" />
+        Generate Metadata
+      </Button>
     </div>
   );
 }
