@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+import { useAppSelector } from "@/lib/hooks/redux";
+
 type SupportFormData = {
   name: string;
   email: string;
@@ -18,12 +20,20 @@ type SupportFormData = {
 };
 
 export default function SupportPage() {
+  const user = useAppSelector((state) => state.auth.user);
+
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<SupportFormData>();
+  } = useForm<SupportFormData>({
+    defaultValues: {
+      name: user?.name || "",
+      email: user?.email || "",
+      msg: "",
+    },
+  });
   const [mailSending, setMailSending] = useState(false);
 
   useEffect(() => {
@@ -102,6 +112,7 @@ export default function SupportPage() {
               <Label htmlFor="name">Name</Label>
               <Input 
                 id="name" 
+                className="rounded-[5px] py-5"
                 placeholder="Your Name" 
                 {...register("name", { required: "Name is required" })}
                 disabled={mailSending}
@@ -112,6 +123,7 @@ export default function SupportPage() {
               <Input 
                 id="email" 
                 type="email"
+                className="rounded-[5px] py-5"
                 placeholder="Your Email" 
                 {...register("email", { required: "Email is required" })}
                 disabled={mailSending}
@@ -121,7 +133,7 @@ export default function SupportPage() {
               <Label htmlFor="msg">Message</Label>
               <Textarea 
                 id="msg" 
-                className="min-h-[150px]"
+                className="min-h-[150px] rounded-[5px] py-5"
                 placeholder="Describe your issue or question in detail..."
                 {...register("msg", { required: "Message is required" })}
                 disabled={mailSending}
@@ -129,7 +141,7 @@ export default function SupportPage() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button className="py-4 px-6 rounded-md font-medium" type="submit" disabled={mailSending}>
+            <Button className="rounded-[5px] py-5 px-6 font-medium" type="submit" disabled={mailSending}>
               {mailSending ? "Sending..." : "Send Message"}
             </Button>
           </CardFooter>
