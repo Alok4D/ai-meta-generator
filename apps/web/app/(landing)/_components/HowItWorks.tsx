@@ -112,7 +112,7 @@ export default function HowItWorks({ variant = 'full' }: HowItWorksProps) {
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
         id="how-it-works" 
-        className={`w-full bg-[#F9FAFB] py-20 md:py-20 ${space.className}`}
+        className={`w-full bg-[#F3F5F7] py-20 md:py-20 ${space.className}`}
       >
         <div className="max-w-6xl mx-auto px-4 md:px-0">
           
