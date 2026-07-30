@@ -1,4 +1,6 @@
 import React from "react";
+import Navbar from "./_components/Navbar";
+import Footer from "./_components/Footer";
 
 export default function LandingLayout({
   children,
@@ -7,7 +9,9 @@ export default function LandingLayout({
 }) {
   return (
     <>
+      <Navbar />
       {children}
+      <Footer />
       <a
         href="https://wa.me/8801719277951"
         target="_blank"

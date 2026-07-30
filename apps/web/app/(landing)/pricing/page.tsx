@@ -2,8 +2,6 @@
 
 import CTA from "../_components/CTA";
 import { Check } from "lucide-react";
-import Navbar from "../_components/Navbar";
-import Footer from "../_components/Footer";
 import { useGetSubscriptionsQuery } from "@/lib/feature/subscription/subscriptionApi";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,8 +53,6 @@ function PricingContent() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="min-h-screen flex flex-col"
     >
-      <Navbar />
-
       <motion.section
         variants={containerVariants}
         initial="hidden"
@@ -165,8 +161,6 @@ function PricingContent() {
         subtitle={<>Start your journey with 20 free credits. No credit card <br className="hidden sm:block" />required.</>}
         claimBonusMode={true}
       />
-      <Footer />
-
       <PaymentModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

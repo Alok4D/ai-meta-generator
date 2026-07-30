@@ -1,7 +1,5 @@
 "use client";
 
-import Navbar from "../_components/Navbar";
-import Footer from "../_components/Footer";
 import HowItWorks from "../_components/HowItWorks";
 import CTA from "../_components/CTA";
 import { motion } from "framer-motion";
@@ -14,7 +12,6 @@ export default function HowItWorksPage() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="min-h-screen flex flex-col"
     >
-      <Navbar />
       <div className="flex-1">
         <HowItWorks />
         <CTA 
@@ -23,7 +20,6 @@ export default function HowItWorksPage() {
           buttonText="Start for Free"
         />
       </div>
-      <Footer />
     </motion.main>
   );
 }

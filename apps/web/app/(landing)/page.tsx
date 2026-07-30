@@ -1,5 +1,3 @@
-import Navbar from "./_components/Navbar";
-import Footer from "./_components/Footer";
 import HowItWorks from "./_components/HowItWorks";
 import Testimonials from "./_components/Testimonial";
 import CTA from "./_components/CTA";
@@ -11,7 +9,6 @@ import LandingPricing from "./_components/LandingPricing";
 export default function LandingPage() {
   return (
     <>
-      <Navbar />
       <Hero />
       <Stats />
       <Features limit={6} />
@@ -20,7 +17,6 @@ export default function LandingPage() {
       <HowItWorks variant="landing" />
       <Testimonials variant="landing" />
       <CTA/>
-      <Footer/>
     </>
   );
 }
