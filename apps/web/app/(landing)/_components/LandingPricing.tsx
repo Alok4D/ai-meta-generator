@@ -16,7 +16,6 @@ import { Space_Grotesk } from 'next/font/google';
 const space = Space_Grotesk({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 const LandingPricing = () => {
-    
   const { data: plans = [], isLoading } = useGetSubscriptionsQuery(undefined);
   const user = useSelector((state: RootState) => state.auth.user);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
@@ -63,21 +62,21 @@ const LandingPricing = () => {
       <div className="max-w-6xl mx-auto px-4 md:px-0">
         
         {/* Section Header */}
-        <motion.div variants={itemVariants} className="text-center mb-10 md:mb-12">
-          <h2 className="text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-4">
+        <motion.div variants={itemVariants} className="text-center mb-8 md:mb-12">
+          <h2 className="text-[12px] md:text-[14px] font-semibold tracking-[0.15em] text-[#6A7181] leading-[20px] uppercase mb-3 md:mb-4">
             PRICING
           </h2>
-          <h3 className="text-[36px] md:text-[48px] font-bold md:leading-[50px] tracking-tight text-[#14181F] mb-6">
+          <h3 className="text-[28px] md:text-[48px] font-bold leading-[34px] md:leading-[50px] tracking-tight text-[#14181F] mb-4 md:mb-6">
             Affordable plans for 
             <span className="text-slate-500"> every creator</span>
           </h3>
-          <p className="text-[16px] md:text-[17px] text-slate-500 font-sans max-w-xl mx-auto">
+          <p className="text-[15px] md:text-[17px] text-slate-500 font-sans max-w-xl mx-auto">
             Choose the perfect plan to automate your metadata generation and skyrocket your stock photo sales.
           </p>
         </motion.div>
 
         {/* Pricing Grid */}
-        <div className="flex flex-wrap justify-center gap-6 pt-4 max-w-6xl mx-auto">
+        <div className="flex flex-wrap justify-center gap-y-10 md:gap-y-0 gap-x-6 pt-4 max-w-6xl mx-auto">
           {isLoading ? (
             <>
               {[1, 2, 3].map((_, index) => (
@@ -112,7 +111,7 @@ const LandingPricing = () => {
           ) : (
             displayPlans.map((plan: any) => (
               <motion.div variants={itemVariants} key={plan._id} className="flex w-full md:w-[calc(33.333%-1.5rem)] min-w-[280px] max-w-[340px]">
-                <Card className={`flex flex-col relative w-full ${plan.isPopular ? 'border-primary shadow-lg scale-105 z-10' : ''}`}>
+                <Card className={`flex flex-col relative w-full ${plan.isPopular ? 'border-primary shadow-lg md:scale-105 z-10' : ''}`}>
                   {plan.isPopular && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium">
                       Most Popular
