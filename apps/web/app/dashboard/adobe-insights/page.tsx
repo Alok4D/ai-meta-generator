@@ -31,13 +31,13 @@ const IAMStockPage = () => {
         try {
             const selectedType = typeFilter === "any" ? undefined : [parseInt(typeFilter)];
             await searchImstocker({ search: searchTerm, sessionId, count: 100, type: selectedType }).unwrap();
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Search completed successfully!',
-                timer: 2000,
-                showConfirmButton: false
-            });
+            // Swal.fire({
+            //     icon: 'success',
+            //     title: 'Success!',
+            //     text: 'Search completed successfully!',
+            //     timer: 2000,
+            //     showConfirmButton: false
+            // });
         } catch (error: any) {
             const errorMsg = error?.data?.error || error?.data?.message || error?.error || error?.message || "Failed to fetch data from IMStocker";
             Swal.fire({
