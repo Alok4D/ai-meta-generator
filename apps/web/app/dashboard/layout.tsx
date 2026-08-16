@@ -9,7 +9,7 @@ import { logout, setUser } from "@/lib/feature/auth/authSlice";
 import { useGetMeQuery } from "@/lib/feature/auth/authApi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles, Scissors, Gem, Receipt } from "lucide-react";
+import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles, Scissors, Gem, Receipt, Video } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   
@@ -62,6 +62,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/pricing", label: "Pricing", icon: Gem },
     { href: "/dashboard/transactions", label: "Transactions", icon: Receipt },
     { href: "/dashboard/events", label: "Events", icon: Calendar },
+    { href: "/dashboard/video-converter", label: "Video Converter", icon: Video },
     { href: "/dashboard/image-converter", label: "Image Converter", icon: ImageIcon },
     { href: "/dashboard/bg-remover", label: "BG Remover", icon: Scissors },
     { href: "/dashboard/adobe-insights", label: "Adobe Insights", icon: Sparkles },
