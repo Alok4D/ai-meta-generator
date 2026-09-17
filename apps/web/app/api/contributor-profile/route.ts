@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 
 export async function POST(req: Request) {
     try {
-        const { search, page = 1, filterType = "all" } = await req.json();
+        const { search, page = 1, filterType = "all", sortBy = "nb_downloads" } = await req.json();
 
         if (!search) {
             return NextResponse.json({ error: "Please provide a contributor URL or ID" }, { status: 400 });
@@ -26,8 +26,9 @@ export async function POST(req: Request) {
         // Pagination setup
         const limit = 100;
 
-        // Base URL
-        let targetUrl = `https://stock.adobe.com/search?creator_id=${contributorId}&load_type=author&limit=${limit}&search_page=${page}`;
+        // Base URL with sorting order (e.g. nb_downloads for Most Downloaded)
+        const orderParam = sortBy === "creation" ? "creation" : (sortBy === "relevance" ? "relevance" : "nb_downloads");
+        let targetUrl = `https://stock.adobe.com/search?creator_id=${contributorId}&order=${orderParam}&load_type=author&limit=${limit}&search_page=${page}`;
 
         // Append filters
         if (filterType === "photos") {
@@ -46,8 +47,8 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "ScraperAPI Key is missing in .env.local" }, { status: 500 });
         }
 
-        // Fetch using ScraperAPI via native http to bypass Next.js fetch cache/interceptors
-        const scraperUrl = `http://api.scraperapi.com?api_key=${scraperApiKey}&url=${encodeURIComponent(targetUrl)}`;
+        // Fetch using ScraperAPI via native http with render=true to bypass Adobe Stock bot protection
+        const scraperUrl = `http://api.scraperapi.com?api_key=${scraperApiKey}&render=true&country_code=us&url=${encodeURIComponent(targetUrl)}`;
         
         const html = await new Promise<string>((resolve, reject) => {
             const http = require('http');
@@ -118,25 +119,37 @@ export async function POST(req: Request) {
         $('.search-result-cell').each((i, el) => {
             const assetEl = $(el);
             const frame = assetEl.find('.thumb-frame');
-            const link = assetEl.find('a.js-search-result-thumbnail');
-            const imgEl = assetEl.find('picture img, img').first();
+            const link = assetEl.find('a.js-search-result-thumbnail, a[href*="asset_id"], a').first();
+            const imgEl = assetEl.find('picture img, img, video').first();
             
-            const idStr = link.attr('data-content-id') || link.attr('name');
+            let idStr = link.attr('data-content-id') || link.attr('name');
+            const href = link.attr('href') || '';
+            if (!idStr && href) {
+                const idMatch = href.match(/asset_id=(\d+)/) || href.match(/\/(\d{7,12})/);
+                if (idMatch) idStr = idMatch[1];
+            }
+
+            let thumbnailUrl = assetEl.find('meta[itemprop="thumbnailUrl"]').attr('content') || imgEl.attr('data-lazy') || imgEl.attr('data-src') || imgEl.attr('src') || imgEl.attr('poster');
+            
+            if (!idStr && thumbnailUrl) {
+                const thumbMatch = thumbnailUrl.match(/_F_(\d+)_/) || thumbnailUrl.match(/\/(\d{7,12})/);
+                if (thumbMatch) idStr = thumbMatch[1];
+            }
+
             const id = idStr ? parseInt(idStr) : null;
-            const title = assetEl.find('meta[itemprop="name"]').attr('content') || imgEl.attr('alt') || "Asset";
+            const title = assetEl.find('meta[itemprop="name"]').attr('content') || imgEl.attr('title') || imgEl.attr('alt') || "Asset";
             
             let width = parseInt(frame.attr('data-width') || assetEl.find('meta[itemprop="width"]').attr('content') || "0");
             let height = parseInt(frame.attr('data-height') || assetEl.find('meta[itemprop="height"]').attr('content') || "0");
             
-            let thumbnailUrl = assetEl.find('meta[itemprop="thumbnailUrl"]').attr('content') || imgEl.attr('data-lazy') || imgEl.attr('data-src') || imgEl.attr('src');
-            
             // If the src is a relative spacer.gif, try to find the real one
             if (thumbnailUrl && (thumbnailUrl.includes('spacer.gif') || thumbnailUrl.startsWith('/'))) {
-                thumbnailUrl = imgEl.attr('data-lazy') || imgEl.attr('data-src');
+                thumbnailUrl = imgEl.attr('data-lazy') || imgEl.attr('data-src') || imgEl.attr('poster');
             }
 
-            const assetUrl = link.attr('href');
+            const assetUrl = href.startsWith('http') ? href : `https://stock.adobe.com${href}`;
             const isGenTech = assetEl.html()?.includes('ai-generated') || assetEl.html()?.includes('Generative AI') || false;
+            const isPurchasable = true; // All Adobe Stock indexed assets are purchasable
             
             if (thumbnailUrl && !thumbnailUrl.includes('data:image') && !thumbnailUrl.includes('spacer.gif')) {
                 const largePreviewUrl = thumbnailUrl.replace('360_F', '500_F').replace('240_F', '500_F');
@@ -161,6 +174,7 @@ export async function POST(req: Request) {
                     height,
                     assetUrl,
                     isGenTech,
+                    isPurchasable: true,
                     contentType,
                     keywords // Fallback keywords
                 });
