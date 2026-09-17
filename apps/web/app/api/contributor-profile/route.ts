@@ -93,11 +93,14 @@ export async function POST(req: Request) {
         
         // Assets Count
         let assetsCount = "0";
-        const titleMatches = pageTitle.match(/Browse ([\d,]+) Stock/i);
-        if (titleMatches && titleMatches[1]) {
+        const totalResultsMatch = html.match(/"total_results"\s*:\s*(\d+)/i) || html.match(/"total_items"\s*:\s*(\d+)/i);
+        const titleMatches = pageTitle.match(/Browse\s+([\d,]+)/i) || pageTitle.match(/([\d,]+)\s+results/i);
+        
+        if (totalResultsMatch && totalResultsMatch[1]) {
+            assetsCount = Number(totalResultsMatch[1]).toLocaleString();
+        } else if (titleMatches && titleMatches[1]) {
             assetsCount = titleMatches[1];
         } else {
-            // Fallback for other pages
             const countText = $('.search-result-count, .js-search-result-count').text().trim();
             if (countText) {
                 const matches = countText.match(/([\d,]+)/);
