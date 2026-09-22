@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { BatchItem } from "./BatchTypes";
@@ -8,9 +9,11 @@ interface BatchItemCardProps {
   item: BatchItem;
   isProcessing: boolean;
   onRemove: (id: string) => void;
+  onRetry?: (id: string) => void;
 }
 
-export function BatchItemCard({ item, isProcessing, onRemove }: BatchItemCardProps) {
+export function BatchItemCard({ item, isProcessing, onRemove, onRetry }: BatchItemCardProps) {
+  const [showAllKeywords, setShowAllKeywords] = useState(true);
   return (
     <Card className={`overflow-hidden border-border/40 shadow-sm transition-all duration-300 ${item.status === 'processing' ? 'border-primary/50 ring-1 ring-primary/20 shadow-md' : ''}`}>
       <div className="flex flex-col md:flex-row">
@@ -55,6 +58,16 @@ export function BatchItemCard({ item, isProcessing, onRemove }: BatchItemCardPro
             </h3>
             
             <div className="flex-shrink-0 flex items-center gap-3">
+              {item.status === 'error' && onRetry && !isProcessing && (
+                <button 
+                  onClick={() => onRetry(item.id)}
+                  className="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-md text-xs font-semibold border border-red-500/30 flex items-center gap-1.5 transition-colors"
+                  title="Retry generation for this file"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  Retry
+                </button>
+              )}
               {!isProcessing && (
                 <button 
                   onClick={() => onRemove(item.id)}
@@ -128,9 +141,20 @@ export function BatchItemCard({ item, isProcessing, onRemove }: BatchItemCardPro
             )}
 
             {item.status === 'error' && (
-              <div className="h-full flex flex-col items-center justify-center text-destructive py-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-2 opacity-80"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-                <p className="font-medium text-sm">{item.error}</p>
+              <div className="h-full flex flex-col items-center justify-center text-destructive py-4 gap-2.5">
+                <div className="flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-90"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+                  <p className="font-medium text-sm">{item.error || "Generation failed"}</p>
+                </div>
+                {onRetry && !isProcessing && (
+                  <button
+                    onClick={() => onRetry(item.id)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-md text-xs font-semibold shadow-sm transition-all cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    Retry Generation
+                  </button>
+                )}
               </div>
             )}
 
@@ -159,21 +183,42 @@ export function BatchItemCard({ item, isProcessing, onRemove }: BatchItemCardPro
                   <div className="md:col-span-3 bg-muted/30 p-3 rounded-lg border border-muted/50">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Keywords ({item.metadata.keywords.length})</span>
-                      <button onClick={() => { navigator.clipboard.writeText(item.metadata.keywords.join(", ")); toast.success("Copied!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                        Copy All
-                      </button>
+                      <div className="flex items-center gap-2">
+                        {item.metadata.keywords.length > 18 && (
+                          <button 
+                            onClick={() => setShowAllKeywords(!showAllKeywords)} 
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            {showAllKeywords ? "Show Less" : `Show All (${item.metadata.keywords.length})`}
+                          </button>
+                        )}
+                        <button onClick={() => { navigator.clipboard.writeText(item.metadata.keywords.join(", ")); toast.success("Copied!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                          Copy All
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {item.metadata.keywords.slice(0, 18).map((kw: string, i: number) => (
+                    <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
+                      {(showAllKeywords ? item.metadata.keywords : item.metadata.keywords.slice(0, 18)).map((kw: string, i: number) => (
                         <span key={i} className="px-2 py-1 bg-background border shadow-sm text-foreground rounded text-[12px] font-medium">
                           {kw}
                         </span>
                       ))}
-                      {item.metadata.keywords.length > 18 && (
-                        <span className="px-2 py-1 bg-primary/10 text-primary border border-primary/10 rounded text-[12px] font-semibold">
+                      {!showAllKeywords && item.metadata.keywords.length > 18 && (
+                        <button 
+                          onClick={() => setShowAllKeywords(true)}
+                          className="px-2 py-1 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded text-[12px] font-semibold transition-colors cursor-pointer"
+                        >
                           +{item.metadata.keywords.length - 18} more
-                        </span>
+                        </button>
+                      )}
+                      {showAllKeywords && item.metadata.keywords.length > 18 && (
+                        <button 
+                          onClick={() => setShowAllKeywords(false)}
+                          className="px-2 py-1 bg-muted hover:bg-muted/80 text-muted-foreground border rounded text-[12px] font-medium transition-colors cursor-pointer"
+                        >
+                          Show less
+                        </button>
                       )}
                     </div>
                   </div>

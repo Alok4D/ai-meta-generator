@@ -14,8 +14,8 @@ export function BatchUploadSection({ hasAccess, onUpgradeClick, dropzone, maxBat
   const { getRootProps, getInputProps, isDragActive } = dropzone;
 
   return (
-    <Card className="border-dashed border-2 bg-muted/5">
-      <CardContent className="flex flex-col items-center justify-center h-80 text-center space-y-4 p-6">
+    <Card className="border-dashed border-2 bg-muted/5 w-full h-full">
+      <CardContent className="flex flex-col items-center justify-center h-full min-h-[24rem] text-center space-y-4 p-6">
         {!hasAccess ? (
           <div 
             onClick={onUpgradeClick}

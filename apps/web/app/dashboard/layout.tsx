@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const checkScreenSize = () => {
-      if (window.innerWidth <= 1024 || pathname === '/dashboard/adobe-insights') {
+      if (window.innerWidth <= 1024 || pathname === '/dashboard/adobe-insights' || pathname === '/dashboard/batch') {
         setIsCollapsed(true);
       } else {
         setIsCollapsed(false);
@@ -72,7 +72,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   ];
 
   return (
-    <div className="h-screen flex bg-muted/20 overflow-hidden">
+    <div className="fixed inset-0 h-screen w-screen flex bg-muted/20 overflow-hidden">
       {/* Sidebar */}
       <aside className={`${isCollapsed ? "w-20" : "w-64"} bg-background border-r flex flex-col hidden md:flex shrink-0 transition-all duration-300 ease-in-out`}>
         <div className={`h-16 flex items-center ${isCollapsed ? "justify-center" : "px-6"} border-b shrink-0 overflow-hidden`}>
@@ -245,11 +245,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          <div className="w-full">
-            {children}
-          </div>
-        </main>
+        {(() => {
+          const isBatchPage = pathname?.startsWith('/dashboard/batch');
+          return (
+            <main className={`flex-1 min-h-0 ${isBatchPage ? 'overflow-hidden p-4 md:px-8 md:py-6 flex flex-col h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)]' : 'overflow-y-auto p-4 md:p-8'}`}>
+              <div className={isBatchPage ? 'w-full h-full flex flex-col min-h-0 overflow-hidden' : 'w-full'}>
+                {children}
+              </div>
+            </main>
+          );
+        })()}
       </div>
     </div>
   );

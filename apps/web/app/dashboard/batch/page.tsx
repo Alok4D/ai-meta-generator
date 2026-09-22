@@ -145,13 +145,22 @@ export default function BatchUploadPage() {
       toast.error("Please wait until current batch finishes");
       return;
     }
-    
-    if (maxBatchSize !== Infinity && acceptedFiles.length > maxBatchSize) {
-      toast.error(`You can only upload up to ${maxBatchSize} images at once on your current plan`);
+
+    const currentCount = items.length;
+    const remainingSlots = maxBatchSize === Infinity ? Infinity : Math.max(0, maxBatchSize - currentCount);
+
+    if (remainingSlots <= 0) {
+      toast.error(`You have reached the maximum limit of ${maxBatchSize} images for your current plan`);
       return;
     }
 
-    const newItems: BatchItem[] = acceptedFiles.map(file => {
+    let filesToAdd = acceptedFiles;
+    if (remainingSlots !== Infinity && acceptedFiles.length > remainingSlots) {
+      filesToAdd = acceptedFiles.slice(0, remainingSlots);
+      toast.warning(`Added only ${remainingSlots} images to stay within your ${maxBatchSize} image limit.`);
+    }
+
+    const newItems: BatchItem[] = filesToAdd.map(file => {
       const isEps = file.type === 'application/postscript' || file.name.toLowerCase().endsWith('.eps');
       const objectUrl = URL.createObjectURL(file);
       
@@ -175,8 +184,9 @@ export default function BatchUploadPage() {
       return item;
     });
 
-    setItems(newItems);
-  }, [isProcessing]);
+    setItems(prev => [...prev, ...newItems]);
+    toast.success(`Added ${newItems.length} file(s) to batch`);
+  }, [isProcessing, items.length, maxBatchSize]);
 
   useEffect(() => {
     return () => {
@@ -190,17 +200,56 @@ export default function BatchUploadPage() {
       'image/*': ['.jpeg', '.jpg', '.png', '.svg', '.webp', '.avif'],
       'application/postscript': ['.eps']
     },
-    maxFiles: maxBatchSize === Infinity ? 0 : maxBatchSize
+    noClick: false
   });
+
+  const processSingleItem = async (item: BatchItem, index: number) => {
+    setItems(prev => prev.map((p, idx) => idx === index ? { ...p, status: 'processing', error: undefined } : p));
+
+    const formData = new FormData();
+    formData.append("image", item.file);
+    formData.append("platform", platform);
+    formData.append("titleLength", (titleLength[0] || 157).toString());
+    formData.append("descriptionLength", (descriptionLength[0] || 200).toString());
+    formData.append("keywordCount", (keywordCount[0] || 41).toString());
+    if (prefix) formData.append("prefix", prefix);
+    if (suffix) formData.append("suffix", suffix);
+    if (negativeTitleWords) formData.append("negativeTitleWords", negativeTitleWords);
+    if (negativeKeywords) formData.append("negativeKeywords", negativeKeywords);
+
+    try {
+      const data = await uploadImage(formData).unwrap();
+      dispatch(updateCredits(data.creditsRemaining));
+      
+      setItems(prev => prev.map((p, idx) => idx === index ? { 
+        ...p, 
+        status: 'success', 
+        metadata: data.metadata 
+      } : p));
+      return true;
+    } catch (error: any) {
+      setItems(prev => prev.map((p, idx) => idx === index ? { 
+        ...p, 
+        status: 'error', 
+        error: error.data?.error || "Generation failed" 
+      } : p));
+      return false;
+    }
+  };
 
   const startProcessing = async () => {
     if (items.length === 0) return;
     
-    // Check pending count against credits
-    const pendingCount = items.filter(i => i.status === 'pending' || i.status === 'error').length;
+    // Check pending and failed items
+    const actionableItems = items.filter(i => i.status === 'pending' || i.status === 'error');
+    if (actionableItems.length === 0) {
+      toast.info("All items have already been processed!");
+      return;
+    }
+
     if (!user) return;
-    if (pendingCount > user.credits) {
-      toast.error(`You need ${pendingCount} credits but only have ${user.credits}`);
+    if (actionableItems.length > user.credits) {
+      toast.error(`You need ${actionableItems.length} credits but only have ${user.credits}`);
       return;
     }
 
@@ -214,42 +263,69 @@ export default function BatchUploadPage() {
       if (!item) continue;
       if (item.status === 'success') continue;
 
-      setItems(prev => prev.map((p, idx) => idx === i ? { ...p, status: 'processing' } : p));
-
-      const formData = new FormData();
-      formData.append("image", item.file);
-      formData.append("platform", platform);
-      formData.append("titleLength", (titleLength[0] || 157).toString());
-      formData.append("descriptionLength", (descriptionLength[0] || 200).toString());
-      formData.append("keywordCount", (keywordCount[0] || 41).toString());
-      if (prefix) formData.append("prefix", prefix);
-      if (suffix) formData.append("suffix", suffix);
-      if (negativeTitleWords) formData.append("negativeTitleWords", negativeTitleWords);
-      if (negativeKeywords) formData.append("negativeKeywords", negativeKeywords);
-
-      try {
-        const data = await uploadImage(formData).unwrap();
-        dispatch(updateCredits(data.creditsRemaining));
-        
-        setItems(prev => prev.map((p, idx) => idx === i ? { 
-          ...p, 
-          status: 'success', 
-          metadata: data.metadata 
-        } : p));
-      } catch (error: any) {
-        setItems(prev => prev.map((p, idx) => idx === i ? { 
-          ...p, 
-          status: 'error', 
-          error: error.data?.error || "Failed" 
-        } : p));
-      }
+      await processSingleItem(item, i);
     }
 
     setIsProcessing(false);
     isProcessingRef.current = false;
-    if (isProcessingRef.current !== false) {
-       toast.success("Batch processing complete!");
+    toast.success("Batch processing finished!");
+  };
+
+  const handleRetrySingle = async (id: string) => {
+    if (isProcessing) {
+      toast.error("Please wait for current process to complete");
+      return;
     }
+
+    if (!user || user.credits < 1) {
+      toast.error("Not enough credits to retry");
+      return;
+    }
+
+    const itemIndex = items.findIndex(i => i.id === id);
+    if (itemIndex === -1) return;
+
+    const item = items[itemIndex];
+    if (!item) return;
+
+    setIsProcessing(true);
+    isProcessingRef.current = true;
+
+    const success = await processSingleItem(item, itemIndex);
+    if (success) {
+      toast.success("Metadata regenerated successfully!");
+    } else {
+      toast.error("Retry failed. Please check server logs.");
+    }
+
+    setIsProcessing(false);
+    isProcessingRef.current = false;
+  };
+
+  const handleRetryAllFailed = async () => {
+    if (isProcessing) return;
+    const failedItems = items.filter(i => i.status === 'error');
+    if (failedItems.length === 0) return;
+
+    if (!user || user.credits < failedItems.length) {
+      toast.error(`You need ${failedItems.length} credits but only have ${user?.credits || 0}`);
+      return;
+    }
+
+    setIsProcessing(true);
+    isProcessingRef.current = true;
+
+    for (let i = 0; i < items.length; i++) {
+      if (!isProcessingRef.current) break;
+      const item = items[i];
+      if (!item || item.status !== 'error') continue;
+
+      await processSingleItem(item, i);
+    }
+
+    setIsProcessing(false);
+    isProcessingRef.current = false;
+    toast.success("Retry completed!");
   };
 
   const handleStopProcessing = () => {
@@ -295,7 +371,10 @@ export default function BatchUploadPage() {
     URL.revokeObjectURL(url);
   };
 
-  const completedCount = items.filter(i => i.status === 'success' || i.status === 'error').length;
+  const successfulCount = items.filter(i => i.status === 'success').length;
+  const failedCount = items.filter(i => i.status === 'error').length;
+  const pendingCount = items.filter(i => i.status === 'pending').length;
+  const completedCount = successfulCount + failedCount;
   const totalCount = items.length;
 
   const renderProgressBar = () => {
@@ -318,7 +397,12 @@ export default function BatchUploadPage() {
           </div>
           <span className="font-semibold ml-auto sm:ml-0">{percentage}%</span>
         </div>
-        <div className="text-muted-foreground">{completedCount}/{totalCount} Completed</div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span>{completedCount}/{totalCount} Processed</span>
+          {successfulCount > 0 && <span className="text-green-600 font-medium">✓ {successfulCount} Completed</span>}
+          {failedCount > 0 && <span className="text-red-500 font-medium">✕ {failedCount} Failed</span>}
+          {pendingCount > 0 && <span className="text-muted-foreground">⏳ {pendingCount} Pending</span>}
+        </div>
       </div>
     );
   };
@@ -326,62 +410,112 @@ export default function BatchUploadPage() {
   if (!user) return null;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-full mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="h-full flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full min-h-0 overflow-hidden">
+      {/* Top Header - Fixed at top */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0 pb-3 border-b border-border/50">
         <div>
           <h2 className="text-3xl font-medium tracking-tight">Batch Upload</h2>
-          <p className="text-muted-foreground">Upload and process multiple images at once.</p>
+          <p className="text-muted-foreground text-sm">Upload and process multiple images at once.</p>
         </div>
         {items.length > 0 && (
-          <div className="flex gap-2">
-            {!isProcessing && completedCount < totalCount && (
-              <Button onClick={startProcessing}>Start Processing</Button>
+          <div className="flex flex-wrap items-center gap-2">
+            {!isProcessing && (
+              <Button 
+                variant="outline" 
+                onClick={() => dropzone.open()} 
+                className="flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Add More Files
+              </Button>
+            )}
+            {!isProcessing && (pendingCount > 0 || failedCount > 0) && (
+              <Button onClick={startProcessing}>
+                {failedCount > 0 && pendingCount === 0 ? 'Process Remaining' : 'Start Processing'}
+              </Button>
+            )}
+            {!isProcessing && failedCount > 0 && (
+              <Button 
+                variant="destructive" 
+                onClick={handleRetryAllFailed}
+                className="flex items-center gap-1.5"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Retry Failed ({failedCount})
+              </Button>
             )}
             {isProcessing && (
               <Button variant="secondary" onClick={handleStopProcessing}>Stop Processing</Button>
             )}
             <Button variant="outline" onClick={() => setItems([])} disabled={isProcessing}>Clear All</Button>
-            {completedCount > 0 && (
+            {successfulCount > 0 && (
                <Button variant="secondary" onClick={handleDownloadAllCSV}>Download All CSV</Button>
             )}
           </div>
         )}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Left Sidebar */}
-        <SettingsSidebar 
-          platform={platform} setPlatform={setPlatform}
-          titleLength={titleLength} setTitleLength={setTitleLength} maxTitleLength={maxTitleLength} minTitleLength={minTitleLength}
-          descriptionLength={descriptionLength} setDescriptionLength={setDescriptionLength}
-          keywordCount={keywordCount} setKeywordCount={setKeywordCount} maxKeywords={maxKeywords} minKeywords={minKeywords}
-          prefix={prefix} setPrefix={setPrefix}
-          suffix={suffix} setSuffix={setSuffix}
-          negativeTitleWords={negativeTitleWords} setNegativeTitleWords={setNegativeTitleWords}
-          negativeKeywords={negativeKeywords} setNegativeKeywords={setNegativeKeywords}
-        />
+      {/* Main Content: Left Fixed Sidebar + Right Independent Scrollable List */}
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0 overflow-hidden items-stretch">
+        {/* Left Sidebar - Stays fixed on left with internal scroll if needed */}
+        <div className="w-full lg:w-80 shrink-0 lg:h-full lg:overflow-y-auto overscroll-contain pr-1">
+          <SettingsSidebar 
+            platform={platform} setPlatform={setPlatform}
+            titleLength={titleLength} setTitleLength={setTitleLength} maxTitleLength={maxTitleLength} minTitleLength={minTitleLength}
+            descriptionLength={descriptionLength} setDescriptionLength={setDescriptionLength}
+            keywordCount={keywordCount} setKeywordCount={setKeywordCount} maxKeywords={maxKeywords} minKeywords={minKeywords}
+            prefix={prefix} setPrefix={setPrefix}
+            suffix={suffix} setSuffix={setSuffix}
+            negativeTitleWords={negativeTitleWords} setNegativeTitleWords={setNegativeTitleWords}
+            negativeKeywords={negativeKeywords} setNegativeKeywords={setNegativeKeywords}
+          />
+        </div>
 
-        {/* Right Area: Batch Processing UI */}
-        <div className="flex-1 space-y-6 min-w-0">
-          {items.length > 0 && renderProgressBar()}
+        {/* Right Area: Progress Bar + Independent Scrollable Items List */}
+        <div className="flex-1 min-h-0 min-w-0 flex flex-col space-y-3 h-full overflow-hidden">
+          {items.length > 0 && (
+            <div className="shrink-0">{renderProgressBar()}</div>
+          )}
 
           {items.length === 0 ? (
-            <BatchUploadSection 
-              hasAccess={hasAccess} 
-              onUpgradeClick={() => setShowUpgradeModal(true)} 
-              dropzone={dropzone} 
-              maxBatchSize={maxBatchSize}
-            />
+            <div className="flex-1 min-h-0 h-full">
+              <BatchUploadSection 
+                hasAccess={hasAccess} 
+                onUpgradeClick={() => setShowUpgradeModal(true)} 
+                dropzone={dropzone} 
+                maxBatchSize={maxBatchSize}
+              />
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 space-y-4 pb-6">
               {items.map((item) => (
                 <BatchItemCard 
                   key={item.id} 
                   item={item} 
                   isProcessing={isProcessing} 
                   onRemove={(id) => setItems(prev => prev.filter(i => i.id !== id))} 
+                  onRetry={handleRetrySingle}
                 />
               ))}
+
+              {/* Bottom Drag & Drop Add More Files Area */}
+              {!isProcessing && (
+                <div 
+                  {...dropzone.getRootProps()} 
+                  className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all hover:bg-muted/40 ${
+                    dropzone.isDragActive ? 'border-primary bg-primary/5' : 'border-border/60 bg-muted/10'
+                  }`}
+                >
+                  <input {...dropzone.getInputProps()} />
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 5v14M5 12h14"/></svg>
+                      <span className="text-sm font-medium text-foreground">Drag & Drop or Click to add more files to this batch</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">({items.length}/{maxBatchSize === Infinity ? '∞' : maxBatchSize} files)</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
