@@ -167,99 +167,60 @@ The FIRST 10 keywords are the highest priority.
 
 KEYWORD PRIORITY:
 
-Tier 1 — Primary search terms
+Tier 1 — Primary search terms (Core Subject & Main Action)
 - main subject
 - main action
-- strongest subject + action combinations
+- core nouns and essential verbs
 
-Tier 2 — Specific visual elements
-- important objects
-- distinctive characteristics
-- specific subject types
-- colors/shapes when useful
+Tier 2 — Specific visual elements & Visual Style
+- important objects & distinctive visual components
+- Visual / Artistic style when clearly evident (e.g., line, drawing, continuous, minimalist, vector, sketch, outline, illustration, graphic, 3d, flat, monochrome, watercolor)
 
 Tier 3 — Setting and composition
-- environment
-- isolated
-- transparent background
-- indoors/outdoors
-- portrait/landscape
-- relevant viewpoint
+- environment or background type (e.g., isolated, transparent, black, white, indoors, outdoors)
+- composition / camera angle / viewpoint (e.g., close, top, aerial, portrait, landscape)
 
-Only use these when clearly supported by the asset.
+Tier 4 & Tier 5 — HIGH-CONVERTING COMMERCIAL, PURPOSE, EVENT & CONCEPTUAL SEARCH TERMS (CRITICAL):
+Think like a commercial stock buyer: Whatever domain, industry, theme, or emotion the asset represents, extract 10–16 essential conceptual, commercial, purpose-driven, and buyer-intent keywords that customers search for when licensing this content.
 
-Tier 4 — Concepts
-- business
-- communication
-- teamwork
-- technology
-- education
-- healthcare
-etc.
+Apply this across ANY domain:
+• Business, Corporate & Career: "strategy", "planning", "analytics", "marketing", "sales", "leadership", "startup", "investment", "collaboration", "growth", "management", "corporate", "career", "achievement", "motivation", "executive", "success", "performance"
+• Love, Romance, Holidays & Celebrations: "valentines", "day", "wedding", "anniversary", "celebration", "romance", "romantic", "couple", "relationship", "passion", "together", "date", "partner", "gift", "card", "happiness", "emotion", "feeling"
+• Finance, Banking & Money: "capital", "profit", "revenue", "wealth", "roi", "economy", "banking", "interest", "dividend", "funding", "savings", "income", "asset", "budget"
+• Food, Dining & Culinary: "culinary", "gastronomy", "recipe", "nutrition", "gourmet", "restaurant", "hospitality", "organic", "delicious", "healthy", "meal", "dining", "menu"
+• Fitness, Health & Medical: "workout", "wellness", "athletics", "cardio", "exercise", "training", "endurance", "treatment", "diagnosis", "healthcare", "medicine", "clinic"
+• Real Estate & Architecture: "property", "mortgage", "housing", "residential", "architecture", "interior", "realty", "broker"
+• Technology & IT: "software", "programming", "data", "cybersecurity", "cloud", "innovation", "automation", "artificial intelligence"
 
-Only use concepts that are clearly supported by the visual content.
-
-Tier 5 — Commercially useful terms
-Use only relevant buyer-oriented terms supported by the asset.
+For ANY other topic (travel, education, nature, family, lifestyle, etc.), automatically extract the strongest industry-standard commercial and conceptual buyer terms.
 
 ==================================================
-KEYWORD QUALITY RULES
+KEYWORD DISTRIBUTION & QUALITY RULES
 ==================================================
 
-1. The first 10 keywords must contain the strongest search terms.
+1. 90%–95% SINGLE-WORD TOKENS (CRITICAL):
+   - Generate predominantly pure, distinct, high-volume SINGLE-WORD keywords (e.g., "businessman", "line", "drawing", "continuous", "suit", "success", "approval", "gesture", "corporate", "hearts", "love", "romance", "valentines", "wedding", "couple", "gift", "card").
+   - Multi-word phrases are only allowed for established compound terms (max 2-3 words) and should not exceed 5%–10% of total keywords.
+   - Do NOT artificially combine single words into repetitive compound phrases.
 
-2. Important words from the title should appear naturally within the top 10 keywords.
+2. STRICT ANTI-REDUNDANCY (DO NOT REPEAT ROOT WORDS):
+   - Do NOT repeat the same root concept multiple times (e.g., do NOT output "heart", "red heart", "heart shape", "overlapping hearts", "heart outline" — use single distinct tokens: "heart", "red", "shape", "outline", "love", "romance", "couple").
+   - Do NOT output multiple synonyms for clothing or tiny micro-elements (do NOT spam "jacket", "shirt", "suit", "attire", "clothing", "tie", "necktie" all at once; keep only 1-2 essential terms).
 
-3. Prefer specific keywords over generic keywords.
+3. NO DESIGN-THEORY FILLER OR FLUFF (STRICTLY FORBIDDEN):
+   - NEVER output generic design jargon such as: "form", "detail", "graphic element", "graphic resource", "pattern element", "visual", "composition", "contour", "accent color", "clean design", "hand drawn style", "wavy line", "both hands".
+   - Every keyword must be a real search term used by stock buyers.
 
-Example:
+4. TOP 10 KEYWORD PLACEMENT:
+   - The first 10 keywords must contain the absolute strongest, highest-volume search terms (core subject, primary action, primary style token, core concept).
+   - Important words from the title should appear naturally in the top 10 keywords.
 
-BAD:
-technology
+5. ACCURACY & QUALITY:
+   - No generic spam tags ("best", "cool", "top", "trending").
+   - No brands, trademarks, company names, artist names.
+   - No unsupported locations or fictional entity names.
 
-BETTER:
-communication technology
-
-BAD:
-worker
-
-BETTER:
-construction worker
-
-4. Do not generate keyword variations only to increase quantity.
-
-Avoid unnecessary combinations such as:
-
-phone
-telephone
-telephone phone
-phone telephone
-calling phone
-phone calling
-
-when they provide little additional search value.
-
-5. Remove exact duplicates.
-
-6. Remove near-duplicate keywords.
-
-7. Remove irrelevant keywords.
-
-8. Do not use unrelated trending keywords.
-
-9. Do not use brands or trademarks.
-
-10. Do not use unsupported locations.
-
-11. Do not use unsupported professions.
-
-12. Do not use unsupported concepts.
-
-13. Do not use misleading keywords.
-
-14. Do not add keywords simply because they are commercially popular.
-
-ACCURACY IS MORE IMPORTANT THAN KEYWORD COUNT.
+ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
 
 ==================================================
 SPECIAL RULES FOR VECTOR / AI / EPS / SVG
@@ -487,99 +448,60 @@ The FIRST 10 keywords are the highest priority.
 
 KEYWORD PRIORITY:
 
-Tier 1 — Primary search terms
+Tier 1 — Primary search terms (Core Subject & Main Action)
 - main subject
 - main action
-- strongest subject + action combinations
+- core nouns and essential verbs
 
-Tier 2 — Specific visual elements
-- important objects
-- distinctive characteristics
-- specific subject types
-- colors/shapes when useful
+Tier 2 — Specific visual elements & Visual Style
+- important objects & distinctive visual components
+- Visual / Artistic style when clearly evident (e.g., line, drawing, continuous, minimalist, vector, sketch, outline, illustration, graphic, 3d, flat, monochrome, watercolor)
 
 Tier 3 — Setting and composition
-- environment
-- isolated
-- transparent background
-- indoors/outdoors
-- portrait/landscape
-- relevant viewpoint
+- environment or background type (e.g., isolated, transparent, black, white, indoors, outdoors)
+- composition / camera angle / viewpoint (e.g., close, top, aerial, portrait, landscape)
 
-Only use these when clearly supported by the asset.
+Tier 4 & Tier 5 — HIGH-CONVERTING COMMERCIAL, PURPOSE, EVENT & CONCEPTUAL SEARCH TERMS (CRITICAL):
+Think like a commercial stock buyer: Whatever domain, industry, theme, or emotion the asset represents, extract 10–16 essential conceptual, commercial, purpose-driven, and buyer-intent keywords that customers search for when licensing this content.
 
-Tier 4 — Concepts
-- business
-- communication
-- teamwork
-- technology
-- education
-- healthcare
-etc.
+Apply this across ANY domain:
+• Business, Corporate & Career: "strategy", "planning", "analytics", "marketing", "sales", "leadership", "startup", "investment", "collaboration", "growth", "management", "corporate", "career", "achievement", "motivation", "executive", "success", "performance"
+• Love, Romance, Holidays & Celebrations: "valentines", "day", "wedding", "anniversary", "celebration", "romance", "romantic", "couple", "relationship", "passion", "together", "date", "partner", "gift", "card", "happiness", "emotion", "feeling"
+• Finance, Banking & Money: "capital", "profit", "revenue", "wealth", "roi", "economy", "banking", "interest", "dividend", "funding", "savings", "income", "asset", "budget"
+• Food, Dining & Culinary: "culinary", "gastronomy", "recipe", "nutrition", "gourmet", "restaurant", "hospitality", "organic", "delicious", "healthy", "meal", "dining", "menu"
+• Fitness, Health & Medical: "workout", "wellness", "athletics", "cardio", "exercise", "training", "endurance", "treatment", "diagnosis", "healthcare", "medicine", "clinic"
+• Real Estate & Architecture: "property", "mortgage", "housing", "residential", "architecture", "interior", "realty", "broker"
+• Technology & IT: "software", "programming", "data", "cybersecurity", "cloud", "innovation", "automation", "artificial intelligence"
 
-Only use concepts that are clearly supported by the visual content.
-
-Tier 5 — Commercially useful terms
-Use only relevant buyer-oriented terms supported by the asset.
+For ANY other topic (travel, education, nature, family, lifestyle, etc.), automatically extract the strongest industry-standard commercial and conceptual buyer terms.
 
 ==================================================
-KEYWORD QUALITY RULES
+KEYWORD DISTRIBUTION & QUALITY RULES
 ==================================================
 
-1. The first 10 keywords must contain the strongest search terms.
+1. 90%–95% SINGLE-WORD TOKENS (CRITICAL):
+   - Generate predominantly pure, distinct, high-volume SINGLE-WORD keywords (e.g., "businessman", "line", "drawing", "continuous", "suit", "success", "approval", "gesture", "corporate", "hearts", "love", "romance", "valentines", "wedding", "couple", "gift", "card").
+   - Multi-word phrases are only allowed for established compound terms (max 2-3 words) and should not exceed 5%–10% of total keywords.
+   - Do NOT artificially combine single words into repetitive compound phrases.
 
-2. Important words from the title should appear naturally within the top 10 keywords.
+2. STRICT ANTI-REDUNDANCY (DO NOT REPEAT ROOT WORDS):
+   - Do NOT repeat the same root concept multiple times (e.g., do NOT output "heart", "red heart", "heart shape", "overlapping hearts", "heart outline" — use single distinct tokens: "heart", "red", "shape", "outline", "love", "romance", "couple").
+   - Do NOT output multiple synonyms for clothing or tiny micro-elements (do NOT spam "jacket", "shirt", "suit", "attire", "clothing", "tie", "necktie" all at once; keep only 1-2 essential terms).
 
-3. Prefer specific keywords over generic keywords.
+3. NO DESIGN-THEORY FILLER OR FLUFF (STRICTLY FORBIDDEN):
+   - NEVER output generic design jargon such as: "form", "detail", "graphic element", "graphic resource", "pattern element", "visual", "composition", "contour", "accent color", "clean design", "hand drawn style", "wavy line", "both hands".
+   - Every keyword must be a real search term used by stock buyers.
 
-Example:
+4. TOP 10 KEYWORD PLACEMENT:
+   - The first 10 keywords must contain the absolute strongest, highest-volume search terms (core subject, primary action, primary style token, core concept).
+   - Important words from the title should appear naturally in the top 10 keywords.
 
-BAD:
-technology
+5. ACCURACY & QUALITY:
+   - No generic spam tags ("best", "cool", "top", "trending").
+   - No brands, trademarks, company names, artist names.
+   - No unsupported locations or fictional entity names.
 
-BETTER:
-communication technology
-
-BAD:
-worker
-
-BETTER:
-construction worker
-
-4. Do not generate keyword variations only to increase quantity.
-
-Avoid unnecessary combinations such as:
-
-phone
-telephone
-telephone phone
-phone telephone
-calling phone
-phone calling
-
-when they provide little additional search value.
-
-5. Remove exact duplicates.
-
-6. Remove near-duplicate keywords.
-
-7. Remove irrelevant keywords.
-
-8. Do not use unrelated trending keywords.
-
-9. Do not use brands or trademarks.
-
-10. Do not use unsupported locations.
-
-11. Do not use unsupported professions.
-
-12. Do not use unsupported concepts.
-
-13. Do not use misleading keywords.
-
-14. Do not add keywords simply because they are commercially popular.
-
-ACCURACY IS MORE IMPORTANT THAN KEYWORD COUNT.
+ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
 
 ==================================================
 SPECIAL RULES FOR VECTOR / AI / EPS / SVG
@@ -804,99 +726,60 @@ The FIRST 10 keywords are the highest priority.
 
 KEYWORD PRIORITY:
 
-Tier 1 — Primary search terms
+Tier 1 — Primary search terms (Core Subject & Main Action)
 - main subject
 - main action
-- strongest subject + action combinations
+- core nouns and essential verbs
 
-Tier 2 — Specific visual elements
-- important objects
-- distinctive characteristics
-- specific subject types
-- colors/shapes when useful
+Tier 2 — Specific visual elements & Visual Style
+- important objects & distinctive visual components
+- Visual / Artistic style when clearly evident (e.g., line, drawing, continuous, minimalist, vector, sketch, outline, illustration, graphic, 3d, flat, monochrome, watercolor)
 
 Tier 3 — Setting and composition
-- environment
-- isolated
-- transparent background
-- indoors/outdoors
-- portrait/landscape
-- relevant viewpoint
+- environment or background type (e.g., isolated, transparent, black, white, indoors, outdoors)
+- composition / camera angle / viewpoint (e.g., close, top, aerial, portrait, landscape)
 
-Only use these when clearly supported by the asset.
+Tier 4 & Tier 5 — HIGH-CONVERTING COMMERCIAL, PURPOSE, EVENT & CONCEPTUAL SEARCH TERMS (CRITICAL):
+Think like a commercial stock buyer: Whatever domain, industry, theme, or emotion the asset represents, extract 10–16 essential conceptual, commercial, purpose-driven, and buyer-intent keywords that customers search for when licensing this content.
 
-Tier 4 — Concepts
-- business
-- communication
-- teamwork
-- technology
-- education
-- healthcare
-etc.
+Apply this across ANY domain:
+• Business, Corporate & Career: "strategy", "planning", "analytics", "marketing", "sales", "leadership", "startup", "investment", "collaboration", "growth", "management", "corporate", "career", "achievement", "motivation", "executive", "success", "performance"
+• Love, Romance, Holidays & Celebrations: "valentines", "day", "wedding", "anniversary", "celebration", "romance", "romantic", "couple", "relationship", "passion", "together", "date", "partner", "gift", "card", "happiness", "emotion", "feeling"
+• Finance, Banking & Money: "capital", "profit", "revenue", "wealth", "roi", "economy", "banking", "interest", "dividend", "funding", "savings", "income", "asset", "budget"
+• Food, Dining & Culinary: "culinary", "gastronomy", "recipe", "nutrition", "gourmet", "restaurant", "hospitality", "organic", "delicious", "healthy", "meal", "dining", "menu"
+• Fitness, Health & Medical: "workout", "wellness", "athletics", "cardio", "exercise", "training", "endurance", "treatment", "diagnosis", "healthcare", "medicine", "clinic"
+• Real Estate & Architecture: "property", "mortgage", "housing", "residential", "architecture", "interior", "realty", "broker"
+• Technology & IT: "software", "programming", "data", "cybersecurity", "cloud", "innovation", "automation", "artificial intelligence"
 
-Only use concepts that are clearly supported by the visual content.
-
-Tier 5 — Commercially useful terms
-Use only relevant buyer-oriented terms supported by the asset.
+For ANY other topic (travel, education, nature, family, lifestyle, etc.), automatically extract the strongest industry-standard commercial and conceptual buyer terms.
 
 ==================================================
-KEYWORD QUALITY RULES
+KEYWORD DISTRIBUTION & QUALITY RULES
 ==================================================
 
-1. The first 10 keywords must contain the strongest search terms.
+1. 90%–95% SINGLE-WORD TOKENS (CRITICAL):
+   - Generate predominantly pure, distinct, high-volume SINGLE-WORD keywords (e.g., "businessman", "line", "drawing", "continuous", "suit", "success", "approval", "gesture", "corporate", "hearts", "love", "romance", "valentines", "wedding", "couple", "gift", "card").
+   - Multi-word phrases are only allowed for established compound terms (max 2-3 words) and should not exceed 5%–10% of total keywords.
+   - Do NOT artificially combine single words into repetitive compound phrases.
 
-2. Important words from the title should appear naturally within the top 10 keywords.
+2. STRICT ANTI-REDUNDANCY (DO NOT REPEAT ROOT WORDS):
+   - Do NOT repeat the same root concept multiple times (e.g., do NOT output "heart", "red heart", "heart shape", "overlapping hearts", "heart outline" — use single distinct tokens: "heart", "red", "shape", "outline", "love", "romance", "couple").
+   - Do NOT output multiple synonyms for clothing or tiny micro-elements (do NOT spam "jacket", "shirt", "suit", "attire", "clothing", "tie", "necktie" all at once; keep only 1-2 essential terms).
 
-3. Prefer specific keywords over generic keywords.
+3. NO DESIGN-THEORY FILLER OR FLUFF (STRICTLY FORBIDDEN):
+   - NEVER output generic design jargon such as: "form", "detail", "graphic element", "graphic resource", "pattern element", "visual", "composition", "contour", "accent color", "clean design", "hand drawn style", "wavy line", "both hands".
+   - Every keyword must be a real search term used by stock buyers.
 
-Example:
+4. TOP 10 KEYWORD PLACEMENT:
+   - The first 10 keywords must contain the absolute strongest, highest-volume search terms (core subject, primary action, primary style token, core concept).
+   - Important words from the title should appear naturally in the top 10 keywords.
 
-BAD:
-technology
+5. ACCURACY & QUALITY:
+   - No generic spam tags ("best", "cool", "top", "trending").
+   - No brands, trademarks, company names, artist names.
+   - No unsupported locations or fictional entity names.
 
-BETTER:
-communication technology
-
-BAD:
-worker
-
-BETTER:
-construction worker
-
-4. Do not generate keyword variations only to increase quantity.
-
-Avoid unnecessary combinations such as:
-
-phone
-telephone
-telephone phone
-phone telephone
-calling phone
-phone calling
-
-when they provide little additional search value.
-
-5. Remove exact duplicates.
-
-6. Remove near-duplicate keywords.
-
-7. Remove irrelevant keywords.
-
-8. Do not use unrelated trending keywords.
-
-9. Do not use brands or trademarks.
-
-10. Do not use unsupported locations.
-
-11. Do not use unsupported professions.
-
-12. Do not use unsupported concepts.
-
-13. Do not use misleading keywords.
-
-14. Do not add keywords simply because they are commercially popular.
-
-ACCURACY IS MORE IMPORTANT THAN KEYWORD COUNT.
+ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
 
 ==================================================
 SPECIAL RULES FOR VECTOR / AI / EPS / SVG
@@ -1121,99 +1004,60 @@ The FIRST 10 keywords are the highest priority.
 
 KEYWORD PRIORITY:
 
-Tier 1 — Primary search terms
+Tier 1 — Primary search terms (Core Subject & Main Action)
 - main subject
 - main action
-- strongest subject + action combinations
+- core nouns and essential verbs
 
-Tier 2 — Specific visual elements
-- important objects
-- distinctive characteristics
-- specific subject types
-- colors/shapes when useful
+Tier 2 — Specific visual elements & Visual Style
+- important objects & distinctive visual components
+- Visual / Artistic style when clearly evident (e.g., line, drawing, continuous, minimalist, vector, sketch, outline, illustration, graphic, 3d, flat, monochrome, watercolor)
 
 Tier 3 — Setting and composition
-- environment
-- isolated
-- transparent background
-- indoors/outdoors
-- portrait/landscape
-- relevant viewpoint
+- environment or background type (e.g., isolated, transparent, black, white, indoors, outdoors)
+- composition / camera angle / viewpoint (e.g., close, top, aerial, portrait, landscape)
 
-Only use these when clearly supported by the asset.
+Tier 4 & Tier 5 — HIGH-CONVERTING COMMERCIAL, PURPOSE, EVENT & CONCEPTUAL SEARCH TERMS (CRITICAL):
+Think like a commercial stock buyer: Whatever domain, industry, theme, or emotion the asset represents, extract 10–16 essential conceptual, commercial, purpose-driven, and buyer-intent keywords that customers search for when licensing this content.
 
-Tier 4 — Concepts
-- business
-- communication
-- teamwork
-- technology
-- education
-- healthcare
-etc.
+Apply this across ANY domain:
+• Business, Corporate & Career: "strategy", "planning", "analytics", "marketing", "sales", "leadership", "startup", "investment", "collaboration", "growth", "management", "corporate", "career", "achievement", "motivation", "executive", "success", "performance"
+• Love, Romance, Holidays & Celebrations: "valentines", "day", "wedding", "anniversary", "celebration", "romance", "romantic", "couple", "relationship", "passion", "together", "date", "partner", "gift", "card", "happiness", "emotion", "feeling"
+• Finance, Banking & Money: "capital", "profit", "revenue", "wealth", "roi", "economy", "banking", "interest", "dividend", "funding", "savings", "income", "asset", "budget"
+• Food, Dining & Culinary: "culinary", "gastronomy", "recipe", "nutrition", "gourmet", "restaurant", "hospitality", "organic", "delicious", "healthy", "meal", "dining", "menu"
+• Fitness, Health & Medical: "workout", "wellness", "athletics", "cardio", "exercise", "training", "endurance", "treatment", "diagnosis", "healthcare", "medicine", "clinic"
+• Real Estate & Architecture: "property", "mortgage", "housing", "residential", "architecture", "interior", "realty", "broker"
+• Technology & IT: "software", "programming", "data", "cybersecurity", "cloud", "innovation", "automation", "artificial intelligence"
 
-Only use concepts that are clearly supported by the visual content.
-
-Tier 5 — Commercially useful terms
-Use only relevant buyer-oriented terms supported by the asset.
+For ANY other topic (travel, education, nature, family, lifestyle, etc.), automatically extract the strongest industry-standard commercial and conceptual buyer terms.
 
 ==================================================
-KEYWORD QUALITY RULES
+KEYWORD DISTRIBUTION & QUALITY RULES
 ==================================================
 
-1. The first 10 keywords must contain the strongest search terms.
+1. 90%–95% SINGLE-WORD TOKENS (CRITICAL):
+   - Generate predominantly pure, distinct, high-volume SINGLE-WORD keywords (e.g., "businessman", "line", "drawing", "continuous", "suit", "success", "approval", "gesture", "corporate", "hearts", "love", "romance", "valentines", "wedding", "couple", "gift", "card").
+   - Multi-word phrases are only allowed for established compound terms (max 2-3 words) and should not exceed 5%–10% of total keywords.
+   - Do NOT artificially combine single words into repetitive compound phrases.
 
-2. Important words from the title should appear naturally within the top 10 keywords.
+2. STRICT ANTI-REDUNDANCY (DO NOT REPEAT ROOT WORDS):
+   - Do NOT repeat the same root concept multiple times (e.g., do NOT output "heart", "red heart", "heart shape", "overlapping hearts", "heart outline" — use single distinct tokens: "heart", "red", "shape", "outline", "love", "romance", "couple").
+   - Do NOT output multiple synonyms for clothing or tiny micro-elements (do NOT spam "jacket", "shirt", "suit", "attire", "clothing", "tie", "necktie" all at once; keep only 1-2 essential terms).
 
-3. Prefer specific keywords over generic keywords.
+3. NO DESIGN-THEORY FILLER OR FLUFF (STRICTLY FORBIDDEN):
+   - NEVER output generic design jargon such as: "form", "detail", "graphic element", "graphic resource", "pattern element", "visual", "composition", "contour", "accent color", "clean design", "hand drawn style", "wavy line", "both hands".
+   - Every keyword must be a real search term used by stock buyers.
 
-Example:
+4. TOP 10 KEYWORD PLACEMENT:
+   - The first 10 keywords must contain the absolute strongest, highest-volume search terms (core subject, primary action, primary style token, core concept).
+   - Important words from the title should appear naturally in the top 10 keywords.
 
-BAD:
-technology
+5. ACCURACY & QUALITY:
+   - No generic spam tags ("best", "cool", "top", "trending").
+   - No brands, trademarks, company names, artist names.
+   - No unsupported locations or fictional entity names.
 
-BETTER:
-communication technology
-
-BAD:
-worker
-
-BETTER:
-construction worker
-
-4. Do not generate keyword variations only to increase quantity.
-
-Avoid unnecessary combinations such as:
-
-phone
-telephone
-telephone phone
-phone telephone
-calling phone
-phone calling
-
-when they provide little additional search value.
-
-5. Remove exact duplicates.
-
-6. Remove near-duplicate keywords.
-
-7. Remove irrelevant keywords.
-
-8. Do not use unrelated trending keywords.
-
-9. Do not use brands or trademarks.
-
-10. Do not use unsupported locations.
-
-11. Do not use unsupported professions.
-
-12. Do not use unsupported concepts.
-
-13. Do not use misleading keywords.
-
-14. Do not add keywords simply because they are commercially popular.
-
-ACCURACY IS MORE IMPORTANT THAN KEYWORD COUNT.
+ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
 
 ==================================================
 SPECIAL RULES FOR VECTOR / AI / EPS / SVG
