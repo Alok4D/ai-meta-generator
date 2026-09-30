@@ -118,13 +118,15 @@ export default function VideoMetaPage() {
       }
     },
     accept: {
-      'video/*': ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v', '.mts', '.m2ts', '.ts', '.quicktime', '.qt'],
+      'video/*': ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v', '.mts', '.m2ts', '.ts', '.quicktime', '.qt', '.flv', '.wmv'],
       'video/quicktime': ['.mov', '.qt'],
       'video/mp4': ['.mp4', '.m4v'],
       'video/webm': ['.webm'],
       'video/x-matroska': ['.mkv'],
       'video/x-msvideo': ['.avi'],
-      'video/avi': ['.avi']
+      'video/avi': ['.avi'],
+      'video/x-ms-wmv': ['.wmv'],
+      'video/x-flv': ['.flv']
     },
     maxFiles: 1,
     maxSize: 2 * 1024 * 1024 * 1024 // 2GB

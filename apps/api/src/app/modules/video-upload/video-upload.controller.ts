@@ -90,9 +90,18 @@ export const uploadVideoAndGenerateMeta = async (req: Request, res: Response): P
     // 2. Prepare Gemini Multimodal Video & Keyframe Prompt
     const model = getGeminiModel();
 
-    // Read local video buffer for Gemini inlineData
-    const videoDataBuffer = fs.readFileSync(file.path);
-    const mimeType = file.mimetype || 'video/mp4';
+    let mimeType = file.mimetype;
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!mimeType || mimeType === 'application/octet-stream') {
+      if (ext === '.mp4' || ext === '.m4v') mimeType = 'video/mp4';
+      else if (ext === '.mov' || ext === '.qt') mimeType = 'video/quicktime';
+      else if (ext === '.webm') mimeType = 'video/webm';
+      else if (ext === '.avi') mimeType = 'video/x-msvideo';
+      else if (ext === '.mkv') mimeType = 'video/x-matroska';
+      else if (ext === '.wmv') mimeType = 'video/x-ms-wmv';
+      else if (ext === '.flv') mimeType = 'video/x-flv';
+      else mimeType = 'video/mp4';
+    }
 
     const systemPrompt = `You are the World's #1 Stock Footage SEO & Metadata Specialist, optimizing video clips for the Top 9 Marketplaces:
 1. Adobe Stock Video
@@ -159,7 +168,8 @@ You MUST respond with ONLY a valid, raw JSON object (no markdown code blocks, no
     let parsedMetadata: any = null;
 
     try {
-      // Gemini 1.5 Flash supports video inlineData up to 20MB directly
+      const videoDataBuffer = fs.readFileSync(file.path);
+      // Gemini 2.5 Flash supports video inlineData directly
       const videoPart = {
         inlineData: {
           data: videoDataBuffer.toString('base64'),
