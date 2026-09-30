@@ -65,25 +65,26 @@ export const uploadVideoAndGenerateMeta = async (req: Request, res: Response): P
     let detectedResolution = resolution || '1080p';
 
     try {
+      cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'dlvywmmyv',
+        api_key: process.env.CLOUDINARY_API_KEY || '131729124253139',
+        api_secret: process.env.CLOUDINARY_API_SECRET || 'XxCRc2o1Rmyy4NDNG7IQkvsooiE',
+      });
+
       const uploadResult = await cloudinary.uploader.upload(file.path, {
         resource_type: 'video',
-        folder: 'stock-videos',
-        eager: [
-          { format: 'jpg', transformation: [{ width: 640, crop: 'scale' }] }
-        ]
+        folder: 'stock-videos'
       });
 
       videoUrl = uploadResult.secure_url;
-      // Get auto-generated poster / thumbnail from Cloudinary video
-      thumbnailUrl = uploadResult.eager && uploadResult.eager[0] ? uploadResult.eager[0].secure_url : uploadResult.secure_url.replace(/\.[^/.]+$/, '.jpg');
+      thumbnailUrl = uploadResult.secure_url.replace(/\.[^/.]+$/, '.jpg');
       if (uploadResult.duration) detectedDuration = Math.round(uploadResult.duration);
       if (uploadResult.width && uploadResult.height) {
         detectedResolution = uploadResult.width >= 3840 ? '4K UHD' : `${uploadResult.width}x${uploadResult.height}`;
       }
     } catch (uploadError) {
-      console.error('Cloudinary Video Upload Error:', uploadError);
-      // Fallback: local url if cloudinary fails in test
-      videoUrl = `/uploads/${file.filename}`;
+      console.warn('Cloudinary Video Upload Error (will continue with metadata):', uploadError);
+      videoUrl = file.originalname;
     }
 
     // 2. Prepare Gemini Multimodal Video & Keyframe Prompt

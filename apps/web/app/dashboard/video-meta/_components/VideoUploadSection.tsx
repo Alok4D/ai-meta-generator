@@ -65,7 +65,7 @@ export function VideoUploadSection({
               {previewUrl && (
                 <video
                   ref={videoRef}
-                  src={metadata?.videoUrl || previewUrl}
+                  src={previewUrl}
                   controls
                   className="w-full h-full object-contain"
                   onLoadedMetadata={(e) => {
