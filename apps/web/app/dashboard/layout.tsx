@@ -57,8 +57,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const routes = [
     { href: "/dashboard", label: "Overview", icon: Home },
     { href: "/dashboard/generator", label: "Image Generator", icon: Wand2 },
-    { href: "/dashboard/video-meta", label: "Video Generator", icon: Film },
     { href: "/dashboard/batch", label: "Batch", icon: Layers },
+    { href: "/dashboard/video-meta", label: "Video Generator", icon: Film },
     { href: "/dashboard/history", label: "Generation History", icon: History },
     { href: "/dashboard/pricing", label: "Pricing", icon: Gem },
     { href: "/dashboard/transactions", label: "Transactions", icon: Receipt },
