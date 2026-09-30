@@ -63,7 +63,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { href: "/dashboard/pricing", label: "Pricing", icon: Gem },
     { href: "/dashboard/transactions", label: "Transactions", icon: Receipt },
     { href: "/dashboard/events", label: "Events", icon: Calendar },
-    { href: "/dashboard/video-converter", label: "Video Converter", icon: Video },
+    // { href: "/dashboard/video-converter", label: "Video Converter", icon: Video },
     { href: "/dashboard/image-converter", label: "Image Converter", icon: ImageIcon },
     { href: "/dashboard/bg-remover", label: "BG Remover", icon: Scissors },
     { href: "/dashboard/adobe-insights", label: "Adobe Insights", icon: Sparkles },

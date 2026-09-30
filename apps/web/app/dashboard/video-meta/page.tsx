@@ -10,7 +10,7 @@ import { updateCredits } from "@/lib/feature/auth/authSlice";
 import { useUploadVideoMutation, useRegenerateVideoMetadataMutation } from "@/lib/feature/upload/uploadApi";
 import Swal from "sweetalert2";
 
-import { VideoSettingsSidebar } from "./_components/VideoSettingsSidebar";
+import { VideoSettingsSidebar, VIDEO_PLATFORM_CONFIG, type PlatformConfig } from "./_components/VideoSettingsSidebar";
 import { VideoUploadSection } from "./_components/VideoUploadSection";
 import { VideoGeneratedResults } from "./_components/VideoGeneratedResults";
 
@@ -311,6 +311,28 @@ export default function VideoMetaPage() {
     });
   };
 
+  // Adjust title length and keywords count whenever platform changes
+  useEffect(() => {
+    const config: PlatformConfig = VIDEO_PLATFORM_CONFIG[platform] || VIDEO_PLATFORM_CONFIG['universal']!;
+    const curTitle = titleLength[0] || config.defaultTitle;
+    const curKw = keywordCount[0] || config.defaultKeywords;
+
+    if (curTitle > config.maxTitle) {
+      setTitleLength([config.maxTitle]);
+    } else if (curTitle < config.minTitle) {
+      setTitleLength([config.minTitle]);
+    }
+
+    if (curKw > config.maxKeywords) {
+      setKeywordCount([config.maxKeywords]);
+    } else if (curKw < config.minKeywords) {
+      setKeywordCount([config.minKeywords]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platform]);
+
+  const currentPlatformConfig: PlatformConfig = VIDEO_PLATFORM_CONFIG[platform] || VIDEO_PLATFORM_CONFIG['universal']!;
+
   if (!user) return null;
 
   return (
@@ -328,9 +350,13 @@ export default function VideoMetaPage() {
         {/* Left Settings Sidebar */}
         <VideoSettingsSidebar 
           platform={platform} setPlatform={setPlatform}
-          titleLength={titleLength} setTitleLength={setTitleLength} maxTitleLength={200} minTitleLength={20}
+          titleLength={titleLength} setTitleLength={setTitleLength} 
+          maxTitleLength={currentPlatformConfig.maxTitle} 
+          minTitleLength={currentPlatformConfig.minTitle}
           descriptionLength={descriptionLength} setDescriptionLength={setDescriptionLength}
-          keywordCount={keywordCount} setKeywordCount={setKeywordCount} maxKeywords={49} minKeywords={5}
+          keywordCount={keywordCount} setKeywordCount={setKeywordCount} 
+          maxKeywords={currentPlatformConfig.maxKeywords} 
+          minKeywords={currentPlatformConfig.minKeywords}
           selectedShotType={selectedShotType} setSelectedShotType={setSelectedShotType}
           selectedMood={selectedMood} setSelectedMood={setSelectedMood}
           prefix={prefix} setPrefix={setPrefix}

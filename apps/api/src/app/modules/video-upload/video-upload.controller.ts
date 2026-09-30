@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import fs from 'fs';
+import path from 'path';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { v2 as cloudinary } from 'cloudinary';
 import VideoMetaData from './video-upload.model';
@@ -11,10 +12,69 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const getGeminiModel = () => {
-  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyBsB_gn8eptga5QbONmLjEmzQqYGvkj3E4';
-  const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
+const getGeminiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not configured in .env');
+  }
+  return new GoogleGenerativeAI(apiKey);
+};
+
+const generateWithFallback = async (genAI: GoogleGenerativeAI, contents: any) => {
+  const modelsToTry = [
+    process.env.GEMINI_MODEL || 'gemini-3.5-flash',
+    'gemini-3.7-flash',
+    'gemini-flash-latest',
+    'gemini-3.6-flash'
+  ];
+
+  let lastError: any = null;
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(contents);
+      return result;
+    } catch (err: any) {
+      console.warn(`Gemini Model ${modelName} failed:`, err.message);
+      lastError = err;
+    }
+  }
+  throw lastError;
+};
+
+const getPlatformGuidance = (platform: string): string => {
+  switch (platform) {
+    case 'adobe':
+      return `STRICT TARGET: ADOBE STOCK VIDEO
+- Title should be concise, action-focused (ideal 50-70 chars, max 200). DO NOT include technical buzzwords or specs like "4K", "HD", "60fps", "Slow Motion" in the title.
+- Provide maximum 49 keywords. Adobe's search algorithm weights the FIRST 10 KEYWORDS most heavily, so place the top 10 most relevant commercial terms at the very beginning. All keywords MUST be single words.`;
+    case 'pond5':
+      return `STRICT TARGET: POND5 STOCK FOOTAGE
+- Title should be descriptive (40-80 chars) and prioritize camera movement (e.g. Aerial drone, Gimbal tracking, Slow motion, Static tripod, Timelapse) and precise location.
+- Keywords (10-50 tags) should include technical motion descriptions, camera styles, and commercial footage use cases.`;
+    case 'shutterstock':
+      return `STRICT TARGET: SHUTTERSTOCK FOOTAGE
+- Title/Description (50-150 chars) MUST strictly follow the 5W formula: Who is in it, What is happening, Where it is located, When (time/lighting), and Why/Mood.
+- Keywords (7-50 tags) must be highly descriptive commercial buyer-intent tags.`;
+    case 'getty':
+      return `STRICT TARGET: GETTY IMAGES / ISTOCK
+- Concise, factually accurate title. Controlled vocabulary and concept-driven tagging focusing on human emotions, business metaphors, and authentic storytelling.`;
+    case 'envato':
+      return `STRICT TARGET: ENVATO (VIDEOHIVE / ELEMENTS)
+- Action title (30-100 chars) tailored for video editors. Keywords should include usage tags (e.g. background, b-roll, overlay, loop, transition, intro, opener, promo).`;
+    case 'artgrid':
+      return `STRICT TARGET: MOTION ARRAY / ARTGRID (ARTLIST)
+- Cinematic aesthetic focus: Highlight lighting atmosphere (golden hour, neon, daylight), camera movement, color grading tone, and authentic filmmaking storytelling.`;
+    case 'freepik':
+    case 'vecteezy':
+    case 'dreamstime':
+      return `STRICT TARGET: ${platform.toUpperCase()} VIDEO
+- Minimum 5 words descriptive title without keyword stuffing. Clean single-word tags covering subjects, environment, and mood.`;
+    default:
+      return `STRICT TARGET: UNIVERSAL (ALL 9 STOCK MARKETPLACES COMPLIANCE)
+- Formula: [Camera Movement] + [Subject] + [Action Verb] + [Environment/Location] + [Lighting/Mood].
+- Title length: balanced 80-120 chars. Max 49 single keywords for 100% interoperability across Adobe, Pond5, Shutterstock, Getty, Envato, Artgrid, Freepik, Vecteezy, and Dreamstime.`;
+  }
 };
 
 export const uploadVideoAndGenerateMeta = async (req: Request, res: Response): Promise<void> => {
@@ -88,7 +148,7 @@ export const uploadVideoAndGenerateMeta = async (req: Request, res: Response): P
     }
 
     // 2. Prepare Gemini Multimodal Video & Keyframe Prompt
-    const model = getGeminiModel();
+    const genAI = getGeminiClient();
 
     let mimeType = file.mimetype;
     const ext = path.extname(file.originalname).toLowerCase();
@@ -103,6 +163,8 @@ export const uploadVideoAndGenerateMeta = async (req: Request, res: Response): P
       else mimeType = 'video/mp4';
     }
 
+    const platformGuidance = getPlatformGuidance(platform);
+
     const systemPrompt = `You are the World's #1 Stock Footage SEO & Metadata Specialist, optimizing video clips for the Top 9 Marketplaces:
 1. Adobe Stock Video
 2. Shutterstock Footage
@@ -115,6 +177,8 @@ export const uploadVideoAndGenerateMeta = async (req: Request, res: Response): P
 9. Dreamstime Video
 
 ANALYZE THIS VIDEO CLIP CAREFULLY. Notice the movement, subjects, actions, lighting, camera angle, speed, and context.
+
+${platformGuidance}
 
 Generate high-converting commercial stock video metadata strictly adhering to these rules:
 
@@ -169,7 +233,6 @@ You MUST respond with ONLY a valid, raw JSON object (no markdown code blocks, no
 
     try {
       const videoDataBuffer = fs.readFileSync(file.path);
-      // Gemini 2.5 Flash supports video inlineData directly
       const videoPart = {
         inlineData: {
           data: videoDataBuffer.toString('base64'),
@@ -177,7 +240,7 @@ You MUST respond with ONLY a valid, raw JSON object (no markdown code blocks, no
         }
       };
 
-      const result = await model.generateContent([systemPrompt, videoPart]);
+      const result = await generateWithFallback(genAI, [systemPrompt, videoPart]);
       const responseText = result.response.text().trim();
       const cleanJson = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
       parsedMetadata = JSON.parse(cleanJson);
@@ -185,7 +248,7 @@ You MUST respond with ONLY a valid, raw JSON object (no markdown code blocks, no
       console.warn('Gemini direct video inline failed, attempting prompt with video specs:', aiError);
       // Fallback: Generate based on technical metadata and filename
       const fallbackPrompt = `${systemPrompt}\n\nFile info: Name="${file.originalname}", Format="${mimeType}", SelectedShot="${selectedShotType}", SelectedMood="${selectedMood}".`;
-      const result = await model.generateContent(fallbackPrompt);
+      const result = await generateWithFallback(genAI, fallbackPrompt);
       const responseText = result.response.text().trim();
       const cleanJson = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
       parsedMetadata = JSON.parse(cleanJson);
@@ -280,8 +343,11 @@ export const regenerateVideoMetadata = async (req: Request, res: Response): Prom
       return;
     }
 
-    const model = getGeminiModel();
+    const genAI = getGeminiClient();
+    const platformGuidance = getPlatformGuidance(platform);
     const prompt = `You are an elite Stock Video SEO Specialist. Regenerate a brand new, highly engaging Action Title and 49 fresh, high-converting buyer-intent single keywords for this stock video (${videoUrl}).
+
+${platformGuidance}
 
 Parameters:
 - Target Title Length: ${titleLength} characters.
@@ -306,7 +372,7 @@ Respond ONLY in raw JSON:
   "mood": "..."
 }`;
 
-    const result = await model.generateContent(prompt);
+    const result = await generateWithFallback(genAI, prompt);
     const responseText = result.response.text().trim();
     const cleanJson = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
     const parsed = JSON.parse(cleanJson);
