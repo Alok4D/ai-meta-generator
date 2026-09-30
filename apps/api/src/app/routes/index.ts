@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import authRoutes from '../modules/auth/auth.route';
 import uploadRoutes from '../modules/upload/upload.route';
+import videoUploadRoutes from '../modules/video-upload/video-upload.route';
 import adminRoutes from '../modules/admin/admin.route';
 import supportRoutes from '../modules/support/support.route';
 import subscriptionRoutes from '../modules/subscription/subscription.route';
@@ -16,6 +17,10 @@ const moduleRoutes = [
   {
     path: '/upload',
     route: uploadRoutes,
+  },
+  {
+    path: '/video-upload',
+    route: videoUploadRoutes,
   },
   {
     path: '/admin',

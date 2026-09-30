@@ -9,7 +9,7 @@ import { logout, setUser } from "@/lib/feature/auth/authSlice";
 import { useGetMeQuery } from "@/lib/feature/auth/authApi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles, Scissors, Gem, Receipt, Video } from "lucide-react";
+import { Home, History, Layers, CreditCard, LifeBuoy, User as UserIcon, LogOut, Menu, PanelLeft, LayoutDashboard, Wand2, Calendar, Palette, Image as ImageIcon, Sparkles, Scissors, Gem, Receipt, Video, Film } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   
@@ -56,7 +56,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const routes = [
     { href: "/dashboard", label: "Overview", icon: Home },
-    { href: "/dashboard/generator", label: "Generator", icon: Wand2 },
+    { href: "/dashboard/generator", label: "Image Generator", icon: Wand2 },
+    { href: "/dashboard/video-meta", label: "Video Generator", icon: Film },
     { href: "/dashboard/batch", label: "Batch", icon: Layers },
     { href: "/dashboard/history", label: "Generation History", icon: History },
     { href: "/dashboard/pricing", label: "Pricing", icon: Gem },

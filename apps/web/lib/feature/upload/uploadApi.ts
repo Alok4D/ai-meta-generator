@@ -29,6 +29,33 @@ export const uploadApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ['History', 'Uploads'],
     }),
+    uploadVideo: builder.mutation({
+      query: (formData) => ({
+        url: '/video-upload',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['History', 'Uploads'],
+    }),
+    getVideoHistory: builder.query({
+      query: () => '/video-upload/history',
+      providesTags: ['History'],
+    }),
+    deleteVideoHistory: builder.mutation({
+      query: (id) => ({
+        url: `/video-upload/history/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['History', 'Uploads'],
+    }),
+    regenerateVideoMetadata: builder.mutation({
+      query: (data) => ({
+        url: '/video-upload/regenerate',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['History', 'Uploads'],
+    }),
   }),
   overrideExisting: true,
 });
@@ -38,4 +65,9 @@ export const {
   useGetHistoryQuery,
   useDeleteHistoryMutation,
   useRegenerateMetadataMutation,
+  useUploadVideoMutation,
+  useGetVideoHistoryQuery,
+  useDeleteVideoHistoryMutation,
+  useRegenerateVideoMetadataMutation,
 } = uploadApi;
+
