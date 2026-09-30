@@ -340,8 +340,8 @@ export default function VideoMetaPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-medium tracking-tight">Stock Video Generator</h2>
-          <p className="text-muted-foreground text-sm">Upload stock footage clips (5s-60s) to generate 4-layer action titles & 49 commercial keywords.</p>
+          <h2 className="text-3xl font-medium tracking-tight">Welcome, {user.name}</h2>
+          <p className="text-muted-foreground">Upload a video to generate SEO metadata.</p>
         </div>
       </div>
 

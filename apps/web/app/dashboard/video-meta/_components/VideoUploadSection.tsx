@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trash2, Wand2, Video as VideoIcon, Film, Play, Clock, Sparkles } from "lucide-react";
+import { Trash2, Wand2, Film, Play } from "lucide-react";
 import { DropzoneState } from "react-dropzone";
 
 interface VideoUploadSectionProps {
@@ -41,60 +41,42 @@ export function VideoUploadSection({
 
   return (
     <Card className="border-dashed border-2 bg-muted/10 relative overflow-hidden">
-      <CardContent className="flex flex-col items-center justify-center min-h-[340px] text-center p-6">
+      <CardContent className="flex flex-col items-center justify-center min-h-[300px] text-center p-6">
         {!file ? (
           <div 
             {...getRootProps()} 
             className={`w-full h-full flex flex-col items-center justify-center cursor-pointer p-8 rounded-xl transition-colors ${isDragActive ? 'bg-primary/5 border-primary' : 'hover:bg-muted/50'}`}
           >
             <input {...getInputProps()} />
-            <div className="p-4 rounded-full bg-primary/10 text-primary mb-4 animate-bounce">
-              <Film className="w-8 h-8" />
+            <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/><path d="M12 3v3"/><path d="m10 4 2-2 2 2"/></svg>
             </div>
-            <div className="space-y-3">
-              <h3 className="font-semibold text-lg">Click to upload or drag & drop video</h3>
-              <p className="text-xs text-muted-foreground">5s to 60s clips (max. 2GB per video)</p>
-              
-              {/* Formats Badges */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1 max-w-md mx-auto">
-                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">MP4 / M4V</span>
-                <span className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-md text-[11px] font-semibold text-primary shadow-2xs">MOV / ProRes</span>
-                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">WEBM</span>
-                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">AVI</span>
-                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">MKV</span>
-                <span className="px-2 py-0.5 bg-muted/60 border rounded-md text-[11px] font-medium text-muted-foreground shadow-2xs">WMV / FLV / MTS</span>
-              </div>
-
-              <div className="flex items-center justify-center gap-2 pt-2 text-xs font-medium text-amber-600 dark:text-amber-400">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>Optimized for Adobe Stock, Pond5, Shutterstock, Getty & Artgrid</span>
-              </div>
+            <div className="space-y-1">
+              <h3 className="font-semibold text-lg">Click to upload or drag and drop</h3>
+              <p className="text-sm text-muted-foreground">MP4, MOV, WEBM, AVI or MKV (max. 2GB)</p>
             </div>
           </div>
         ) : (
           <div className="w-full flex flex-col items-center justify-between h-full space-y-4">
-            {/* Custom Video Player Container */}
-            <div className="relative w-full aspect-video rounded-xl overflow-hidden border bg-black/90 flex items-center justify-center group max-h-[420px] shadow-md">
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden border bg-black/5 flex items-center justify-center group max-h-[400px]">
               {metadata?.thumbnailUrl ? (
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <img src={metadata.thumbnailUrl} alt="Video Preview" className="w-full h-full object-contain" />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <div className="relative w-full h-full flex items-center justify-center bg-black">
+                  <img src={metadata.thumbnailUrl} alt="Video Preview" className="max-w-full max-h-full object-contain" />
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                     <div className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white">
                       <Play className="w-6 h-6 fill-white" />
                     </div>
                   </div>
                 </div>
-              ) : (hasPlaybackError || file.name.toLowerCase().endsWith('.mov') && (!previewUrl || hasPlaybackError)) ? (
-                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-muted/20">
+              ) : (hasPlaybackError || (file.name.toLowerCase().endsWith('.mov') && (!previewUrl || hasPlaybackError))) ? (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-muted/10">
                   <div className="p-4 bg-primary/10 rounded-full text-primary">
-                    <Film className="w-10 h-10" />
+                    <Film className="w-8 h-8" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground text-base">QuickTime / ProRes Video File</p>
-                    <p className="text-xs text-muted-foreground mt-1">Direct browser codec playback unavailable</p>
-                    <span className="inline-block mt-2 px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold rounded-md border border-amber-500/20">
-                      ⚡ Ready for Gemini AI Video Analysis
-                    </span>
+                    <p className="font-semibold text-foreground">Video File Selected</p>
+                    <p className="text-sm text-muted-foreground mt-1">Direct browser preview unavailable</p>
+                    <p className="text-xs text-muted-foreground mt-1">Ready for AI metadata analysis</p>
                   </div>
                 </div>
               ) : (
@@ -104,13 +86,13 @@ export function VideoUploadSection({
                     src={`${previewUrl}#t=0.001`}
                     preload="metadata"
                     controls
-                    className="w-full h-full object-contain"
+                    className="max-w-full max-h-full object-contain"
                     onError={() => setHasPlaybackError(true)}
                     onLoadedMetadata={(e) => {
                       const v = e.currentTarget;
                       const w = v.videoWidth || 1920;
                       const h = v.videoHeight || 1080;
-                      const res = w >= 3840 ? '4K UHD' : (w >= 1920 ? '1080p Full HD' : `${w}x${h}`);
+                      const res = w >= 3840 ? '4K UHD' : (w >= 1920 ? '1080p Full HD' : `${w} x ${h}`);
                       setVideoDetails({
                         duration: v.duration || 10,
                         width: w,
@@ -130,66 +112,55 @@ export function VideoUploadSection({
                   setMetadata(null);
                   setHasPlaybackError(false);
                 }}
-                className="absolute top-3 right-3 bg-background/80 backdrop-blur-md text-foreground p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive hover:text-destructive-foreground z-20"
+                className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground p-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-destructive hover:text-destructive-foreground z-10"
                 title="Remove Video"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
             
-            {/* Video File Specifications Grid */}
-            <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-3 text-left text-sm p-4 bg-muted/40 rounded-xl border border-muted/50">
+            <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-4 text-left text-sm p-4 bg-muted/50 rounded-lg">
               <div className="col-span-2 sm:col-span-4 flex justify-between items-center border-b pb-2">
-                <div className="flex items-center gap-2 truncate mr-2">
-                  <VideoIcon className="w-4 h-4 text-primary shrink-0" />
-                  <span className="font-medium text-foreground truncate">{file.name}</span>
-                </div>
-                <span className="text-muted-foreground whitespace-nowrap text-xs font-mono">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                <span className="font-medium text-foreground truncate mr-2">{file.name}</span>
+                <span className="text-muted-foreground whitespace-nowrap">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
               </div>
-              <div className="flex flex-col bg-background/60 p-2.5 rounded-lg border border-border/40">
-                <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">Format</span>
-                <span className="font-medium mt-0.5 uppercase text-xs">{file.name.split('.').pop() || 'MP4'}</span>
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-xs uppercase tracking-wider">Format</span>
+                <span className="font-medium mt-0.5 uppercase">{file.name.split('.').pop() || 'MP4'}</span>
               </div>
-              <div className="flex flex-col bg-background/60 p-2.5 rounded-lg border border-border/40">
-                <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-primary" /> Duration
-                </span>
-                <span className="font-medium mt-0.5 text-xs">
-                  {videoDetails ? `${formatDuration(videoDetails.duration)}s` : 'Analyzing...'}
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-xs uppercase tracking-wider">Duration</span>
+                <span className="font-medium mt-0.5">
+                  {videoDetails ? `${formatDuration(videoDetails.duration)}` : 'Calculating...'}
                 </span>
               </div>
-              <div className="flex flex-col bg-background/60 p-2.5 rounded-lg border border-border/40">
-                <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">Resolution</span>
-                <span className="font-medium mt-0.5 text-xs text-primary font-bold">
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-xs uppercase tracking-wider">Resolution</span>
+                <span className="font-medium mt-0.5">
                   {videoDetails ? videoDetails.resolution : 'Calculating...'}
                 </span>
               </div>
-              <div className="flex flex-col bg-background/60 p-2.5 rounded-lg border border-border/40">
-                <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-semibold">Dimensions</span>
-                <span className="font-medium mt-0.5 text-xs font-mono">
-                  {videoDetails ? `${videoDetails.width}x${videoDetails.height}` : '...'}
+              <div className="flex flex-col">
+                <span className="text-muted-foreground text-xs uppercase tracking-wider">Dimensions</span>
+                <span className="font-medium mt-0.5">
+                  {videoDetails ? `${videoDetails.width} x ${videoDetails.height}` : 'Calculating...'}
                 </span>
               </div>
             </div>
 
-            {/* Action Buttons */}
             {!metadata ? (
               <Button 
-                className="w-full py-6 text-base font-semibold shadow-md flex items-center justify-center gap-2" 
+                className="w-full" 
                 size="lg"
                 disabled={uploading} 
                 onClick={handleUpload}
               >
                 {uploading ? (
                   <div className="flex items-center gap-2">
-                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    Analyzing Video Motion with Gemini AI...
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    Analyzing Video with AI...
                   </div>
-                ) : (
-                  <>
-                    <Wand2 className="w-5 h-5" /> Generate Video Metadata (2 Credits)
-                  </>
-                )}
+                ) : <><Wand2 className="w-4 h-4 mr-2" /> Generate Metadata</>}
               </Button>
             ) : (
               <Button 
@@ -201,9 +172,10 @@ export function VideoUploadSection({
                   setPreviewUrl(null);
                   setVideoDetails(null);
                   setMetadata(null);
+                  setHasPlaybackError(false);
                 }}
               >
-                Upload Another Video
+                Upload New Video
               </Button>
             )}
           </div>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { Video, Sparkles, Camera, SunMedium, Info } from "lucide-react";
+import { Settings2, Sparkles, Camera, SunMedium } from "lucide-react";
 
 export interface PlatformConfig {
   name: string;
@@ -16,7 +16,6 @@ export interface PlatformConfig {
   maxKeywords: number;
   defaultKeywords: number;
   keywordHint: string;
-  badgeColor?: string;
 }
 
 export const VIDEO_PLATFORM_CONFIG: Record<string, PlatformConfig> = {
@@ -25,33 +24,33 @@ export const VIDEO_PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     minTitle: 30,
     maxTitle: 150,
     defaultTitle: 120,
-    titleHint: '(Formula: Camera Movement + Subject + Action + Setting + Mood)',
+    titleHint: '(Formula: Camera + Subject + Action + Setting + Mood)',
     minKeywords: 7,
     maxKeywords: 49,
     defaultKeywords: 49,
-    keywordHint: '(Max 49 single keywords for 100% Universal & Adobe Stock compliance)',
+    keywordHint: '(Max 49 single keywords for Adobe & Universal Stock compliance)',
   },
   adobe: {
     name: 'Adobe Stock Video',
     minTitle: 30,
     maxTitle: 200,
     defaultTitle: 70,
-    titleHint: '(Recommended 50-70 chars, max 200. No 4K/HD tech specs in title)',
+    titleHint: '(Max 200 characters for Adobe. No 4K/HD tech specs in title)',
     minKeywords: 5,
     maxKeywords: 49,
     defaultKeywords: 49,
-    keywordHint: '(Min: 5 - Max: 49 keywords. Adobe algorithm weights first 10 keywords heavily)',
+    keywordHint: '(Min: 5 - Max: 49 keywords. First 10 weighted heavily)',
   },
   pond5: {
     name: 'Pond5',
     minTitle: 20,
     maxTitle: 120,
     defaultTitle: 75,
-    titleHint: '(Recommended 40-80 chars. Heavily favors Camera Movement & Shot Type)',
+    titleHint: '(Recommended 40-80 chars. Focus on Camera Movement)',
     minKeywords: 10,
     maxKeywords: 50,
     defaultKeywords: 45,
-    keywordHint: '(Min: 10 - Max: 50 tags. Include shot techniques, speed & frame rate terms)',
+    keywordHint: '(Min: 10 - Max: 50 tags. Include shot techniques)',
   },
   shutterstock: {
     name: 'Shutterstock Footage',
@@ -62,18 +61,18 @@ export const VIDEO_PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     minKeywords: 7,
     maxKeywords: 50,
     defaultKeywords: 50,
-    keywordHint: '(Min: 7 - Max: 50 keywords. Commercial buyer-intent tags)',
+    keywordHint: '(Minimum 7 unique keywords 0/50)',
   },
   getty: {
     name: 'Getty / iStock',
     minTitle: 25,
     maxTitle: 120,
     defaultTitle: 90,
-    titleHint: '(Concise factual action description without trademarked terms)',
+    titleHint: '(Concise factual description without trademarked terms)',
     minKeywords: 10,
     maxKeywords: 50,
     defaultKeywords: 40,
-    keywordHint: '(Min: 10 - Max: 50 keywords. Controlled vocabulary & concept tags)',
+    keywordHint: '(Min: 10 - Max: 50 keywords. Concept & emotion tags)',
   },
   envato: {
     name: 'Envato (VideoHive)',
@@ -84,7 +83,7 @@ export const VIDEO_PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     minKeywords: 10,
     maxKeywords: 50,
     defaultKeywords: 40,
-    keywordHint: '(Min: 10 - Max: 50 tags. Include editor terms: loop, intro, transition)',
+    keywordHint: '(Min: 10 - Max: 50 tags. Include editor terms)',
   },
   artgrid: {
     name: 'Motion Array / Artgrid',
@@ -95,40 +94,40 @@ export const VIDEO_PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     minKeywords: 15,
     maxKeywords: 50,
     defaultKeywords: 45,
-    keywordHint: '(Min: 15 - Max: 50 tags. Atmospheric & cinematography tags)',
+    keywordHint: '(Min: 15 - Max: 50 tags. Cinematography tags)',
   },
   freepik: {
     name: 'Freepik Video',
     minTitle: 20,
     maxTitle: 150,
     defaultTitle: 80,
-    titleHint: '(Descriptive, clear and accurate title without keyword stuffing)',
+    titleHint: '(Descriptive title without keyword stuffing)',
     minKeywords: 5,
     maxKeywords: 50,
     defaultKeywords: 40,
-    keywordHint: '(Min: 5 - Max: 50 keywords. Strictly relevant search terms)',
+    keywordHint: '(Min: 5 - Max: 50 keywords)',
   },
   vecteezy: {
     name: 'Vecteezy Video',
     minTitle: 20,
     maxTitle: 150,
     defaultTitle: 80,
-    titleHint: '(Minimum 5 descriptive words representing the video clip)',
+    titleHint: '(Minimum 5 descriptive words)',
     minKeywords: 5,
     maxKeywords: 50,
     defaultKeywords: 40,
-    keywordHint: '(Min: 5 - Max: 50 keywords for optimal indexing)',
+    keywordHint: '(Min: 5 - Max: 50 keywords)',
   },
   dreamstime: {
     name: 'Dreamstime Video',
     minTitle: 20,
     maxTitle: 150,
     defaultTitle: 80,
-    titleHint: '(Minimum 5 words title with 3 primary category matches)',
+    titleHint: '(Minimum 5 words title with category coverage)',
     minKeywords: 5,
     maxKeywords: 50,
     defaultKeywords: 45,
-    keywordHint: '(Min: 5 - Max: 50 keywords. Clean commercial tagging)',
+    keywordHint: '(Min: 5 - Max: 50 keywords)',
   },
 };
 
@@ -162,7 +161,6 @@ interface VideoSettingsSidebarProps {
 export function VideoSettingsSidebar({
   platform, setPlatform,
   titleLength, setTitleLength, maxTitleLength, minTitleLength,
-  descriptionLength, setDescriptionLength,
   keywordCount, setKeywordCount, maxKeywords, minKeywords,
   selectedShotType, setSelectedShotType,
   selectedMood, setSelectedMood,
@@ -173,16 +171,16 @@ export function VideoSettingsSidebar({
 }: VideoSettingsSidebarProps) {
 
   const platforms = [
-    { id: 'universal', label: 'Universal (All 9 Markets)', icon: <Sparkles className="w-3.5 h-3.5 text-amber-500" /> },
-    { id: 'adobe', label: 'Adobe Stock Video' },
+    { id: 'universal', label: 'Universal', icon: <Sparkles className="w-3.5 h-3.5"/> },
+    { id: 'adobe', label: 'Adobe Stock' },
     { id: 'pond5', label: 'Pond5' },
-    { id: 'shutterstock', label: 'Shutterstock Footage' },
+    { id: 'shutterstock', label: 'Shutterstock' },
     { id: 'getty', label: 'Getty / iStock' },
     { id: 'envato', label: 'Envato (VideoHive)' },
     { id: 'artgrid', label: 'Motion Array / Artgrid' },
-    { id: 'freepik', label: 'Freepik Video' },
-    { id: 'vecteezy', label: 'Vecteezy Video' },
-    { id: 'dreamstime', label: 'Dreamstime Video' },
+    { id: 'freepik', label: 'Freepik' },
+    { id: 'vecteezy', label: 'Vecteezy' },
+    { id: 'dreamstime', label: 'Dreamstime' },
   ];
 
   const shotTypes = [
@@ -215,25 +213,22 @@ export function VideoSettingsSidebar({
       <Card className="shadow-sm border-muted/60">
         <CardHeader className="pb-3 border-b border-muted/50 bg-muted/20">
           <div className="flex items-center gap-2">
-            <Video className="w-5 h-5 text-primary" />
-            <CardTitle className="text-lg">Video SEO Settings</CardTitle>
+            <Settings2 className="w-5 h-5 text-primary" />
+            <CardTitle className="text-lg">Metadata Settings</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="p-4 space-y-6">
-          {/* Target Stock Platform */}
+          {/* Export Platform */}
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Target Marketplace</Label>
-              <span className="text-[10px] text-primary font-medium">{currentConfig.name}</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Export Platform</Label>
+            <div className="flex flex-wrap gap-2">
               {platforms.map(p => (
                 <button
                   key={p.id}
                   onClick={() => setPlatform(p.id)}
-                  className={`px-2.5 py-1.5 text-xs font-medium rounded-md border flex items-center gap-1.5 transition-all ${
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md border flex items-center gap-1.5 transition-colors ${
                     platform === p.id 
-                      ? 'bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20 scale-[1.02]' 
+                      ? 'bg-primary text-primary-foreground border-primary shadow-sm' 
                       : 'bg-background text-foreground hover:bg-muted/60'
                   }`}
                 >
@@ -253,9 +248,9 @@ export function VideoSettingsSidebar({
                 <button
                   key={st}
                   onClick={() => setSelectedShotType(st === 'Auto Detect' ? '' : st)}
-                  className={`px-2 py-1 text-[11px] font-medium rounded border transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md border transition-colors ${
                     (selectedShotType === st || (!selectedShotType && st === 'Auto Detect'))
-                      ? 'bg-primary/10 border-primary text-primary font-semibold'
+                      ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-background text-muted-foreground hover:bg-muted'
                   }`}
                 >
@@ -275,9 +270,9 @@ export function VideoSettingsSidebar({
                 <button
                   key={m}
                   onClick={() => setSelectedMood(m === 'Auto Detect' ? '' : m)}
-                  className={`px-2 py-1 text-[11px] font-medium rounded border transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md border transition-colors ${
                     (selectedMood === m || (!selectedMood && m === 'Auto Detect'))
-                      ? 'bg-primary/10 border-primary text-primary font-semibold'
+                      ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-background text-muted-foreground hover:bg-muted'
                   }`}
                 >
@@ -289,15 +284,13 @@ export function VideoSettingsSidebar({
 
           {/* Sliders */}
           <div className="space-y-5 pt-2 border-t border-muted/50">
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9h16"/><path d="M4 15h16"/></svg>
                   Action Title Length
                 </Label>
-                <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20">
-                  {titleLength[0] || currentConfig.defaultTitle} chars
-                </span>
+                <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded">{titleLength[0] || currentConfig.defaultTitle} chars</span>
               </div>
               <Slider 
                 value={titleLength} 
@@ -307,21 +300,16 @@ export function VideoSettingsSidebar({
                 step={1}
                 className="cursor-pointer"
               />
-              <p className="text-[11px] text-muted-foreground leading-snug flex items-start gap-1">
-                <Info className="w-3 h-3 text-primary/70 shrink-0 mt-0.5" />
-                <span>{currentConfig.titleHint}</span>
-              </p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">{currentConfig.titleHint}</p>
             </div>
 
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 20h14"/><path d="M7 4h14"/><path d="M3 4h.01"/><path d="M3 12h.01"/><path d="M3 20h.01"/><path d="M7 12h14"/></svg>
                   Keywords Count
                 </Label>
-                <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded border border-primary/20">
-                  {keywordCount[0] || currentConfig.defaultKeywords} words
-                </span>
+                <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded">{keywordCount[0] || currentConfig.defaultKeywords} words</span>
               </div>
               <Slider 
                 value={keywordCount} 
@@ -331,22 +319,19 @@ export function VideoSettingsSidebar({
                 step={1}
                 className="cursor-pointer"
               />
-              <p className="text-[11px] text-muted-foreground leading-snug flex items-start gap-1">
-                <Info className="w-3 h-3 text-primary/70 shrink-0 mt-0.5" />
-                <span>{currentConfig.keywordHint}</span>
-              </p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">{currentConfig.keywordHint}</p>
             </div>
           </div>
 
           {/* Options */}
           <div className="space-y-4 pt-2 border-t border-muted/50">
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Advanced Customization</Label>
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">Options</Label>
             
             <div className="space-y-1.5">
               <Label htmlFor="vid-prefix-input" className="text-sm font-medium">Prefix</Label>
               <Input 
                 id="vid-prefix-input"
-                placeholder="e.g. B-Roll Footage - (Optional)" 
+                placeholder="e.g. Stock Footage - (Optional)" 
                 className="h-8 text-sm" 
                 value={prefix}
                 onChange={(e) => setPrefix(e.target.value)}
@@ -357,7 +342,7 @@ export function VideoSettingsSidebar({
               <Label htmlFor="vid-suffix-input" className="text-sm font-medium">Suffix</Label>
               <Input 
                 id="vid-suffix-input"
-                placeholder="e.g. - 4K Cinematic (Optional)" 
+                placeholder="e.g. - 4K Quality (Optional)" 
                 className="h-8 text-sm" 
                 value={suffix}
                 onChange={(e) => setSuffix(e.target.value)}
@@ -365,13 +350,10 @@ export function VideoSettingsSidebar({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="vid-neg-title-input" className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"/></svg>
-                Negative Title Words
-              </Label>
+              <Label htmlFor="vid-neg-title-input" className="text-sm font-medium">Negative Title Words</Label>
               <Input 
                 id="vid-neg-title-input"
-                placeholder="e.g. cheap, free, vlog (Optional)" 
+                placeholder="e.g. cheap, free (Optional)" 
                 className="h-8 text-sm" 
                 value={negativeTitleWords}
                 onChange={(e) => setNegativeTitleWords(e.target.value)}
@@ -379,10 +361,7 @@ export function VideoSettingsSidebar({
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="vid-neg-keywords-input" className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" x2="19.07" y1="4.93" y2="19.07"/></svg>
-                Negative Keywords
-              </Label>
+              <Label htmlFor="vid-neg-keywords-input" className="text-sm font-medium">Negative Keywords</Label>
               <Input 
                 id="vid-neg-keywords-input"
                 placeholder="e.g. cartoon, 3d render (Optional)" 
@@ -398,4 +377,3 @@ export function VideoSettingsSidebar({
     </div>
   );
 }
-
