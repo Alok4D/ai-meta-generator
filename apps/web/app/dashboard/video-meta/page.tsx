@@ -111,7 +111,7 @@ export default function VideoMetaPage() {
       if (fileRejections.length > 0) {
         const err = fileRejections[0]?.errors[0];
         if (err?.code === 'file-too-large') {
-          toast.error("Video file is too large. Maximum allowed size is 500MB.");
+          toast.error("Video file is too large. Maximum allowed size is 2GB.");
         } else {
           toast.error(err?.message || "File format not supported. Please upload MP4, MOV, WEBM, AVI or MKV.");
         }
@@ -127,7 +127,7 @@ export default function VideoMetaPage() {
       'video/avi': ['.avi']
     },
     maxFiles: 1,
-    maxSize: 500 * 1024 * 1024 // 500MB
+    maxSize: 2 * 1024 * 1024 * 1024 // 2GB
   });
 
   const handleUpload = async () => {

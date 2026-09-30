@@ -53,7 +53,7 @@ export function VideoUploadSection({
             </div>
             <div className="space-y-1.5">
               <h3 className="font-semibold text-lg">Click to upload or drag & drop video</h3>
-              <p className="text-sm text-muted-foreground">MP4, MOV, WEBM, AVI, MKV (5s to 60s clips, max. 500MB)</p>
+              <p className="text-sm text-muted-foreground">MP4, MOV, WEBM, AVI, MKV (5s to 60s clips, max. 2GB)</p>
               <div className="flex items-center justify-center gap-2 pt-2 text-xs font-medium text-amber-500">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Optimized for Adobe Stock, Pond5, Shutterstock, Getty & Artgrid</span>
