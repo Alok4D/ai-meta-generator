@@ -28,9 +28,9 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedExtensions = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v'];
+  const allowedExtensions = ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v', '.qt', '.mts', '.m2ts', '.ts'];
   const ext = path.extname(file.originalname).toLowerCase();
-  if (allowedExtensions.includes(ext) || file.mimetype.startsWith('video/')) {
+  if (allowedExtensions.includes(ext) || file.mimetype.startsWith('video/') || file.mimetype === 'application/octet-stream') {
     cb(null, true);
   } else {
     cb(new Error('Only video files (MP4, MOV, WEBM, AVI, MKV) are allowed'));
@@ -39,7 +39,7 @@ const fileFilter = (req: express.Request, file: Express.Multer.File, cb: multer.
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for video
+  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB limit for video
   fileFilter: fileFilter
 });
 

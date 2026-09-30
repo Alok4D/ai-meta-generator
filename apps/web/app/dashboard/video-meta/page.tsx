@@ -107,15 +107,27 @@ export default function VideoMetaPage() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected: (fileRejections) => {
+      if (fileRejections.length > 0) {
+        const err = fileRejections[0]?.errors[0];
+        if (err?.code === 'file-too-large') {
+          toast.error("Video file is too large. Maximum allowed size is 500MB.");
+        } else {
+          toast.error(err?.message || "File format not supported. Please upload MP4, MOV, WEBM, AVI or MKV.");
+        }
+      }
+    },
     accept: {
-      'video/mp4': ['.mp4'],
-      'video/quicktime': ['.mov'],
+      'video/*': ['.mp4', '.mov', '.webm', '.avi', '.mkv', '.m4v', '.mts', '.m2ts', '.ts', '.quicktime', '.qt'],
+      'video/quicktime': ['.mov', '.qt'],
+      'video/mp4': ['.mp4', '.m4v'],
       'video/webm': ['.webm'],
       'video/x-matroska': ['.mkv'],
-      'video/x-msvideo': ['.avi']
+      'video/x-msvideo': ['.avi'],
+      'video/avi': ['.avi']
     },
     maxFiles: 1,
-    maxSize: 100 * 1024 * 1024 // 100MB
+    maxSize: 500 * 1024 * 1024 // 500MB
   });
 
   const handleUpload = async () => {

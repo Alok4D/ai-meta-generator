@@ -12,7 +12,7 @@ cloudinary.config({
 });
 
 const getGeminiModel = () => {
-  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyBrySGZYQqoW92cy5TR5wodukjdhFGsrRM';
+  const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyBsB_gn8eptga5QbONmLjEmzQqYGvkj3E4';
   const genAI = new GoogleGenerativeAI(apiKey);
   return genAI.getGenerativeModel({ model: process.env.GEMINI_MODEL || 'gemini-2.5-flash' });
 };

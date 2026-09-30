@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2, Wand2, Video as VideoIcon, Film, Play, Clock, Sparkles } from "lucide-react";
@@ -30,8 +30,10 @@ export function VideoUploadSection({
 }: VideoUploadSectionProps) {
   const { getRootProps, getInputProps, isDragActive } = dropzone;
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasPlaybackError, setHasPlaybackError] = useState(false);
 
   const formatDuration = (seconds: number) => {
+    if (!seconds || isNaN(seconds)) return '0:10';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
@@ -51,7 +53,7 @@ export function VideoUploadSection({
             </div>
             <div className="space-y-1.5">
               <h3 className="font-semibold text-lg">Click to upload or drag & drop video</h3>
-              <p className="text-sm text-muted-foreground">MP4, MOV, WEBM, AVI, MKV (5s to 60s clips, max. 100MB)</p>
+              <p className="text-sm text-muted-foreground">MP4, MOV, WEBM, AVI, MKV (5s to 60s clips, max. 500MB)</p>
               <div className="flex items-center justify-center gap-2 pt-2 text-xs font-medium text-amber-500">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Optimized for Adobe Stock, Pond5, Shutterstock, Getty & Artgrid</span>
@@ -61,26 +63,52 @@ export function VideoUploadSection({
         ) : (
           <div className="w-full flex flex-col items-center justify-between h-full space-y-4">
             {/* Custom Video Player Container */}
-            <div className="relative w-full aspect-video rounded-xl overflow-hidden border bg-black flex items-center justify-center group max-h-[420px] shadow-md">
-              {previewUrl && (
-                <video
-                  ref={videoRef}
-                  src={previewUrl}
-                  controls
-                  className="w-full h-full object-contain"
-                  onLoadedMetadata={(e) => {
-                    const v = e.currentTarget;
-                    const w = v.videoWidth || 1920;
-                    const h = v.videoHeight || 1080;
-                    const res = w >= 3840 ? '4K UHD' : (w >= 1920 ? '1080p Full HD' : `${w}x${h}`);
-                    setVideoDetails({
-                      duration: v.duration || 0,
-                      width: w,
-                      height: h,
-                      resolution: res
-                    });
-                  }}
-                />
+            <div className="relative w-full aspect-video rounded-xl overflow-hidden border bg-black/90 flex items-center justify-center group max-h-[420px] shadow-md">
+              {metadata?.thumbnailUrl ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <img src={metadata.thumbnailUrl} alt="Video Preview" className="w-full h-full object-contain" />
+                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                    <div className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white">
+                      <Play className="w-6 h-6 fill-white" />
+                    </div>
+                  </div>
+                </div>
+              ) : (hasPlaybackError || file.name.toLowerCase().endsWith('.mov') && (!previewUrl || hasPlaybackError)) ? (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-muted/20">
+                  <div className="p-4 bg-primary/10 rounded-full text-primary">
+                    <Film className="w-10 h-10" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground text-base">QuickTime / ProRes Video File</p>
+                    <p className="text-xs text-muted-foreground mt-1">Direct browser codec playback unavailable</p>
+                    <span className="inline-block mt-2 px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold rounded-md border border-amber-500/20">
+                      ⚡ Ready for Gemini AI Video Analysis
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                previewUrl && (
+                  <video
+                    ref={videoRef}
+                    src={`${previewUrl}#t=0.001`}
+                    preload="metadata"
+                    controls
+                    className="w-full h-full object-contain"
+                    onError={() => setHasPlaybackError(true)}
+                    onLoadedMetadata={(e) => {
+                      const v = e.currentTarget;
+                      const w = v.videoWidth || 1920;
+                      const h = v.videoHeight || 1080;
+                      const res = w >= 3840 ? '4K UHD' : (w >= 1920 ? '1080p Full HD' : `${w}x${h}`);
+                      setVideoDetails({
+                        duration: v.duration || 10,
+                        width: w,
+                        height: h,
+                        resolution: res
+                      });
+                    }}
+                  />
+                )
               )}
               
               <button 
@@ -89,6 +117,7 @@ export function VideoUploadSection({
                   setPreviewUrl(null);
                   setVideoDetails(null);
                   setMetadata(null);
+                  setHasPlaybackError(false);
                 }}
                 className="absolute top-3 right-3 bg-background/80 backdrop-blur-md text-foreground p-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-destructive hover:text-destructive-foreground z-20"
                 title="Remove Video"
