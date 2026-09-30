@@ -51,11 +51,22 @@ export function VideoUploadSection({
             <div className="p-4 rounded-full bg-primary/10 text-primary mb-4 animate-bounce">
               <Film className="w-8 h-8" />
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-3">
               <h3 className="font-semibold text-lg">Click to upload or drag & drop video</h3>
-              <p className="text-sm text-muted-foreground">MP4, MOV, WEBM, AVI, MKV (5s to 60s clips, max. 2GB)</p>
-              <div className="flex items-center justify-center gap-2 pt-2 text-xs font-medium text-amber-500">
-                <Sparkles className="w-3.5 h-3.5" />
+              <p className="text-xs text-muted-foreground">5s to 60s clips (max. 2GB per video)</p>
+              
+              {/* Formats Badges */}
+              <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1 max-w-md mx-auto">
+                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">MP4 / M4V</span>
+                <span className="px-2 py-0.5 bg-primary/10 border border-primary/20 rounded-md text-[11px] font-semibold text-primary shadow-2xs">MOV / ProRes</span>
+                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">WEBM</span>
+                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">AVI</span>
+                <span className="px-2 py-0.5 bg-background border rounded-md text-[11px] font-medium text-foreground shadow-2xs">MKV</span>
+                <span className="px-2 py-0.5 bg-muted/60 border rounded-md text-[11px] font-medium text-muted-foreground shadow-2xs">WMV / FLV / MTS</span>
+              </div>
+
+              <div className="flex items-center justify-center gap-2 pt-2 text-xs font-medium text-amber-600 dark:text-amber-400">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                 <span>Optimized for Adobe Stock, Pond5, Shutterstock, Getty & Artgrid</span>
               </div>
             </div>
