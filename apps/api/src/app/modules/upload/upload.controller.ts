@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import fs from 'fs';
 import MetaData from './metaData.model';
 import User from '../auth/user.model';
@@ -1192,7 +1193,61 @@ const validatePlatformData = (metadata: any, options: any) => {
   return isValid;
 };
 
-const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => {
+const generateMetadataWithGemini = async (aiImageUrl: string, promptText: string): Promise<any> => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY is not configured');
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const modelsToTry = [
+    process.env.GEMINI_MODEL || 'gemini-3.5-flash',
+    'gemini-3.7-flash',
+    'gemini-flash-latest',
+    'gemini-3.8-flash',
+  ];
+
+  const imgRes = await fetch(aiImageUrl);
+  if (!imgRes.ok) {
+    throw new Error(`Failed to fetch image for Gemini Vision: ${imgRes.statusText}`);
+  }
+  const buffer = await imgRes.arrayBuffer();
+  const base64 = Buffer.from(buffer).toString('base64');
+  const mimeType = imgRes.headers.get('content-type') || 'image/jpeg';
+
+  let lastError: any = null;
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: { responseMimeType: 'application/json' }
+      });
+
+      const res = await model.generateContent([
+        promptText,
+        {
+          inlineData: {
+            data: base64,
+            mimeType
+          }
+        }
+      ]);
+
+      const text = res.response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(cleaned);
+      }
+    } catch (err: any) {
+      console.warn(`Gemini Model ${modelName} failed:`, err.message);
+      lastError = err;
+    }
+  }
+
+  throw lastError;
+};
+
+const generateMetadataWithOpenAICompatible = async (aiImageUrl: string, promptText: string): Promise<any> => {
   let openai: OpenAI;
   let modelName: string;
 
@@ -1201,7 +1256,8 @@ const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => 
       apiKey: process.env.GROK_API_KEY,
       baseURL: 'https://api.x.ai/v1',
     });
-    modelName = process.env.TEXT_MODEL_BASIC || "grok-2-vision-1212";
+    const baseModel = process.env.TEXT_MODEL_BASIC || "grok-2-vision-1212";
+    modelName = baseModel.includes('mini') ? 'grok-2-vision-1212' : baseModel;
   } else {
     const apiKey = process.env.OPENAI_API_KEY || 'dummy_key_to_prevent_crash_on_startup';
     const isOpenRouter = apiKey.startsWith('sk-or-');
@@ -1217,6 +1273,31 @@ const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => 
     modelName = isOpenRouter ? "openai/gpt-4o" : "gpt-4o";
   }
 
+  const response = await openai.chat.completions.create({
+    model: modelName,
+    response_format: process.env.GROK_API_KEY ? undefined : { type: "json_object" },
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: promptText },
+          { type: "image_url", image_url: { url: aiImageUrl } },
+        ],
+      },
+    ],
+    max_tokens: 1500,
+  });
+
+  const aiResponse = response.choices[0]?.message?.content || '{}';
+  try {
+    return JSON.parse(aiResponse);
+  } catch (e) {
+    const cleaned = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleaned);
+  }
+};
+
+const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => {
   let finalMetadata: any = null;
   let attempts = 0;
   let isValid = false;
@@ -1224,29 +1305,30 @@ const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => 
   while (attempts < 2 && !isValid) {
     const isRetry = attempts > 0;
     const promptText = generatePrompt(options, isRetry);
+    let metadata: any = null;
 
-    const response = await openai.chat.completions.create({
-      model: modelName,
-      response_format: process.env.GROK_API_KEY ? undefined : { type: "json_object" },
-      messages: [
-        {
-          role: "user",
-          content: [
-            { type: "text", text: promptText },
-            { type: "image_url", image_url: { url: aiImageUrl } },
-          ],
-        },
-      ],
-      max_tokens: 1500,
-    });
-
-    const aiResponse = response.choices[0]?.message?.content || '{}';
-    let metadata;
-    try {
-      metadata = JSON.parse(aiResponse);
-    } catch (e) {
-      const cleaned = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-      metadata = JSON.parse(cleaned);
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        metadata = await generateMetadataWithGemini(aiImageUrl, promptText);
+      } catch (geminiError: any) {
+        console.warn('Gemini vision failed, attempting fallback to Grok/OpenAI:', geminiError.message);
+        if (process.env.GROK_API_KEY || (process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes('dummy'))) {
+          metadata = await generateMetadataWithOpenAICompatible(aiImageUrl, promptText);
+        } else {
+          throw geminiError;
+        }
+      }
+    } else {
+      try {
+        metadata = await generateMetadataWithOpenAICompatible(aiImageUrl, promptText);
+      } catch (openAiError: any) {
+        if (process.env.GEMINI_API_KEY) {
+          console.warn('OpenAI/Grok failed, attempting fallback to Gemini:', openAiError.message);
+          metadata = await generateMetadataWithGemini(aiImageUrl, promptText);
+        } else {
+          throw openAiError;
+        }
+      }
     }
 
     isValid = validatePlatformData(metadata, options);
@@ -1341,7 +1423,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     });
   } catch (error: any) {
     console.error('Upload Error:', error);
-    res.status(500).json({ error: 'Failed to process image' });
+    res.status(500).json({ error: error?.message || 'Failed to process image' });
   }
 };
 
@@ -1410,6 +1492,6 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
     });
   } catch (error: any) {
     console.error('Regenerate Error:', error);
-    res.status(500).json({ error: 'Failed to regenerate metadata' });
+    res.status(500).json({ error: error?.message || 'Failed to regenerate metadata' });
   }
 };
