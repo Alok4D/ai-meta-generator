@@ -144,7 +144,7 @@ Requirements:
    amazing, beautiful, best, perfect, stunning, awesome.
 11. Do not include:
    brands, trademarks, company names, artist names,
-   celebrity names, fictional character names.
+   celebrity names, fictional character names, or trademarked organizations and events (e.g. FIFA, World Cup, Olympics, NBA). Always use generic descriptive words (e.g. use "soccer tournament trophy" instead of "FIFA World Cup").
 12. Do not mention:
    AI, stock photo, stock image, metadata, generated image.
 13. For vectors and illustrations, describe the actual illustrated content.
@@ -218,7 +218,7 @@ KEYWORD DISTRIBUTION & QUALITY RULES
 
 5. ACCURACY & QUALITY:
    - No generic spam tags ("best", "cool", "top", "trending").
-   - No brands, trademarks, company names, artist names.
+   - No brands, trademarks, company names, artist names, or trademarked events/organizations (e.g. FIFA, World Cup, Olympics). Use generic terms only.
    - No unsupported locations or fictional entity names.
 
 ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
@@ -425,7 +425,7 @@ Requirements:
    amazing, beautiful, best, perfect, stunning, awesome.
 10. Do not include:
    brands, trademarks, company names, artist names,
-   celebrity names, fictional character names.
+   celebrity names, fictional character names, or trademarked organizations and events (e.g. FIFA, World Cup, Olympics, NBA). Always use generic descriptive words.
 11. Do not mention:
    AI, stock photo, stock image, metadata, generated image.
 12. For vectors and illustrations, describe the actual illustrated content.
@@ -499,7 +499,7 @@ KEYWORD DISTRIBUTION & QUALITY RULES
 
 5. ACCURACY & QUALITY:
    - No generic spam tags ("best", "cool", "top", "trending").
-   - No brands, trademarks, company names, artist names.
+   - No brands, trademarks, company names, artist names, or trademarked events/organizations (e.g. FIFA, World Cup, Olympics). Use generic terms only.
    - No unsupported locations or fictional entity names.
 
 ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
@@ -702,7 +702,7 @@ Requirements:
    amazing, beautiful, best, perfect, stunning, awesome.
 10. Do not include:
    brands, trademarks, company names, artist names,
-   celebrity names, fictional character names.
+   celebrity names, fictional character names, or trademarked organizations and events (e.g. FIFA, World Cup, Olympics, NBA). Always use generic descriptive words.
 11. Do not mention:
    AI, stock photo, stock image, metadata, generated image.
 12. For vectors and illustrations, describe the actual illustrated content.
@@ -777,7 +777,7 @@ KEYWORD DISTRIBUTION & QUALITY RULES
 
 5. ACCURACY & QUALITY:
    - No generic spam tags ("best", "cool", "top", "trending").
-   - No brands, trademarks, company names, artist names.
+   - No brands, trademarks, company names, artist names, or trademarked events/organizations (e.g. FIFA, World Cup, Olympics). Use generic terms only.
    - No unsupported locations or fictional entity names.
 
 ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
@@ -981,7 +981,7 @@ Requirements:
    amazing, beautiful, best, perfect, stunning, awesome.
 10. Do not include:
    brands, trademarks, company names, artist names,
-   celebrity names, fictional character names.
+   celebrity names, fictional character names, or trademarked organizations and events (e.g. FIFA, World Cup, Olympics, NBA). Always use generic descriptive words.
 11. Do not mention:
    AI, stock photo, stock image, metadata, generated image.
 12. For vectors and illustrations, describe the actual illustrated content.
@@ -1055,7 +1055,7 @@ KEYWORD DISTRIBUTION & QUALITY RULES
 
 5. ACCURACY & QUALITY:
    - No generic spam tags ("best", "cool", "top", "trending").
-   - No brands, trademarks, company names, artist names.
+   - No brands, trademarks, company names, artist names, or trademarked events/organizations (e.g. FIFA, World Cup, Olympics). Use generic terms only.
    - No unsupported locations or fictional entity names.
 
 ACCURACY AND HIGH-VALUE BUYER RELEVANCE ARE THE HIGHEST PRIORITIES.
@@ -1199,8 +1199,9 @@ const generateMetadataWithGemini = async (aiImageUrl: string, promptText: string
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const modelsToTry = [
-    process.env.GEMINI_MODEL || 'gemini-3.5-flash',
-    'gemini-3.7-flash',
+    process.env.GEMINI_MODEL || 'gemini-flash-lite-latest',
+    'gemini-flash-lite-latest',
+    'gemini-3-flash-preview',
     'gemini-flash-latest',
     'gemini-3.8-flash',
   ];
@@ -1407,7 +1408,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       imageUrl: aiImageUrl,
       title: metadata.title,
       description: metadata.description,
-      category: metadata.category || 'Miscellaneous',
+      category: metadata.category || metadata.adobeCategory || metadata.shutterstockCategory || 'Miscellaneous',
       adobeCategory: metadata.adobeCategory,
       shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],
@@ -1476,7 +1477,7 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
       imageUrl: imageUrl, 
       title: metadata.title,
       description: metadata.description,
-      category: metadata.category || 'Miscellaneous',
+      category: metadata.category || metadata.adobeCategory || metadata.shutterstockCategory || 'Miscellaneous',
       adobeCategory: metadata.adobeCategory,
       shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],

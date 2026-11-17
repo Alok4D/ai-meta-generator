@@ -351,24 +351,47 @@ export default function BatchUploadPage() {
     const successfulItems = items.filter(item => item.status === 'success' && item.metadata);
     if (successfulItems.length === 0) return;
 
-    let csvContent = `Filename,Title,Keywords,Category\n`;
+    const isBothMode = platform === 'both' || successfulItems.some(i => i.metadata?.platform === 'both');
+    const isShutterstockMode = !isBothMode && (platform === 'shutterstock' || successfulItems.every(i => i.metadata?.platform === 'shutterstock'));
+
+    let csvContent = '';
     
-    successfulItems.forEach(item => {
-      const mainText = item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title;
-      const safeTitle = mainText ? mainText.replace(/"/g, '""') : '';
-      const safeKeywords = item.metadata.keywords.join(",").replace(/"/g, '""');
-      csvContent += `"${item.file.name}","${safeTitle}","${safeKeywords}","${item.metadata.category}"\n`;
-    });
+    if (isBothMode) {
+      csvContent = `Filename,Adobe Title,Adobe Category,Shutterstock Description,Shutterstock Category,Keywords\n`;
+      successfulItems.forEach(item => {
+        const safeTitle = (item.metadata.title || '').replace(/"/g, '""');
+        const safeAdobeCat = (item.metadata.adobeCategory || item.metadata.category || '').replace(/"/g, '""');
+        const safeDesc = (item.metadata.description || '').replace(/"/g, '""');
+        const safeShutterCat = (item.metadata.shutterstockCategory || item.metadata.category || '').replace(/"/g, '""');
+        const safeKeywords = Array.isArray(item.metadata.keywords) 
+          ? item.metadata.keywords.join(", ").replace(/"/g, '""') 
+          : '';
+        csvContent += `"${item.file.name}","${safeTitle}","${safeAdobeCat}","${safeDesc}","${safeShutterCat}","${safeKeywords}"\n`;
+      });
+    } else {
+      const labelText = isShutterstockMode ? 'Description' : 'Title';
+      csvContent = `Filename,${labelText},Keywords,Category\n`;
+      successfulItems.forEach(item => {
+        const mainText = item.metadata.platform === 'shutterstock' ? (item.metadata.description || '') : (item.metadata.title || '');
+        const safeText = mainText.replace(/"/g, '""');
+        const safeKeywords = Array.isArray(item.metadata.keywords) 
+          ? item.metadata.keywords.join(", ").replace(/"/g, '""') 
+          : '';
+        const safeCat = (item.metadata.category || item.metadata.adobeCategory || item.metadata.shutterstockCategory || '').replace(/"/g, '""');
+        csvContent += `"${item.file.name}","${safeText}","${safeKeywords}","${safeCat}"\n`;
+      });
+    }
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `batch-metadata-${Date.now()}.csv`;
+    a.download = `batch-metadata-${isBothMode ? 'both' : (isShutterstockMode ? 'shutterstock' : 'adobe')}-${Date.now()}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    toast.success("CSV file downloaded successfully!");
   };
 
   const successfulCount = items.filter(i => i.status === 'success').length;

@@ -160,39 +160,93 @@ export function BatchItemCard({ item, isProcessing, onRemove, onRetry }: BatchIt
 
             {item.status === 'success' && item.metadata && (
               <div className="flex flex-col gap-3 animate-in fade-in duration-500">
-                {/* Title Section */}
-                <div className="bg-muted/30 p-3 rounded-lg border border-muted/50">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{item.metadata.platform === 'shutterstock' ? 'Description' : 'Title'}</span>
-                    <button onClick={() => { navigator.clipboard.writeText(item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title); toast.success("Copied!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                      Copy
-                    </button>
-                  </div>
-                  <p className="text-sm font-medium leading-snug">{item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title}</p>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  {/* Category Section */}
-                  <div className="bg-muted/30 p-3 rounded-lg border border-muted/50">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Category</span>
-                    <p className="text-sm capitalize font-medium">{item.metadata.category}</p>
-                  </div>
+                {item.metadata.platform === 'both' ? (
+                  <>
+                    {/* Adobe Stock Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5">
+                      <div className="md:col-span-3 bg-muted/30 p-2.5 rounded-lg border border-muted/50">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            Adobe Stock Title
+                          </span>
+                          <button 
+                            onClick={() => { navigator.clipboard.writeText(item.metadata.title || ''); toast.success("Adobe Title copied!"); }} 
+                            className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md cursor-pointer"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            Copy
+                          </button>
+                        </div>
+                        <p className="text-sm font-medium leading-snug">{item.metadata.title}</p>
+                      </div>
 
+                      <div className="bg-muted/30 p-2.5 rounded-lg border border-muted/50 flex flex-col justify-center">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Adobe Category</span>
+                        <p className="text-sm capitalize font-medium">{item.metadata.adobeCategory || item.metadata.category || 'General'}</p>
+                      </div>
+                    </div>
+
+                    {/* Shutterstock Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5">
+                      <div className="md:col-span-3 bg-muted/30 p-2.5 rounded-lg border border-muted/50">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            Shutterstock Description
+                          </span>
+                          <button 
+                            onClick={() => { navigator.clipboard.writeText(item.metadata.description || ''); toast.success("Shutterstock Description copied!"); }} 
+                            className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md cursor-pointer"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            Copy
+                          </button>
+                        </div>
+                        <p className="text-sm font-medium leading-snug">{item.metadata.description}</p>
+                      </div>
+
+                      <div className="bg-muted/30 p-2.5 rounded-lg border border-muted/50 flex flex-col justify-center">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Shutter Category</span>
+                        <p className="text-sm capitalize font-medium">{item.metadata.shutterstockCategory || item.metadata.category || 'General'}</p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    {/* Title Section */}
+                    <div className="md:col-span-3 bg-muted/30 p-3 rounded-lg border border-muted/50">
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{item.metadata.platform === 'shutterstock' ? 'Description' : 'Title'}</span>
+                        <button onClick={() => { navigator.clipboard.writeText(item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title); toast.success("Copied!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                          Copy
+                        </button>
+                      </div>
+                      <p className="text-sm font-medium leading-snug">{item.metadata.platform === 'shutterstock' ? item.metadata.description : item.metadata.title}</p>
+                    </div>
+
+                    {/* Category Section */}
+                    <div className="bg-muted/30 p-3 rounded-lg border border-muted/50 flex flex-col justify-center">
+                      <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Category</span>
+                      <p className="text-sm capitalize font-medium">{item.metadata.category}</p>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-1 gap-3">
                   {/* Keywords Section */}
-                  <div className="md:col-span-3 bg-muted/30 p-3 rounded-lg border border-muted/50">
+                  <div className="bg-muted/30 p-3 rounded-lg border border-muted/50">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Keywords ({item.metadata.keywords.length})</span>
                       <div className="flex items-center gap-2">
                         {item.metadata.keywords.length > 18 && (
                           <button 
                             onClick={() => setShowAllKeywords(!showAllKeywords)} 
-                            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           >
                             {showAllKeywords ? "Show Less" : `Show All (${item.metadata.keywords.length})`}
                           </button>
                         )}
-                        <button onClick={() => { navigator.clipboard.writeText(item.metadata.keywords.join(", ")); toast.success("Copied!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md">
+                        <button onClick={() => { navigator.clipboard.writeText(item.metadata.keywords.join(", ")); toast.success("Copied all keywords!"); }} className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md cursor-pointer">
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                           Copy All
                         </button>
