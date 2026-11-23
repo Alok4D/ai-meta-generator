@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Sparkles } from "lucide-react";
 import { BatchItem } from "./BatchTypes";
 
 interface BatchItemCardProps {
@@ -209,6 +210,79 @@ export function BatchItemCard({ item, isProcessing, onRemove, onRetry }: BatchIt
                         <p className="text-sm capitalize font-medium">{item.metadata.shutterstockCategory || item.metadata.category || 'General'}</p>
                       </div>
                     </div>
+                  </>
+                ) : item.metadata.platform === 'freepik' ? (
+                  <>
+                    {/* Freepik Title Section */}
+                    <div className="bg-muted/30 p-2.5 rounded-lg border border-muted/50">
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                            Title
+                          </span>
+                          <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                            {item.metadata.title?.length || 0}/100 chars
+                          </span>
+                        </div>
+                        <button 
+                          onClick={() => { navigator.clipboard.writeText(item.metadata.title || ''); toast.success("Title copied!"); }} 
+                          className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md cursor-pointer"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                          Copy
+                        </button>
+                      </div>
+                      <p className="text-sm font-medium leading-snug">{item.metadata.title}</p>
+                    </div>
+
+                    {/* AI Disclosure or Non-AI Details */}
+                    {(item.metadata.isAi === true || item.metadata.is_ai === 'yes') ? (
+                      <div className="space-y-2 p-2.5 bg-muted/20 border border-muted/60 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-primary" />
+                            AI Generation Details (Magnific / Freepik)
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
+                              Model: {item.metadata.aiModel || 'Leonardo'}
+                            </span>
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border font-medium">
+                              People: {item.metadata.peopleCount ?? 0}
+                            </span>
+                          </div>
+                        </div>
+                        {item.metadata.aiPrompt && (
+                          <div>
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-[11px] text-muted-foreground">AI Prompt ({item.metadata.aiPrompt.length}/500 chars)</span>
+                              <button 
+                                onClick={() => { navigator.clipboard.writeText(item.metadata.aiPrompt || ''); toast.success("AI Prompt copied!"); }} 
+                                className="text-[11px] text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/5 px-2 py-0.5 rounded-md cursor-pointer"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                Copy
+                              </button>
+                            </div>
+                            <p className="p-2 bg-background border rounded text-xs text-muted-foreground leading-relaxed font-mono">
+                              {item.metadata.aiPrompt}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between p-2.5 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                            Content Type: Non-AI / Original Artwork (is_ai = no)
+                          </span>
+                        </div>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border font-medium">
+                          People: {item.metadata.peopleCount ?? 0}
+                        </span>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-3">

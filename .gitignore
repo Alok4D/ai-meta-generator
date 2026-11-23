@@ -42,3 +42,4 @@ config.bat
 Python/
 **/Python/
 *.zip
+*%LOCALAPPDATA%*

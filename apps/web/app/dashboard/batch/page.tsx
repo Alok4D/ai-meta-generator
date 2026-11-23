@@ -19,6 +19,7 @@ import { UpgradeModal } from "./_components/UpgradeModal";
 import { BatchItem } from "./_components/BatchTypes";
 
 export default function BatchUploadPage() {
+  
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -60,6 +61,8 @@ export default function BatchUploadPage() {
   const [negativeTitleWords, setNegativeTitleWords] = useState('');
   const [useNegativeKeywords, setUseNegativeKeywords] = useState(false);
   const [negativeKeywords, setNegativeKeywords] = useState('');
+  const [isAi, setIsAi] = useState(true);
+  const [aiModel, setAiModel] = useState('Leonardo');
 
   // Load settings from localStorage
   useEffect(() => {
@@ -79,6 +82,8 @@ export default function BatchUploadPage() {
         if (parsed.negativeTitleWords) setNegativeTitleWords(parsed.negativeTitleWords);
         if (parsed.useNegativeKeywords !== undefined) setUseNegativeKeywords(parsed.useNegativeKeywords);
         if (parsed.negativeKeywords) setNegativeKeywords(parsed.negativeKeywords);
+        if (parsed.isAi !== undefined) setIsAi(parsed.isAi);
+        if (parsed.aiModel) setAiModel(parsed.aiModel);
       } catch (e) {
         console.error("Failed to parse settings");
       }
@@ -95,20 +100,22 @@ export default function BatchUploadPage() {
       usePrefix, prefix,
       useSuffix, suffix,
       useNegativeTitle, negativeTitleWords,
-      useNegativeKeywords, negativeKeywords
+      useNegativeKeywords, negativeKeywords,
+      isAi, aiModel
     };
     localStorage.setItem('metaGenSettings', JSON.stringify(settings));
-  }, [platform, titleLength, descriptionLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords]);
+  }, [platform, titleLength, descriptionLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords, isAi, aiModel]);
 
   useEffect(() => {
     let tMax = 200, tMin = 20, kMax = 50, kMin = 5;
     if (platform === 'adobe') { tMax = 200; kMax = 49; kMin = 5; }
     else if (platform === 'shutterstock') { tMax = 2048; kMax = 50; kMin = 7; }
+    else if (platform === 'freepik') { tMax = 100; tMin = 5; kMax = 50; kMin = 5; }
     else if (platform === 'both') { tMax = 200; kMax = 49; kMin = 7; }
 
-    const curTitle = titleLength[0] || 157;
+    const curTitle = titleLength[0] || (platform === 'freepik' ? 85 : 157);
     const curDesc = descriptionLength[0] || 200;
-    const curKw = keywordCount[0] || 41;
+    const curKw = keywordCount[0] || (platform === 'freepik' ? 40 : 41);
 
     if (curTitle > tMax) setTitleLength([tMax]);
     else if (curTitle < tMin) setTitleLength([tMin]);
@@ -134,6 +141,11 @@ export default function BatchUploadPage() {
     maxTitleLength = 2048;
     maxKeywords = 50;
     minKeywords = 7;
+  } else if (platform === 'freepik') {
+    maxTitleLength = 100;
+    minTitleLength = 5;
+    maxKeywords = 50;
+    minKeywords = 5;
   } else if (platform === 'both') {
     maxTitleLength = 200;
     maxKeywords = 49;
@@ -209,9 +221,11 @@ export default function BatchUploadPage() {
     const formData = new FormData();
     formData.append("image", item.file);
     formData.append("platform", platform);
-    formData.append("titleLength", (titleLength[0] || 157).toString());
+    formData.append("titleLength", (titleLength[0] || (platform === 'freepik' ? 85 : 157)).toString());
     formData.append("descriptionLength", (descriptionLength[0] || 200).toString());
-    formData.append("keywordCount", (keywordCount[0] || 41).toString());
+    formData.append("keywordCount", (keywordCount[0] || (platform === 'freepik' ? 40 : 41)).toString());
+    formData.append("isAi", isAi ? "true" : "false");
+    formData.append("aiModel", aiModel || "Leonardo");
     if (prefix) formData.append("prefix", prefix);
     if (suffix) formData.append("suffix", suffix);
     if (negativeTitleWords) formData.append("negativeTitleWords", negativeTitleWords);
@@ -491,6 +505,8 @@ export default function BatchUploadPage() {
             suffix={suffix} setSuffix={setSuffix}
             negativeTitleWords={negativeTitleWords} setNegativeTitleWords={setNegativeTitleWords}
             negativeKeywords={negativeKeywords} setNegativeKeywords={setNegativeKeywords}
+            isAi={isAi} setIsAi={setIsAi}
+            aiModel={aiModel} setAiModel={setAiModel}
           />
         </div>
 

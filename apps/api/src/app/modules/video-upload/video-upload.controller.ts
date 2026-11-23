@@ -22,10 +22,9 @@ const getGeminiClient = () => {
 
 const generateWithFallback = async (genAI: GoogleGenerativeAI, contents: any) => {
   const modelsToTry = [
-    process.env.GEMINI_MODEL || 'gemini-3.5-flash',
-    'gemini-3.7-flash',
-    'gemini-flash-latest',
-    'gemini-3.6-flash'
+    process.env.GEMINI_MODEL || 'gemini-flash-lite-latest',
+    'gemini-3.5-flash-lite',
+    'gemini-flash-lite-latest'
   ];
 
   let lastError: any = null;
