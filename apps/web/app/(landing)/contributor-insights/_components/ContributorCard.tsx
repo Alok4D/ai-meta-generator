@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, ExternalLink, Copy, Check, TrendingUp, Flame, BarChart2, Layers } from "lucide-react";
+import { User, ExternalLink, Copy, Check, TrendingUp, Flame, BarChart2, Layers, ShieldCheck, MapPin } from "lucide-react";
 import { ContributorSummary } from "./types";
 
 interface ContributorCardProps {
@@ -17,40 +17,59 @@ export default function ContributorCard({ summary }: ContributorCardProps) {
         setTimeout(() => setCopiedId(false), 2000);
     };
 
+    const initials = summary.creatorName
+        ? summary.creatorName
+            .split(" ")
+            .map((w) => w[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase()
+        : "AS";
+
     return (
-        <div className="bg-gradient-to-br from-blue-950/40 via-card/80 to-card border border-blue-500/20 rounded-2xl p-6 shadow-md">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                {/* Creator Identity */}
-                <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary to-blue-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-primary/20 shrink-0">
-                        {summary.creatorName?.charAt(0)?.toUpperCase() || "A"}
+        <div className="relative overflow-hidden bg-gradient-to-r from-card via-card to-muted/20 border border-border/80 rounded-2xl p-6 shadow-sm">
+            {/* Top decorative subtle Adobe Blue bar */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#1473E6] via-[#3B82F6] to-[#00C4B4]" />
+
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                {/* Contributor Profile Identity */}
+                <div className="flex items-center gap-5">
+                    {/* Adobe Circular Avatar */}
+                    <div className="relative w-18 h-18 rounded-full bg-gradient-to-tr from-[#1473E6] to-[#0054F7] p-0.5 shadow-md shrink-0">
+                        <div className="w-full h-full rounded-full bg-card flex items-center justify-center font-bold text-xl text-foreground tracking-tight border-2 border-background">
+                            {initials}
+                        </div>
+                        {/* Adobe Contributor Mini Mark */}
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#EB1000] text-white flex items-center justify-center text-[10px] font-black border-2 border-background shadow-xs">
+                            St
+                        </div>
                     </div>
 
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                                Contributor Portfolio
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-[#1473E6]/10 text-[#1473E6] border border-[#1473E6]/25">
+                                Adobe Stock Contributor
                             </span>
                             {summary.creatorCountry && (
-                                <span className="text-xs text-muted-foreground font-medium">
-                                    📍 {summary.creatorCountry}
+                                <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium">
+                                    <MapPin className="w-3 h-3 text-rose-500" /> {summary.creatorCountry}
                                 </span>
                             )}
                         </div>
 
-                        <h2 className="text-2xl font-bold text-foreground mt-1">
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
                             {summary.creatorName}
                         </h2>
 
-                        <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-                            <span className="text-xs text-muted-foreground font-mono flex items-center gap-1.5">
-                                Adobe Stock ID: <strong className="text-foreground">{summary.creatorId}</strong>
+                        <div className="flex items-center gap-3.5 text-xs text-muted-foreground flex-wrap pt-0.5">
+                            <span className="font-mono flex items-center gap-1.5">
+                                Contributor ID: <strong className="text-foreground font-semibold">{summary.creatorId}</strong>
                             </span>
 
                             <button
                                 type="button"
                                 onClick={handleCopyId}
-                                className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 cursor-pointer"
+                                className="text-[#1473E6] hover:text-[#0d66d0] font-medium transition-colors flex items-center gap-1 cursor-pointer"
                             >
                                 {copiedId ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                                 <span>{copiedId ? "Copied" : "Copy ID"}</span>
@@ -61,54 +80,58 @@ export default function ContributorCard({ summary }: ContributorCardProps) {
                                     href={summary.creatorUrl}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                                    className="text-muted-foreground hover:text-foreground font-medium transition-colors flex items-center gap-1 hover:underline underline-offset-4"
                                 >
-                                    <ExternalLink className="w-3 h-3" />
-                                    <span>Visit Adobe Profile</span>
+                                    <ExternalLink className="w-3.5 h-3.5" />
+                                    <span>stock.adobe.com Profile</span>
                                 </a>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* 4 Analytics Stat Pills */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:w-auto w-full">
-                    <div className="bg-background/60 border border-border/60 rounded-xl p-3 text-center">
-                        <div className="flex items-center justify-center gap-1 text-[11px] font-semibold text-muted-foreground uppercase mb-1">
-                            <Layers className="w-3 h-3 text-primary" />
+                {/* Adobe Analytics Stat Widgets */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:w-auto w-full">
+                    {/* Sample Assets */}
+                    <div className="bg-background/80 border border-border/80 rounded-xl p-3.5 text-center shadow-2xs hover:border-[#1473E6]/40 transition-colors">
+                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                            <Layers className="w-3 h-3 text-[#1473E6]" />
                             <span>Sample Assets</span>
                         </div>
-                        <div className="text-xl font-bold text-foreground">
+                        <div className="text-xl sm:text-2xl font-black text-foreground">
                             {summary.totalLoaded}
                         </div>
                     </div>
 
-                    <div className="bg-background/60 border border-border/60 rounded-xl p-3 text-center">
-                        <div className="flex items-center justify-center gap-1 text-[11px] font-semibold text-muted-foreground uppercase mb-1">
-                            <Flame className="w-3 h-3 text-amber-500" />
+                    {/* Total Downloads */}
+                    <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-3.5 text-center shadow-2xs hover:border-amber-500/40 transition-colors">
+                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-1">
+                            <Flame className="w-3 h-3 fill-amber-500" />
                             <span>Downloads</span>
                         </div>
-                        <div className="text-xl font-bold text-foreground">
+                        <div className="text-xl sm:text-2xl font-black text-amber-600 dark:text-amber-400">
                             {summary.totalSampleDownloads.toLocaleString()}
                         </div>
                     </div>
 
-                    <div className="bg-background/60 border border-border/60 rounded-xl p-3 text-center">
-                        <div className="flex items-center justify-center gap-1 text-[11px] font-semibold text-muted-foreground uppercase mb-1">
-                            <TrendingUp className="w-3 h-3 text-emerald-500" />
+                    {/* Average Downloads per Asset */}
+                    <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-3.5 text-center shadow-2xs hover:border-emerald-500/40 transition-colors">
+                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">
+                            <TrendingUp className="w-3 h-3" />
                             <span>Avg / File</span>
                         </div>
-                        <div className="text-xl font-bold text-foreground">
+                        <div className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">
                             {summary.avgDownloads}
                         </div>
                     </div>
 
-                    <div className="bg-background/60 border border-border/60 rounded-xl p-3 text-center">
-                        <div className="flex items-center justify-center gap-1 text-[11px] font-semibold text-muted-foreground uppercase mb-1">
-                            <BarChart2 className="w-3 h-3 text-indigo-500" />
+                    {/* Median Downloads */}
+                    <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-3.5 text-center shadow-2xs hover:border-indigo-500/40 transition-colors">
+                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">
+                            <BarChart2 className="w-3 h-3" />
                             <span>Median DL</span>
                         </div>
-                        <div className="text-xl font-bold text-foreground">
+                        <div className="text-xl sm:text-2xl font-black text-indigo-600 dark:text-indigo-400">
                             {summary.medianDownloads}
                         </div>
                     </div>

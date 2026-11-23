@@ -10,6 +10,10 @@ export interface IMetaData extends Document {
   shutterstockCategory?: string;
   keywords: string[];
   platform: string;
+  isAi?: boolean;
+  aiPrompt?: string;
+  aiModel?: string;
+  peopleCount?: number;
 }
 
 const MetaDataSchema: Schema = new Schema({
@@ -21,7 +25,11 @@ const MetaDataSchema: Schema = new Schema({
   adobeCategory: { type: String, required: false },
   shutterstockCategory: { type: String, required: false },
   keywords: [{ type: String }],
-  platform: { type: String, default: 'general' }
+  platform: { type: String, default: 'general' },
+  isAi: { type: Boolean, default: false },
+  aiPrompt: { type: String, required: false },
+  aiModel: { type: String, required: false },
+  peopleCount: { type: Number, default: 0 }
 }, {
   timestamps: true
 });

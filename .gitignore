@@ -6,6 +6,9 @@ node_modules
 .pnp.js
 
 # Local env files
+.env
+.env.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -36,3 +39,6 @@ yarn-error.log*
 .DS_Store
 *.pem
 config.bat
+Python/
+**/Python/
+*.zip

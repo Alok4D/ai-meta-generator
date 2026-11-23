@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
-import { Settings2, Sparkles } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Settings2, Sparkles, Cpu } from "lucide-react";
 
 interface SettingsSidebarProps {
   platform: string;
@@ -27,6 +29,10 @@ interface SettingsSidebarProps {
   setNegativeTitleWords: (val: string) => void;
   negativeKeywords: string;
   setNegativeKeywords: (val: string) => void;
+  isAi?: boolean;
+  setIsAi?: (val: boolean) => void;
+  aiModel?: string;
+  setAiModel?: (val: string) => void;
 }
 
 export function SettingsSidebar({
@@ -37,7 +43,9 @@ export function SettingsSidebar({
   prefix, setPrefix,
   suffix, setSuffix,
   negativeTitleWords, setNegativeTitleWords,
-  negativeKeywords, setNegativeKeywords
+  negativeKeywords, setNegativeKeywords,
+  isAi = true, setIsAi,
+  aiModel = 'Leonardo', setAiModel
 }: SettingsSidebarProps) {
   return (
     <div className="w-full lg:w-80 shrink-0 space-y-4">
@@ -57,6 +65,7 @@ export function SettingsSidebar({
                 { id: 'general', label: 'General', icon: <Sparkles className="w-3.5 h-3.5"/> },
                 { id: 'adobe', label: 'Adobe Stock' },
                 { id: 'shutterstock', label: 'Shutterstock' },
+                { id: 'freepik', label: 'Freepik / Magnific' },
                 { id: 'both', label: 'Both (Adobe + Shutter)' }
               ].map(p => (
                 <button
@@ -82,7 +91,7 @@ export function SettingsSidebar({
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 9h16"/><path d="M4 15h16"/></svg>
                   {platform === 'shutterstock' ? 'Description Length' : 'Title Length'}
                 </Label>
-                <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded">{titleLength[0] || 157} chars</span>
+                <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded">{titleLength[0] || (platform === 'freepik' ? 85 : 157)} chars</span>
               </div>
               <Slider 
                 value={titleLength} 
@@ -97,6 +106,9 @@ export function SettingsSidebar({
               )}
               {platform === 'adobe' && (
                 <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Max: 200 characters)</p>
+              )}
+              {platform === 'freepik' && (
+                <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Min: 5 - Max: 100 characters for Freepik/Magnific)</p>
               )}
               {platform === 'both' && (
                 <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Max 200 characters for Adobe)</p>
@@ -129,7 +141,7 @@ export function SettingsSidebar({
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 20h14"/><path d="M7 4h14"/><path d="M3 4h.01"/><path d="M3 12h.01"/><path d="M3 20h.01"/><path d="M7 12h14"/></svg>
                   Keywords Count
                 </Label>
-                <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded">{keywordCount[0] || 41} words</span>
+                <span className="text-xs font-medium bg-muted px-2 py-0.5 rounded">{keywordCount[0] || (platform === 'freepik' ? 40 : 41)} words</span>
               </div>
               <Slider 
                 value={keywordCount} 
@@ -145,11 +157,54 @@ export function SettingsSidebar({
               {platform === 'adobe' && (
                 <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Min: 5 - Max: 49 keywords)</p>
               )}
+              {platform === 'freepik' && (
+                <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Min: 5 - Max: 50 keywords)</p>
+              )}
               {platform === 'both' && (
                 <p className="text-[10px] text-muted-foreground mt-1.5 leading-tight">(Min 7 - Max 49 keywords)</p>
               )}
             </div>
           </div>
+
+          {/* AI Settings for Freepik / Magnific */}
+          {platform === 'freepik' && setIsAi && (
+            <div className="space-y-3 pt-3 border-t border-muted/50 bg-muted/20 p-3 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                    <Cpu className="w-3.5 h-3.5 text-primary" />
+                    Created with AI
+                  </Label>
+                  <p className="text-[10px] text-muted-foreground">Required for Magnific disclosure</p>
+                </div>
+                <Switch 
+                  checked={isAi}
+                  onCheckedChange={setIsAi}
+                />
+              </div>
+
+              {isAi && setAiModel && (
+                <div className="space-y-1.5 pt-1">
+                  <Label className="text-xs font-medium text-muted-foreground">Base Model</Label>
+                  <Select value={aiModel} onValueChange={(val: any) => { if (val) setAiModel(val); }}>
+                    <SelectTrigger className="h-8 text-xs bg-background">
+                      <SelectValue placeholder="Select Base Model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Leonardo">Leonardo.Ai</SelectItem>
+                      <SelectItem value="Midjourney">Midjourney</SelectItem>
+                      <SelectItem value="Flux">Flux.1</SelectItem>
+                      <SelectItem value="Stable Diffusion">Stable Diffusion</SelectItem>
+                      <SelectItem value="Recraft">Recraft</SelectItem>
+                      <SelectItem value="Firefly">Adobe Firefly</SelectItem>
+                      <SelectItem value="DALL-E">DALL-E 3</SelectItem>
+                      <SelectItem value="Magnific">Magnific AI</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Options */}
           <div className="space-y-4 pt-2 border-t border-muted/50">

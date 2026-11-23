@@ -884,6 +884,74 @@ No comments.
   "category": "string",
   "keywords": ["string"]
 }`;
+  } else if (platform === 'freepik' || platform === 'magnific') {
+    const targetTitleMax = Math.min(titleLength || 85, 100);
+    const targetTitleMin = Math.max(5, targetTitleMax - 30);
+    const isAiContent = options.isAi !== false && options.isAi !== 'false';
+    const chosenModel = options.aiModel || 'Leonardo';
+
+    return `You are an expert metadata and SEO optimization specialist for Freepik and Magnific Contributors.
+
+Analyze the provided asset carefully and generate accurate, commercially high-converting metadata adhering strictly to Freepik / Magnific contributor rules.
+
+The asset may be:
+- Vector graphic / EPS / AI / SVG
+- Illustration / Drawing / Line art
+- Isolated graphic / Icon / Symbol
+- Stock Photo / JPEG / Transparent PNG
+- 3D render / Digital art
+
+==================================================
+TITLE RULES (STRICT FREEPIK & MAGNIFIC SPECS)
+==================================================
+1. Language: English only.
+2. Character length: Strictly between ${targetTitleMin} and ${targetTitleMax} characters (Absolute max: 100 characters). Do NOT exceed 100 characters under any circumstance!${retryInstruction}
+3. Content: Concise, natural, descriptive phrase depicting what is directly visible.
+4. Put the primary subject and key style right at the beginning.
+5. NEVER include file extensions (.eps, .jpg, .svg).
+6. NEVER include brand names, trademarks, artist names, or company names.
+7. NEVER include promotional words (e.g. "amazing", "beautiful", "best", "perfect", "stunning", "cool").
+8. Do NOT keyword-stuff or write the title as a list of tags.
+
+==================================================
+KEYWORD / TAG RULES (5 TO 50 TAGS)
+==================================================
+Generate exactly ${keywordCount} unique, high-relevance keywords (separated into a clean JSON array).
+
+Priority structure:
+- Tier 1 (Tags 1-10): Exact core subject, main action, visual medium (e.g., vector, line art, illustration, eps, drawing, graphic, symbol, icon).
+- Tier 2 (Tags 11-25): Specific visual details, composition, style (e.g., minimalist, outline, monochrome, isolated, flat).
+- Tier 3 (Tags 26-50): Commercial concepts, themes, buyer search intent (e.g., sustainability, ecology, eco friendly, green, earth day).
+
+Rules:
+- High-volume, distinct single words and common 2-word stock phrases.
+- No spam keywords ("top", "trending", "nice").
+- No brands or trademarks.
+- No duplicates or near-duplicates.
+
+==================================================
+AI CONTENT SPECIFICATIONS (MAGNIFIC FORMAT)
+==================================================
+- is_ai: "${isAiContent ? 'yes' : 'no'}"
+- ai_model: "${chosenModel}"
+- ai_prompt: ${isAiContent ? 'Generate an authentic, high-quality descriptive generation prompt (between 80 and 400 characters) that accurately specifies how this visual asset would be created in AI image generators like Midjourney, Flux, or Leonardo (describing subject, artistic style, medium, composition, lighting, and palette). Do NOT exceed 500 characters.' : '""'}
+- people_count: Count how many recognizable people/faces appear in this asset. If none, return 0.
+${negativeInstructions}
+
+==================================================
+OUTPUT FORMAT
+==================================================
+Return ONLY valid JSON.
+No markdown. No explanation. No comments.
+
+{
+  "title": "string",
+  "keywords": ["string"],
+  "is_ai": "${isAiContent ? 'yes' : 'no'}",
+  "ai_prompt": "string",
+  "ai_model": "${chosenModel}",
+  "people_count": 0
+}`;
   }
 
   return `You are an expert metadata and search optimization specialist.
@@ -1171,7 +1239,13 @@ const validatePlatformData = (metadata: any, options: any) => {
   const { platform, titleLength, keywordCount } = options;
   let isValid = true;
   
-  if (platform === 'adobe') {
+  if (platform === 'freepik' || platform === 'magnific') {
+    const maxLen = Math.min(titleLength || 100, 100);
+    if (metadata.title && metadata.title.length > maxLen) isValid = false;
+    if (metadata.ai_prompt && metadata.ai_prompt.length > 500) {
+      metadata.ai_prompt = metadata.ai_prompt.substring(0, 500);
+    }
+  } else if (platform === 'adobe') {
     if (metadata.title && metadata.title.length > titleLength) isValid = false;
     if (!ADOBE_CATEGORIES.includes(metadata.category)) metadata.category = ADOBE_CATEGORIES[0];
   } else if (platform === 'shutterstock') {
@@ -1343,6 +1417,8 @@ const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => 
     } else if (options.platform === 'both') {
       if (finalMetadata.title) finalMetadata.title = smartTrim(finalMetadata.title, options.titleLength);
       if (finalMetadata.description) finalMetadata.description = smartTrim(finalMetadata.description, options.descriptionLength || 2048);
+    } else if (options.platform === 'freepik' || options.platform === 'magnific') {
+      if (finalMetadata.title) finalMetadata.title = smartTrim(finalMetadata.title, Math.min(options.titleLength || 100, 100));
     } else {
       if (finalMetadata.title) finalMetadata.title = smartTrim(finalMetadata.title, options.titleLength);
     }
@@ -1353,6 +1429,11 @@ const generateAndValidateMetadata = async (aiImageUrl: string, options: any) => 
   } else if (options.platform === 'both') {
     finalMetadata.title = applyPrefixSuffix(finalMetadata.title || '', options.prefix, options.suffix);
     finalMetadata.description = applyPrefixSuffix(finalMetadata.description || '', options.prefix, options.suffix);
+  } else if (options.platform === 'freepik' || options.platform === 'magnific') {
+    finalMetadata.title = applyPrefixSuffix(finalMetadata.title || '', options.prefix, options.suffix);
+    if (finalMetadata.title.length > 100) {
+      finalMetadata.title = smartTrim(finalMetadata.title, 100);
+    }
   } else {
     finalMetadata.title = applyPrefixSuffix(finalMetadata.title || '', options.prefix, options.suffix);
   }
@@ -1381,6 +1462,8 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     const suffix = req.body.suffix || '';
     const negativeTitleWords = req.body.negativeTitleWords || '';
     const negativeKeywords = req.body.negativeKeywords || '';
+    const isAi = req.body.isAi === 'false' || req.body.isAi === false ? false : true;
+    const aiModel = req.body.aiModel || 'Leonardo';
 
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -1400,7 +1483,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
     }
 
     const metadata = await generateAndValidateMetadata(aiImageUrl, {
-      platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords
+      platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords, isAi, aiModel
     });
 
     const metaDataDoc = await MetaData.create({
@@ -1412,7 +1495,11 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       adobeCategory: metadata.adobeCategory,
       shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],
-      platform: platform
+      platform: platform,
+      isAi: metadata.is_ai === 'yes' || metadata.isAi === true || isAi,
+      aiPrompt: metadata.ai_prompt || metadata.aiPrompt || '',
+      aiModel: metadata.ai_model || metadata.aiModel || aiModel,
+      peopleCount: typeof metadata.people_count === 'number' ? metadata.people_count : (metadata.peopleCount || 0)
     });
 
     user.credits -= 1;
@@ -1456,7 +1543,7 @@ export const deleteHistory = async (req: Request, res: Response): Promise<void> 
 
 export const regenerateMetadata = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { imageUrl, platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords } = req.body;
+    const { imageUrl, platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords, isAi, aiModel } = req.body;
     if (!imageUrl) {
       res.status(400).json({ error: 'Image URL is required' });
       return;
@@ -1469,7 +1556,7 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
     }
 
     const metadata = await generateAndValidateMetadata(imageUrl, {
-      platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords
+      platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords, isAi, aiModel
     });
 
     const metaDataDoc = await MetaData.create({
@@ -1481,7 +1568,11 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
       adobeCategory: metadata.adobeCategory,
       shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],
-      platform: platform
+      platform: platform,
+      isAi: metadata.is_ai === 'yes' || metadata.isAi === true || isAi,
+      aiPrompt: metadata.ai_prompt || metadata.aiPrompt || '',
+      aiModel: metadata.ai_model || metadata.aiModel || aiModel || 'Leonardo',
+      peopleCount: typeof metadata.people_count === 'number' ? metadata.people_count : (metadata.peopleCount || 0)
     });
 
     user.credits -= 2;

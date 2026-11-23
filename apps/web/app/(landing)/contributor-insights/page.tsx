@@ -26,6 +26,7 @@ const DEFAULT_INITIAL_KEY: ApifyKeyRecord = {
 };
 
 export default function ContributorInsightsPage() {
+
     // Mode & Search states
     const [mode, setMode] = useState<SearchMode>("contributor");
     const [query, setQuery] = useState("");
@@ -221,7 +222,7 @@ export default function ContributorInsightsPage() {
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
             {/* Main Container */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
                 {/* Header */}
                 <TrackerHeader
                     keys={keys}

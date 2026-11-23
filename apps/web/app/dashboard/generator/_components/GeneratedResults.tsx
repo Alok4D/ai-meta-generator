@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, RefreshCw, Sparkles } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/lib/redux/store";
 import Swal from "sweetalert2";
@@ -63,7 +63,52 @@ export function GeneratedResults({
       <CardContent className="pt-6">
         {metadata ? (
           <div className="space-y-6">
-            {metadata.platform === 'both' ? (
+            {metadata.platform === 'freepik' ? (
+              <>
+                <div>
+                  <div className="flex justify-between items-end mb-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-md font-medium text-muted-foreground">Title</h4>
+                      <span className="text-[11px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                        {metadata.title?.length || 0}/100 chars
+                      </span>
+                    </div>
+                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => handleCopy(metadata.title, 'Title')}>Copy</Button>
+                  </div>
+                  <div className="p-3 bg-muted rounded-md text-sm leading-relaxed">{metadata.title}</div>
+                </div>
+
+                {(metadata.isAi || metadata.aiPrompt) && (
+                  <div className="space-y-3 p-3.5 bg-muted/20 border border-muted/60 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                        AI Generation Details (Magnific / Freepik)
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium">
+                          Model: {metadata.aiModel || 'Leonardo'}
+                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border font-medium">
+                          People: {metadata.peopleCount ?? 0}
+                        </span>
+                      </div>
+                    </div>
+                    {metadata.aiPrompt && (
+                      <div>
+                        <div className="flex justify-between items-end mb-1">
+                          <span className="text-xs text-muted-foreground">AI Prompt ({metadata.aiPrompt.length}/500 chars)</span>
+                          <Button variant="ghost" size="sm" className="h-5 text-xs px-2" onClick={() => handleCopy(metadata.aiPrompt, 'AI Prompt')}>Copy</Button>
+                        </div>
+                        <div className="p-2.5 bg-background border rounded text-xs text-muted-foreground leading-relaxed font-mono">
+                          {metadata.aiPrompt}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : metadata.platform === 'both' ? (
               <>
                 <div>
                   <div className="flex justify-between items-end mb-1">

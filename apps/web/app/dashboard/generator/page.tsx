@@ -43,6 +43,8 @@ export default function Dashboard() {
   const [negativeTitleWords, setNegativeTitleWords] = useState('');
   const [useNegativeKeywords, setUseNegativeKeywords] = useState(false);
   const [negativeKeywords, setNegativeKeywords] = useState('');
+  const [isAi, setIsAi] = useState(true);
+  const [aiModel, setAiModel] = useState('Leonardo');
 
   const user = useSelector((state: RootState) => state.auth.user);
   const dispatch = useDispatch();
@@ -75,6 +77,8 @@ export default function Dashboard() {
         if (parsed.negativeTitleWords) setNegativeTitleWords(parsed.negativeTitleWords);
         if (parsed.useNegativeKeywords !== undefined) setUseNegativeKeywords(parsed.useNegativeKeywords);
         if (parsed.negativeKeywords) setNegativeKeywords(parsed.negativeKeywords);
+        if (parsed.isAi !== undefined) setIsAi(parsed.isAi);
+        if (parsed.aiModel) setAiModel(parsed.aiModel);
       } catch (e) {
         console.error("Failed to parse settings");
       }
@@ -91,10 +95,11 @@ export default function Dashboard() {
       usePrefix, prefix,
       useSuffix, suffix,
       useNegativeTitle, negativeTitleWords,
-      useNegativeKeywords, negativeKeywords
+      useNegativeKeywords, negativeKeywords,
+      isAi, aiModel
     };
     localStorage.setItem('metaGenSettings', JSON.stringify(settings));
-  }, [platform, titleLength, descriptionLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords]);
+  }, [platform, titleLength, descriptionLength, keywordCount, usePrefix, prefix, useSuffix, suffix, useNegativeTitle, negativeTitleWords, useNegativeKeywords, negativeKeywords, isAi, aiModel]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -182,9 +187,11 @@ export default function Dashboard() {
     const formData = new FormData();
     formData.append("image", file);
     formData.append("platform", platform);
-    formData.append("titleLength", (titleLength[0] || 157).toString());
+    formData.append("titleLength", (titleLength[0] || (platform === 'freepik' ? 85 : 157)).toString());
     formData.append("descriptionLength", (descriptionLength[0] || 200).toString());
-    formData.append("keywordCount", (keywordCount[0] || 41).toString());
+    formData.append("keywordCount", (keywordCount[0] || (platform === 'freepik' ? 40 : 41)).toString());
+    formData.append("isAi", isAi ? "true" : "false");
+    formData.append("aiModel", aiModel || "Leonardo");
     if (prefix) formData.append("prefix", prefix);
     if (suffix) formData.append("suffix", suffix);
     if (negativeTitleWords) formData.append("negativeTitleWords", negativeTitleWords);
@@ -227,13 +234,15 @@ export default function Dashboard() {
         const payload = {
           imageUrl: metadata.imageUrl,
           platform,
-          titleLength: titleLength[0] || 157,
+          titleLength: titleLength[0] || (platform === 'freepik' ? 85 : 157),
           descriptionLength: descriptionLength[0] || 200,
-          keywordCount: keywordCount[0] || 41,
+          keywordCount: keywordCount[0] || (platform === 'freepik' ? 40 : 41),
           prefix: prefix || '',
           suffix: suffix || '',
           negativeTitleWords: negativeTitleWords || '',
-          negativeKeywords: negativeKeywords || ''
+          negativeKeywords: negativeKeywords || '',
+          isAi,
+          aiModel
         };
         const data = await regenerateMetadata(payload).unwrap();
         toast.success("Metadata regenerated successfully!");
@@ -248,7 +257,14 @@ export default function Dashboard() {
   const handleDownloadTXT = () => {
     if (!metadata) return;
     let content = '';
-    if (metadata.platform === 'both') {
+    if (metadata.platform === 'freepik') {
+      content = `Title:\n${metadata.title}\n\n`;
+      if (metadata.isAi || metadata.aiPrompt) {
+        content += `AI Base Model: ${metadata.aiModel || 'Leonardo'}\n`;
+        content += `AI Prompt:\n${metadata.aiPrompt || ''}\n\n`;
+      }
+      content += `Keywords:\n${metadata.keywords.join(", ")}`;
+    } else if (metadata.platform === 'both') {
       content = `Adobe Title:\n${metadata.title}\n\nAdobe Category:\n${metadata.adobeCategory}\n\n`;
       content += `Shutterstock Description:\n${metadata.description}\n\nShutterstock Category:\n${metadata.shutterstockCategory}\n\n`;
       content += `Keywords:\n${metadata.keywords.join(", ")}`;
@@ -272,7 +288,19 @@ export default function Dashboard() {
     if (!metadata) return;
     const filename = file?.name || 'image.jpg';
     let csvContent = '';
-    if (metadata.platform === 'both') {
+    if (metadata.platform === 'freepik') {
+      // Magnific / Freepik CSV format:
+      // Semicolon-delimited, no quotes, comma-separated tags
+      // Header: filename;title;tags;is_ai;ai_prompt;ai_model;people_count
+      const safeTitle = (metadata.title || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim();
+      const safeTags = (metadata.keywords || []).map((k: string) => k.replace(/;/g, '').trim()).join(',');
+      const isAiText = (metadata.isAi || metadata.is_ai === 'yes') ? 'yes' : 'no';
+      const safeAiPrompt = (metadata.aiPrompt || metadata.ai_prompt || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim();
+      const safeAiModel = (metadata.aiModel || metadata.ai_model || (isAiText === 'yes' ? (aiModel || 'Leonardo') : '')).replace(/;/g, '').trim();
+      const peopleCount = metadata.peopleCount !== undefined ? metadata.peopleCount : (metadata.people_count ?? 0);
+      
+      csvContent = `filename;title;tags;is_ai;ai_prompt;ai_model;people_count\n${filename};${safeTitle};${safeTags};${isAiText};${safeAiPrompt};${safeAiModel};${peopleCount}`;
+    } else if (metadata.platform === 'both') {
       const safeTitle = metadata.title ? metadata.title.replace(/"/g, '""') : '';
       const safeDesc = metadata.description ? metadata.description.replace(/"/g, '""') : '';
       const safeKeywords = metadata.keywords ? metadata.keywords.join(",").replace(/"/g, '""') : '';
@@ -311,11 +339,12 @@ export default function Dashboard() {
     let tMax = 200, tMin = 20, kMax = 50, kMin = 5;
     if (platform === 'adobe') { tMax = 200; kMax = 49; kMin = 5; }
     else if (platform === 'shutterstock') { tMax = 2048; kMax = 50; kMin = 7; }
+    else if (platform === 'freepik') { tMax = 100; tMin = 5; kMax = 50; kMin = 5; }
     else if (platform === 'both') { tMax = 200; kMax = 49; kMin = 7; }
 
-    const curTitle = titleLength[0] || 157;
+    const curTitle = titleLength[0] || (platform === 'freepik' ? 85 : 157);
     const curDesc = descriptionLength[0] || 200;
-    const curKw = keywordCount[0] || 41;
+    const curKw = keywordCount[0] || (platform === 'freepik' ? 40 : 41);
 
     if (curTitle > tMax) setTitleLength([tMax]);
     else if (curTitle < tMin) setTitleLength([tMin]);
@@ -341,6 +370,11 @@ export default function Dashboard() {
     maxTitleLength = 2048;
     maxKeywords = 50;
     minKeywords = 7;
+  } else if (platform === 'freepik') {
+    maxTitleLength = 100;
+    minTitleLength = 5;
+    maxKeywords = 50;
+    minKeywords = 5;
   } else if (platform === 'both') {
     maxTitleLength = 200;
     maxKeywords = 49;
@@ -368,6 +402,8 @@ export default function Dashboard() {
           suffix={suffix} setSuffix={setSuffix}
           negativeTitleWords={negativeTitleWords} setNegativeTitleWords={setNegativeTitleWords}
           negativeKeywords={negativeKeywords} setNegativeKeywords={setNegativeKeywords}
+          isAi={isAi} setIsAi={setIsAi}
+          aiModel={aiModel} setAiModel={setAiModel}
         />
 
         <div className="flex-1 flex flex-col gap-6">
