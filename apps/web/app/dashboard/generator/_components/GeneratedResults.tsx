@@ -78,7 +78,7 @@ export function GeneratedResults({
                   <div className="p-3 bg-muted rounded-md text-sm leading-relaxed">{metadata.title}</div>
                 </div>
 
-                {(metadata.isAi || metadata.aiPrompt) && (
+                {(metadata.isAi === true || metadata.is_ai === 'yes') ? (
                   <div className="space-y-3 p-3.5 bg-muted/20 border border-muted/60 rounded-lg">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
@@ -105,6 +105,18 @@ export function GeneratedResults({
                         </div>
                       </div>
                     )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                        Content Type: Non-AI / Original Artwork (is_ai = no)
+                      </span>
+                    </div>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground border font-medium">
+                      People: {metadata.peopleCount ?? 0}
+                    </span>
                   </div>
                 )}
               </>

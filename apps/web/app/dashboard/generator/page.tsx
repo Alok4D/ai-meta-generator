@@ -259,9 +259,12 @@ export default function Dashboard() {
     let content = '';
     if (metadata.platform === 'freepik') {
       content = `Title:\n${metadata.title}\n\n`;
-      if (metadata.isAi || metadata.aiPrompt) {
+      if (metadata.isAi === true || metadata.is_ai === 'yes') {
+        content += `Created with AI: Yes\n`;
         content += `AI Base Model: ${metadata.aiModel || 'Leonardo'}\n`;
         content += `AI Prompt:\n${metadata.aiPrompt || ''}\n\n`;
+      } else {
+        content += `Created with AI: No\n\n`;
       }
       content += `Keywords:\n${metadata.keywords.join(", ")}`;
     } else if (metadata.platform === 'both') {
@@ -294,9 +297,9 @@ export default function Dashboard() {
       // Header: filename;title;tags;is_ai;ai_prompt;ai_model;people_count
       const safeTitle = (metadata.title || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim();
       const safeTags = (metadata.keywords || []).map((k: string) => k.replace(/;/g, '').trim()).join(',');
-      const isAiText = (metadata.isAi || metadata.is_ai === 'yes') ? 'yes' : 'no';
-      const safeAiPrompt = (metadata.aiPrompt || metadata.ai_prompt || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim();
-      const safeAiModel = (metadata.aiModel || metadata.ai_model || (isAiText === 'yes' ? (aiModel || 'Leonardo') : '')).replace(/;/g, '').trim();
+      const isAiText = (metadata.isAi === true || metadata.is_ai === 'yes') ? 'yes' : 'no';
+      const safeAiPrompt = isAiText === 'yes' ? (metadata.aiPrompt || metadata.ai_prompt || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim() : '';
+      const safeAiModel = isAiText === 'yes' ? (metadata.aiModel || metadata.ai_model || (aiModel || 'Leonardo')).replace(/;/g, '').trim() : '';
       const peopleCount = metadata.peopleCount !== undefined ? metadata.peopleCount : (metadata.people_count ?? 0);
       
       csvContent = `filename;title;tags;is_ai;ai_prompt;ai_model;people_count\n${filename};${safeTitle};${safeTags};${isAiText};${safeAiPrompt};${safeAiModel};${peopleCount}`;

@@ -933,7 +933,7 @@ Rules:
 AI CONTENT SPECIFICATIONS (MAGNIFIC FORMAT)
 ==================================================
 - is_ai: "${isAiContent ? 'yes' : 'no'}"
-- ai_model: "${chosenModel}"
+- ai_model: "${isAiContent ? chosenModel : ''}"
 - ai_prompt: ${isAiContent ? 'Generate an authentic, high-quality descriptive generation prompt (between 80 and 400 characters) that accurately specifies how this visual asset would be created in AI image generators like Midjourney, Flux, or Leonardo (describing subject, artistic style, medium, composition, lighting, and palette). Do NOT exceed 500 characters.' : '""'}
 - people_count: Count how many recognizable people/faces appear in this asset. If none, return 0.
 ${negativeInstructions}
@@ -948,8 +948,8 @@ No markdown. No explanation. No comments.
   "title": "string",
   "keywords": ["string"],
   "is_ai": "${isAiContent ? 'yes' : 'no'}",
-  "ai_prompt": "string",
-  "ai_model": "${chosenModel}",
+  "ai_prompt": "${isAiContent ? 'string' : ''}",
+  "ai_model": "${isAiContent ? chosenModel : ''}",
   "people_count": 0
 }`;
   }
@@ -1486,6 +1486,7 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords, isAi, aiModel
     });
 
+    const isAiVal = Boolean(isAi) && (metadata.is_ai === 'yes' || metadata.isAi === true || metadata.is_ai === undefined);
     const metaDataDoc = await MetaData.create({
       user: req.user?._id,
       imageUrl: aiImageUrl,
@@ -1496,9 +1497,9 @@ export const uploadImage = async (req: Request, res: Response): Promise<void> =>
       shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],
       platform: platform,
-      isAi: metadata.is_ai === 'yes' || metadata.isAi === true || isAi,
-      aiPrompt: metadata.ai_prompt || metadata.aiPrompt || '',
-      aiModel: metadata.ai_model || metadata.aiModel || aiModel,
+      isAi: isAiVal,
+      aiPrompt: isAiVal ? (metadata.ai_prompt || metadata.aiPrompt || '') : '',
+      aiModel: isAiVal ? (metadata.ai_model || metadata.aiModel || aiModel) : '',
       peopleCount: typeof metadata.people_count === 'number' ? metadata.people_count : (metadata.peopleCount || 0)
     });
 
@@ -1559,6 +1560,7 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
       platform, titleLength, descriptionLength, keywordCount, prefix, suffix, negativeTitleWords, negativeKeywords, isAi, aiModel
     });
 
+    const isAiVal = Boolean(isAi) && (metadata.is_ai === 'yes' || metadata.isAi === true || metadata.is_ai === undefined);
     const metaDataDoc = await MetaData.create({
       user: req.user?._id,
       imageUrl: imageUrl, 
@@ -1569,9 +1571,9 @@ export const regenerateMetadata = async (req: Request, res: Response): Promise<v
       shutterstockCategory: metadata.shutterstockCategory,
       keywords: metadata.keywords || [],
       platform: platform,
-      isAi: metadata.is_ai === 'yes' || metadata.isAi === true || isAi,
-      aiPrompt: metadata.ai_prompt || metadata.aiPrompt || '',
-      aiModel: metadata.ai_model || metadata.aiModel || aiModel || 'Leonardo',
+      isAi: isAiVal,
+      aiPrompt: isAiVal ? (metadata.ai_prompt || metadata.aiPrompt || '') : '',
+      aiModel: isAiVal ? (metadata.ai_model || metadata.aiModel || aiModel || 'Leonardo') : '',
       peopleCount: typeof metadata.people_count === 'number' ? metadata.people_count : (metadata.peopleCount || 0)
     });
 
