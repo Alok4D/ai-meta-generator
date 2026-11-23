@@ -1275,9 +1275,9 @@ const generateMetadataWithGemini = async (aiImageUrl: string, promptText: string
   const modelsToTry = [
     process.env.GEMINI_MODEL || 'gemini-flash-lite-latest',
     'gemini-flash-lite-latest',
-    'gemini-3-flash-preview',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
     'gemini-flash-latest',
-    'gemini-3.8-flash',
   ];
 
   const imgRes = await fetch(aiImageUrl);
