@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", spaceGrotesk.variable)}>
-      <body className={`antialiased min-h-screen bg-background`}>
+    <html lang="en" className={cn("font-sans", spaceGrotesk.variable)} suppressHydrationWarning>
+      <body className={`antialiased min-h-screen bg-background`} suppressHydrationWarning>
         <StoreProvider>
           <TooltipProvider>
             {children}

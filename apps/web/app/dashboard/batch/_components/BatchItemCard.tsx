@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Download } from "lucide-react";
 import { BatchItem } from "./BatchTypes";
 
 interface BatchItemCardProps {
@@ -15,6 +15,51 @@ interface BatchItemCardProps {
 
 export function BatchItemCard({ item, isProcessing, onRemove, onRetry }: BatchItemCardProps) {
   const [showAllKeywords, setShowAllKeywords] = useState(true);
+
+  const handleDownloadSingleCSV = () => {
+    if (!item.metadata) return;
+    const meta = item.metadata;
+    const filename = item.file.name;
+    let csvContent = '';
+    const isFreepik = meta.platform === 'freepik';
+    const isBoth = meta.platform === 'both';
+    const isShutter = meta.platform === 'shutterstock';
+
+    if (isFreepik) {
+      const safeTitle = (meta.title || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim();
+      const safeTags = (meta.keywords || []).map((k: string) => k.replace(/;/g, '').trim()).join(',');
+      const isAiText = (meta.isAi === true || meta.is_ai === 'yes') ? 'yes' : 'no';
+      const safeAiPrompt = isAiText === 'yes' ? (meta.aiPrompt || meta.ai_prompt || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim() : '';
+      const safeAiModel = isAiText === 'yes' ? (meta.aiModel || meta.ai_model || 'Leonardo').replace(/;/g, '').trim() : '';
+      const peopleCount = meta.peopleCount !== undefined ? meta.peopleCount : (meta.people_count ?? 0);
+      csvContent = `filename;title;tags;is_ai;ai_prompt;ai_model;people_count\n${filename};${safeTitle};${safeTags};${isAiText};${safeAiPrompt};${safeAiModel};${peopleCount}`;
+    } else if (isBoth) {
+      const safeTitle = (meta.title || '').replace(/"/g, '""');
+      const safeAdobeCat = (meta.adobeCategory || meta.category || '').replace(/"/g, '""');
+      const safeDesc = (meta.description || '').replace(/"/g, '""');
+      const safeShutterCat = (meta.shutterstockCategory || meta.category || '').replace(/"/g, '""');
+      const safeKeywords = Array.isArray(meta.keywords) ? meta.keywords.join(", ").replace(/"/g, '""') : '';
+      csvContent = `Filename,Adobe Title,Adobe Category,Shutterstock Description,Shutterstock Category,Keywords\n"${filename}","${safeTitle}","${safeAdobeCat}","${safeDesc}","${safeShutterCat}","${safeKeywords}"`;
+    } else {
+      const labelText = isShutter ? 'Description' : 'Title';
+      const mainText = isShutter ? (meta.description || '') : (meta.title || '');
+      const safeText = mainText.replace(/"/g, '""');
+      const safeKeywords = Array.isArray(meta.keywords) ? meta.keywords.join(", ").replace(/"/g, '""') : '';
+      const safeCat = (meta.category || meta.adobeCategory || meta.shutterstockCategory || '').replace(/"/g, '""');
+      csvContent = `Filename,${labelText},Keywords,Category\n"${filename}","${safeText}","${safeKeywords}","${safeCat}"`;
+    }
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filename.split('.')[0] || 'metadata'}-${isFreepik ? 'magnific' : 'metadata'}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("CSV downloaded!");
+  };
   return (
     <Card className={`overflow-hidden border-border/40 shadow-sm transition-all duration-300 ${item.status === 'processing' ? 'border-primary/50 ring-1 ring-primary/20 shadow-md' : ''}`}>
       <div className="flex flex-col md:flex-row">
@@ -78,8 +123,20 @@ export function BatchItemCard({ item, isProcessing, onRemove, onRetry }: BatchIt
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                 </button>
               )}
-              <div>
-                {item.status === 'success' && <span className="px-2 py-1 bg-green-500/10 text-green-600 rounded-md text-xs font-medium border border-green-500/20">Complete</span>}
+              <div className="flex items-center gap-2">
+                {item.status === 'success' && (
+                  <>
+                    <button
+                      onClick={handleDownloadSingleCSV}
+                      className="px-2 py-1 bg-muted/60 hover:bg-muted text-foreground rounded-md text-xs font-medium border flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Download CSV for this file"
+                    >
+                      <Download className="w-3 h-3" />
+                      CSV
+                    </button>
+                    <span className="px-2 py-1 bg-green-500/10 text-green-600 rounded-md text-xs font-medium border border-green-500/20">Complete</span>
+                  </>
+                )}
                 {item.status === 'pending' && <span className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-xs font-medium border">Pending</span>}
                 {item.status === 'error' && <span className="px-2 py-1 bg-red-500/10 text-red-600 rounded-md text-xs font-medium border border-red-500/20">Failed</span>}
                 {item.status === 'processing' && <span className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium border border-primary/20 flex items-center gap-1.5"><svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Processing</span>}

@@ -19,6 +19,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { data: meData } = useGetMeQuery(undefined, {
     skip: !user,
@@ -45,10 +50,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (mounted && user?.role === 'admin') {
       router.push("/admin");
     }
-  }, [user, router]);
+  }, [user, router, mounted]);
+
+  if (!mounted) {
+    return (
+      <div className="fixed inset-0 h-screen w-screen flex bg-muted/20 overflow-hidden items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!user || user.role === 'admin') {
     return null;

@@ -365,12 +365,30 @@ export default function BatchUploadPage() {
     const successfulItems = items.filter(item => item.status === 'success' && item.metadata);
     if (successfulItems.length === 0) return;
 
-    const isBothMode = platform === 'both' || successfulItems.some(i => i.metadata?.platform === 'both');
-    const isShutterstockMode = !isBothMode && (platform === 'shutterstock' || successfulItems.every(i => i.metadata?.platform === 'shutterstock'));
+    const isFreepikMode = platform === 'freepik' || successfulItems.some(i => i.metadata?.platform === 'freepik');
+    const isBothMode = !isFreepikMode && (platform === 'both' || successfulItems.some(i => i.metadata?.platform === 'both'));
+    const isShutterstockMode = !isFreepikMode && !isBothMode && (platform === 'shutterstock' || successfulItems.every(i => i.metadata?.platform === 'shutterstock'));
 
     let csvContent = '';
     
-    if (isBothMode) {
+    if (isFreepikMode) {
+      // Magnific / Freepik CSV format:
+      // Semicolon-delimited, no quotes, comma-separated tags
+      // Header: filename;title;tags;is_ai;ai_prompt;ai_model;people_count
+      csvContent = `filename;title;tags;is_ai;ai_prompt;ai_model;people_count\n`;
+      successfulItems.forEach(item => {
+        const meta = item.metadata;
+        const filename = item.file.name;
+        const safeTitle = (meta.title || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim();
+        const safeTags = (meta.keywords || []).map((k: string) => k.replace(/;/g, '').trim()).join(',');
+        const isAiText = (meta.isAi === true || meta.is_ai === 'yes') ? 'yes' : 'no';
+        const safeAiPrompt = isAiText === 'yes' ? (meta.aiPrompt || meta.ai_prompt || '').replace(/;/g, ' ').replace(/[\r\n]+/g, ' ').trim() : '';
+        const safeAiModel = isAiText === 'yes' ? (meta.aiModel || meta.ai_model || (aiModel || 'Leonardo')).replace(/;/g, '').trim() : '';
+        const peopleCount = meta.peopleCount !== undefined ? meta.peopleCount : (meta.people_count ?? 0);
+        
+        csvContent += `${filename};${safeTitle};${safeTags};${isAiText};${safeAiPrompt};${safeAiModel};${peopleCount}\n`;
+      });
+    } else if (isBothMode) {
       csvContent = `Filename,Adobe Title,Adobe Category,Shutterstock Description,Shutterstock Category,Keywords\n`;
       successfulItems.forEach(item => {
         const safeTitle = (item.metadata.title || '').replace(/"/g, '""');
@@ -400,7 +418,7 @@ export default function BatchUploadPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `batch-metadata-${isBothMode ? 'both' : (isShutterstockMode ? 'shutterstock' : 'adobe')}-${Date.now()}.csv`;
+    a.download = `batch-metadata-${isFreepikMode ? 'magnific' : (isBothMode ? 'both' : (isShutterstockMode ? 'shutterstock' : 'adobe'))}-${Date.now()}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

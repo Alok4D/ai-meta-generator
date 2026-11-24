@@ -14,6 +14,17 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 
 ## ✨ Recent Enhancements
 
+* **Freepik / Magnific Contributors Metadata Engine & Official CSV Export**:
+  * **Dedicated Freepik/Magnific Integration**: Comprehensive metadata generation tailored specifically for Freepik and Magnific Contributors (`contributor.magnific.com`) across both single generator (`/dashboard/generator`) and batch generator (`/dashboard/batch`).
+  * **Strict Platform Compliance**: Intelligent title length constraints (5–100 characters, targeting 70–85 character sweet spot) and keyword count (5–50 tags).
+  * **AI Disclosure & Prompt Reverse Engineering**: Full support for AI content disclosure with customizable Base Model selection (`Leonardo.Ai`, `Midjourney`, `Flux.1`, `Stable Diffusion`, `Recraft`, `Adobe Firefly`, `DALL-E 3`) and AI prompt reverse engineering (0–500 chars).
+  * **Non-AI Artwork Support**: Clean verification and badge for original human-made artworks (`is_ai = no`), ensuring prompt and model fields remain empty according to marketplace standards.
+  * **Magnific Semicolon-Delimited CSV Export**: 1-click export formatted strictly to Magnific specs (`filename;title;tags;is_ai;ai_prompt;ai_model;people_count`) with semicolon delimiters and comma-separated tags, plus single-item CSV download buttons on batch cards.
+* **Optimized Google Gemini Vision Engine**:
+  * **Direct Gemini Vision Architecture**: Powered directly by Google Gemini (`gemini-flash-lite-latest` and `gemini-3.5-flash-lite`), eliminating third-party fallback bottlenecks.
+  * **Automatic Exponential Backoff Retry**: Built-in intelligent retry loop (with 1.5s delay backoff) to gracefully absorb Google Free Tier 503 high-demand spikes without throwing errors to the user.
+* **Next.js Hydration & SSR Performance**:
+  * Eliminated server-client DOM hydration mismatches across Dashboard layouts caused by client-side localStorage/Redux state initialization.
 * **High-Watermark Credit Top-up System**: Advanced payment logic across Stripe and Manual payments. If a user buys a lower-tier plan while on a premium tier, the system intelligently retains their premium status while stacking their new credits, preventing accidental downgrades.
 * **Dynamic Batch Processing Limits**: Batch upload capacities are now dynamically tied to subscription plans (e.g., Lite: 50, Pro: 100, Unlimited: 500) for better resource management.
 * **Premium Skeleton Loading UI**: Completely revamped the pending/processing states during AI generation with beautiful, structural shimmer effects (skeleton loaders) to match the final output layout.
@@ -38,7 +49,8 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
     * **U2Net Human Seg**: Specialized for human portraits.
     * **U2Net Cloth Seg**: Specialized for clothing apparel.
     * **U2Netp (4MB)**: Lightweight, fast model for low-resource environments.
-* **AI Meta/Image Generator**: Leverage advanced AI models (Vision/LLMs via OpenRouter/Gemini) to analyze images and generate high-quality metadata, captions, and descriptions.
+* **AI Meta/Image Generator (Multi-Platform)**: Leverage Google Gemini Vision AI to analyze images and generate commercial metadata, optimized specifically for **Adobe Stock**, **Shutterstock**, and **Freepik / Magnific Contributors** with platform-specific character limits, AI generation disclosure, and automated CSV formatting.
+* **Batch Metadata Generator & Exporter**: Process up to 500 images at once with concurrent queue processing, individual card previews, and 1-click batch CSV export (including semicolon-separated Magnific format and standard Adobe/Shutter formats).
 * **Batch Image Converter**: A powerful, 100% offline client-side converter. Upload multiple images and instantly convert them between `JPG`, `PNG`, `WEBP`, `AVIF`, and `PDF`.
 * **Trace to Vector (SVG)**: Convert raster images (JPG/PNG) into pure mathematical SVG vectors using advanced geometric tracing algorithms—all happening locally in your browser.
 * **Color Palette Extractor**: Instantly extract beautiful, harmonious color palettes and HEX codes from any uploaded image using intelligent color sampling.
