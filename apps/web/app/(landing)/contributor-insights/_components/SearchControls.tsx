@@ -159,10 +159,10 @@ export default function SearchControls({
                 {mode === 'contributor' ? (
                     <button
                         type="button"
-                        onClick={() => onQueryChange("https://stock.adobe.com/contributor/213239991/Line%20World")}
+                        onClick={() => onQueryChange("https://stock.adobe.com/contributor/210274732/sense")}
                         className="bg-muted hover:bg-muted/80 text-foreground px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors cursor-pointer border border-border/60 hover:border-[#1473E6]/50"
                     >
-                        Line World (213239991)
+                        sense (210274732)
                     </button>
                 ) : (
                     <>
