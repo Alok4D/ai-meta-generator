@@ -148,28 +148,4 @@ Make sure you have [Node.js](https://nodejs.org/) and [pnpm](https://pnpm.io/) i
 
 ---
 
-## 📁 Project Structure
-
-```text
-ai-meta-generator/
-├── apps/
-│   ├── web/               # Next.js Frontend Application
-│   │   ├── app/           # App Router (Dashboard, Admin, Auth, Landing)
-│   │   ├── components/    # Reusable UI components
-│   │   └── lib/           # Redux slices, RTK Query API, Utilities
-│   ├── api/               # Node.js Express Backend
-│   │   ├── src/           # Controllers, Routes, Models, Middleware
-│   │   └── .env           # Server configuration
-│   └── bg-remover-service/# Python FastAPI Microservice for AI models
-│       ├── main.py        # FastAPI server & inference logic
-│       ├── Dockerfile     # HuggingFace Spaces deployment config
-│       └── requirements.txt
-├── packages/
-│   ├── ui/                # Shared React components library
-│   ├── eslint-config/     # Shared linting rules
-│   └── typescript-config/ # Shared TS configurations
-└── turbo.json             # Turborepo pipeline configuration
-```
-
----
 *Designed with ❤️ for a modern, premium web experience.*
