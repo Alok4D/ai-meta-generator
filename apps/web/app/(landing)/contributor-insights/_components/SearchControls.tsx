@@ -161,30 +161,30 @@ export default function SearchControls({
                 {/* Left Side: Mode Switcher & Presets */}
                 <div className="flex items-center gap-3 flex-wrap">
                     {/* Mode Switcher */}
-                    <div className="inline-flex border border-border/80 rounded-none bg-muted/40">
+                    <div className="inline-flex border border-border/80 rounded-none bg-card">
                         <button
                             type="button"
                             onClick={() => onModeChange("contributor")}
-                            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium transition-colors cursor-pointer rounded-none ${
+                            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs transition-colors cursor-pointer rounded-none ${
                                 mode === "contributor"
-                                    ? "bg-background text-foreground font-semibold"
-                                    : "text-muted-foreground hover:text-foreground"
+                                    ? "bg-[#1473E6] text-white font-semibold"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60 font-medium"
                             }`}
                         >
-                            <User className="w-3 h-3 text-[#1473E6]" />
+                            <User className={`w-3.5 h-3.5 ${mode === "contributor" ? "text-white" : "text-[#1473E6]"}`} />
                             <span>Contributor</span>
                         </button>
 
                         <button
                             type="button"
                             onClick={() => onModeChange("asset")}
-                            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium transition-colors cursor-pointer rounded-none border-l border-border/80 ${
+                            className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs transition-colors cursor-pointer rounded-none border-l border-border/80 ${
                                 mode === "asset"
-                                    ? "bg-background text-foreground font-semibold"
-                                    : "text-muted-foreground hover:text-foreground"
+                                    ? "bg-[#1473E6] text-white font-semibold"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60 font-medium"
                             }`}
                         >
-                            <FileImage className="w-3 h-3 text-[#EB1000]" />
+                            <FileImage className={`w-3.5 h-3.5 ${mode === "asset" ? "text-white" : "text-[#EB1000]"}`} />
                             <span>Asset Lookup</span>
                         </button>
                     </div>
