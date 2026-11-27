@@ -42,6 +42,7 @@ export default function ContributorInsightsPage() {
     const [items, setItems] = useState<AdobeAssetItem[]>([]);
     const [summary, setSummary] = useState<ContributorSummary | null>(null);
     const [selectedAsset, setSelectedAsset] = useState<AdobeAssetItem | null>(null);
+    const [isDownloadingZip, setIsDownloadingZip] = useState(false);
 
     // Apify Keys state
     const [keys, setKeys] = useState<ApifyKeyRecord[]>([]);
@@ -242,6 +243,61 @@ export default function ContributorInsightsPage() {
         }
     };
 
+    const downloadedItems = items.filter((item) => Number(item.downloads) > 0);
+
+    const handleDownloadAllSoldFiles = async () => {
+        if (downloadedItems.length === 0) {
+            Swal.fire({
+                icon: "info",
+                title: "No Downloaded Files",
+                text: "There are no assets with downloads (> 0) on the current page to download.",
+                confirmButtonColor: "#1473E6"
+            });
+            return;
+        }
+
+        setIsDownloadingZip(true);
+        try {
+            const res = await fetch("/api/adobe-tracker/download-zip", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    creatorName: summary?.creatorName || "contributor",
+                    creatorId: summary?.creatorId || "",
+                    items: downloadedItems
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || "Failed to generate ZIP file.");
+            }
+
+            const blob = await res.blob();
+            const contentDisp = res.headers.get("Content-Disposition") || "";
+            const filenameMatch = contentDisp.match(/filename="?([^"]+)"?/i);
+            const filename = filenameMatch?.[1] || `${summary?.creatorName || "adobe_stock"}_downloaded_files.zip`;
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (err: any) {
+            Swal.fire({
+                icon: "error",
+                title: "Download Failed",
+                text: err.message || "Could not download the files.",
+                confirmButtonColor: "#1473E6"
+            });
+        } finally {
+            setIsDownloadingZip(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
             {/* Main Container */}
@@ -285,18 +341,44 @@ export default function ContributorInsightsPage() {
                 {/* Results Section */}
                 {!isLoading && items.length > 0 && (
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
                                 <h3 className="text-base font-bold text-foreground">
                                     {mode === 'contributor' ? 'Portfolio Assets' : 'Matched File Details'}
                                 </h3>
-                                <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full font-medium">
+                                <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-none border border-border/60 font-medium">
                                     {items.length} {items.length === 1 ? 'item' : 'items'}
                                 </span>
                             </div>
 
-                            <div className="text-xs text-muted-foreground">
-                                Click any item to inspect full keywords and details
+                            <div className="flex items-center gap-3 flex-wrap">
+                              
+
+                                {mode === 'contributor' && (
+                                    <button
+                                        type="button"
+                                        onClick={handleDownloadAllSoldFiles}
+                                        disabled={isDownloadingZip || downloadedItems.length === 0}
+                                        title={
+                                            downloadedItems.length > 0
+                                                ? `Download ${downloadedItems.length} downloaded assets & metadata CSV as ZIP`
+                                                : "No downloaded assets (> 0 DL) on this page"
+                                        }
+                                        className="px-4 py-2 bg-[#1473E6] hover:bg-[#0d66d0] text-white text-xs font-semibold rounded-none flex items-center gap-2 transition-colors cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+                                    >
+                                        {isDownloadingZip ? (
+                                            <>
+                                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                                <span>Preparing ZIP ({downloadedItems.length})...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Download className="w-3.5 h-3.5" />
+                                                <span>Download Downloaded Files ({downloadedItems.length})</span>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
