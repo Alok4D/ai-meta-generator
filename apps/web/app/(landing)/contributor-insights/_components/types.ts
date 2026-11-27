@@ -31,6 +31,7 @@ export interface ContributorSummary {
     creatorUrl?: string;
     avatarUrl?: string | null;
     coverUrl?: string | null;
+    totalAssets?: number;
     totalLoaded: number;
     totalSampleDownloads: number;
     avgDownloads: number;

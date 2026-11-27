@@ -150,6 +150,21 @@ export async function POST(req: Request) {
         const rawItems = await apifyRes.json();
         const items = Array.isArray(rawItems) ? rawItems : [];
 
+        // Attempt to fetch creator's total portfolio size from Key-Value Store
+        let totalPortfolioAssets = items.length;
+        if (mode === 'contributor' && items.length > 0) {
+            try {
+                const runsRes = await fetch(`https://api.apify.com/v2/actor-runs?limit=1&desc=true&token=${token}`).then(r => r.json());
+                const run = runsRes.data?.items?.[0];
+                if (run?.defaultKeyValueStoreId) {
+                    const portfolios = await fetch(`https://api.apify.com/v2/key-value-stores/${run.defaultKeyValueStoreId}/records/PORTFOLIOS?token=${token}`).then(r => r.json()).catch(() => null);
+                    if (Array.isArray(portfolios) && portfolios[0]?.portfolioSize) {
+                        totalPortfolioAssets = Number(portfolios[0].portfolioSize) || items.length;
+                    }
+                }
+            } catch (_) {}
+        }
+
         if (items.length === 0) {
             return NextResponse.json({
                 mode,
@@ -254,6 +269,7 @@ export async function POST(req: Request) {
                 creatorUrl,
                 avatarUrl,
                 coverUrl,
+                totalAssets: totalPortfolioAssets,
                 currentPage: pageNum,
                 hasNextPage: normalizedItems.length >= 100,
                 totalLoaded: normalizedItems.length,

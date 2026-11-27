@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ExternalLink, Copy, Check, TrendingUp, Flame, BarChart2, Layers, MapPin } from "lucide-react";
+import { ExternalLink, Copy, Check, TrendingUp, Flame, BarChart2, Layers, MapPin, FileStack } from "lucide-react";
 import { ContributorSummary } from "./types";
 
 interface ContributorCardProps {
@@ -66,8 +66,19 @@ export default function ContributorCard({ summary }: ContributorCardProps) {
                 </div>
 
                 {/* Adobe Analytics Stat Widgets (Right Side) */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 lg:w-auto w-full">
-                    {/* Loaded Assets */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 lg:w-auto w-full">
+                    {/* Total Assets in Entire Portfolio */}
+                    <div className="bg-[#1473E6]/5 border border-[#1473E6]/25 rounded-none p-3.5 text-center min-w-[105px]">
+                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-[#1473E6] uppercase tracking-wider mb-1">
+                            <FileStack className="w-3 h-3 text-[#1473E6]" />
+                            <span>Total Assets</span>
+                        </div>
+                        <div className="text-xl font-bold text-[#1473E6]">
+                            {(summary.totalAssets ?? summary.totalLoaded).toLocaleString()}
+                        </div>
+                    </div>
+
+                    {/* Loaded Assets (Current Page) */}
                     <div className="bg-muted/30 border border-border/80 rounded-none p-3.5 text-center min-w-[105px]">
                         <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
                             <Layers className="w-3 h-3 text-[#1473E6]" />
