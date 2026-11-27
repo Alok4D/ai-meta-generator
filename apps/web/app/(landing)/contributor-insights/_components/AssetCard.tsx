@@ -14,12 +14,12 @@ const ADOBE_FONT_FAMILY =
 
 export default function AssetCard({ asset, onSelect }: AssetCardProps) {
     return (
-        <div
-            onClick={() => onSelect(asset)}
-            className="group relative bg-card border border-border/80 hover:border-[#1473E6]/60 rounded-none overflow-hidden transition-all duration-200 flex flex-col cursor-pointer"
-        >
-            {/* Clean Image Preview Container (No overlays on image) */}
-            <div className="relative aspect-video w-full bg-muted/40 border-b border-border/60 overflow-hidden flex items-center justify-center">
+        <div className="relative bg-card border border-border/80 hover:border-[#1473E6]/60 rounded-none overflow-hidden transition-all duration-200 flex flex-col">
+            {/* Clean Image Preview Container (Click image to inspect details) */}
+            <div
+                onClick={() => onSelect(asset)}
+                className="group relative aspect-video w-full bg-muted/40 border-b border-border/60 overflow-hidden flex items-center justify-center cursor-pointer"
+            >
                 {asset.thumbnailUrl ? (
                     <img
                         src={asset.thumbnailUrl}
@@ -79,7 +79,7 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xs font-medium text-foreground line-clamp-2 leading-snug group-hover:text-[#1473E6] transition-colors" title={asset.title}>
+                    <h3 className="text-xs font-medium text-foreground line-clamp-2 leading-snug select-text">
                         {asset.title}
                     </h3>
                 </div>
