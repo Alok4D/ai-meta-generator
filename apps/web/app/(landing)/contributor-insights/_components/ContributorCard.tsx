@@ -6,7 +6,6 @@ import {
     Copy,
     Check,
     Flame,
-    Layers,
     MapPin,
     FileStack,
     Camera,
@@ -90,17 +89,6 @@ export default function ContributorCard({ summary }: ContributorCardProps) {
                         </div>
                         <div className="text-xl font-bold text-[#1473E6]">
                             {(summary.totalAssets ?? summary.totalLoaded).toLocaleString()}
-                        </div>
-                    </div>
-
-                    {/* Loaded Assets (Current Page) */}
-                    <div className="bg-muted/30 border border-border/80 rounded-none p-3 text-center min-w-[95px]">
-                        <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
-                            <Layers className="w-3 h-3 text-[#1473E6]" />
-                            <span>Loaded Assets</span>
-                        </div>
-                        <div className="text-xl font-bold text-foreground">
-                            {summary.totalLoaded}
                         </div>
                     </div>
 
