@@ -111,8 +111,12 @@ export default function ApiSettingsModal({
                 {/* Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-border/60">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-none bg-[#1473E6]/10 border border-[#1473E6]/25 flex items-center justify-center text-[#1473E6]">
-                            <Key className="w-4 h-4" />
+                        <div className="w-9 h-9 rounded-none bg-background border border-border/80 flex items-center justify-center p-1.5 shrink-0">
+                            <img
+                                src="https://apify.com/img/apify-logo/apify-symbol-200x200.svg"
+                                alt="Apify"
+                                className="w-5 h-5 object-contain"
+                            />
                         </div>
                         <div>
                             <h3 className="font-semibold text-foreground text-base">Apify API Settings</h3>
