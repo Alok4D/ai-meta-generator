@@ -42,7 +42,7 @@ export default function ContributorCard({ summary }: ContributorCardProps) {
                         </span>
                         {summary.creatorCountry && (
                             <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium">
-                                <MapPin className="w-3 h-3 text-rose-500" /> {summary.creatorCountry}
+                                <MapPin className="w-3 h-3 text-[#1473E6]" /> {summary.creatorCountry}
                             </span>
                         )}
                     </div>
