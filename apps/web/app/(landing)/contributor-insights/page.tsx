@@ -177,8 +177,7 @@ export default function ContributorInsightsPage() {
                             ...newSummary,
                             totalAssets: newSummary.totalAssets || prev.totalAssets,
                             totalSampleDownloads: (newSummary.totalSampleDownloads > 0 ? newSummary.totalSampleDownloads : (prev.totalSampleDownloads ?? 0)),
-                            avgDownloads: (newSummary.avgDownloads > 0 ? newSummary.avgDownloads : (prev.avgDownloads ?? 0)),
-                            medianDownloads: (newSummary.medianDownloads > 0 ? newSummary.medianDownloads : (prev.medianDownloads ?? 0)),
+                            typeDownloads: newSummary.typeDownloads || prev.typeDownloads
                         };
                     });
                 } else {

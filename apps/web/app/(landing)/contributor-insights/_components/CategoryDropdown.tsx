@@ -28,7 +28,6 @@ export default function CategoryDropdown({
 
     const options: { id: FileTypeFilter; label: string; icon: React.ReactNode; isDivider?: boolean }[] = [
         { id: "all", label: "All", icon: <Layers className="w-3.5 h-3.5" /> },
-        { id: "images", label: "Images", icon: <Camera className="w-3.5 h-3.5" /> },
         { id: "photo", label: "Photos", icon: <Camera className="w-3.5 h-3.5" /> },
         { id: "vector", label: "Vectors", icon: <PenTool className="w-3.5 h-3.5" /> },
         { id: "illustration", label: "Illustrations", icon: <Palette className="w-3.5 h-3.5" /> },

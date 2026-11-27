@@ -34,8 +34,18 @@ export interface ContributorSummary {
     totalAssets?: number;
     totalLoaded: number;
     totalSampleDownloads: number;
-    avgDownloads: number;
-    medianDownloads: number;
+    avgDownloads?: number;
+    medianDownloads?: number;
+    typeDownloads?: {
+        photo?: number;
+        vector?: number;
+        illustration?: number;
+        video?: number;
+        audio?: number;
+        template?: number;
+        '3d'?: number;
+        [key: string]: number | undefined;
+    };
     currentPage?: number;
     totalPages?: number;
     hasNextPage?: boolean;

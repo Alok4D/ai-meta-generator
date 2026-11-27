@@ -240,6 +240,45 @@ export async function POST(req: Request) {
             medianDownloads = allDownloadsArr.length % 2 !== 0 ? val1 : Math.round((val0 + val1) / 2);
         }
 
+        // Calculate breakdown of downloads by media type (photo, vector, illustration, video, etc.)
+        const typeDownloads: {
+            photo: number;
+            vector: number;
+            illustration: number;
+            video: number;
+            audio: number;
+            template: number;
+            '3d': number;
+        } = {
+            photo: 0,
+            vector: 0,
+            illustration: 0,
+            video: 0,
+            audio: 0,
+            template: 0,
+            '3d': 0
+        };
+
+        allItems.forEach(it => {
+            const mediaType = (it.mediaType || '').toLowerCase().trim();
+            const dl = Number(it.downloads) || 0;
+            if (mediaType.includes('photo')) {
+                typeDownloads.photo += dl;
+            } else if (mediaType.includes('vector')) {
+                typeDownloads.vector += dl;
+            } else if (mediaType.includes('illustration')) {
+                typeDownloads.illustration += dl;
+            } else if (mediaType.includes('video')) {
+                typeDownloads.video += dl;
+            } else if (mediaType.includes('audio')) {
+                typeDownloads.audio += dl;
+            } else if (mediaType.includes('template')) {
+                typeDownloads.template += dl;
+            } else if (mediaType.includes('3d')) {
+                typeDownloads['3d'] += dl;
+            }
+        });
+
         // Clean & normalize items
         const normalizedItems = items.map((item, index) => {
             const dl = Number(item.downloads) || 0;
@@ -316,7 +355,8 @@ export async function POST(req: Request) {
                 totalLoaded: normalizedItems.length,
                 totalSampleDownloads: finalTotalDownloads,
                 avgDownloads: effectiveAvgDownloads,
-                medianDownloads
+                medianDownloads,
+                typeDownloads
             }
         });
 
