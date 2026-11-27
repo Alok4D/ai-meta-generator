@@ -221,12 +221,14 @@ export async function POST(req: Request) {
             .sort((a, b) => a - b);
         
         const totalScrapedDownloads = allDownloadsArr.reduce((sum, d) => sum + d, 0);
-        // Prioritize actual profile downloads from Apify PORTFOLIOS record; fallback to cumulative downloads from all scraped items
-        const finalTotalDownloads = hasPortfolioDownloads && totalPortfolioDownloads > 0 
-            ? totalPortfolioDownloads 
-            : totalScrapedDownloads;
+        // If a category/mediaType filter is active (e.g. photos), calculate downloads specifically for that filter's items;
+        // if viewing 'all' without category filtering, prioritize total portfolio downloads from Apify PORTFOLIOS record.
+        const isFiltered = (fileType && fileType !== 'all') || (aiContent && aiContent !== 'all');
+        const finalTotalDownloads = isFiltered
+            ? totalScrapedDownloads
+            : (hasPortfolioDownloads && totalPortfolioDownloads > 0 ? totalPortfolioDownloads : totalScrapedDownloads);
 
-        const effectiveAvgDownloads = portfolioAvgDownloads > 0
+        const effectiveAvgDownloads = portfolioAvgDownloads > 0 && !isFiltered
             ? portfolioAvgDownloads
             : (allDownloadsArr.length ? Math.round(finalTotalDownloads / (totalPortfolioAssets || allDownloadsArr.length)) : 0);
 
@@ -244,18 +246,21 @@ export async function POST(req: Request) {
             let demandTag = 'Average';
             let demandTone = 'avg'; // 'top', 'strong', 'avg', 'low'
 
-            if (medianDownloads > 0) {
+            if (dl === 0) {
+                demandTag = 'New / Zero DL';
+                demandTone = 'low';
+            } else if (medianDownloads > 0) {
                 if (dl >= medianDownloads * 3 || dl >= 10) {
                     demandTag = 'Top Performer';
                     demandTone = 'top';
                 } else if (dl >= medianDownloads * 1.5) {
                     demandTag = 'Strong Demand';
                     demandTone = 'strong';
-                } else if (dl === 0) {
-                    demandTag = 'New / Zero DL';
-                    demandTone = 'low';
+                } else {
+                    demandTag = 'Average';
+                    demandTone = 'avg';
                 }
-            } else if (dl > 0) {
+            } else {
                 demandTag = 'Has Downloads';
                 demandTone = 'strong';
             }

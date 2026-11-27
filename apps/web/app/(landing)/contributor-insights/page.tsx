@@ -167,18 +167,24 @@ export default function ContributorInsightsPage() {
             setItems(data.items || []);
             const newSummary = data.summary || null;
             if (newSummary) {
-                setSummary(prev => {
-                    if (!prev || activeMode !== 'contributor' || String(prev.creatorId) !== String(newSummary.creatorId)) {
-                        return newSummary;
-                    }
-                    return {
-                        ...newSummary,
-                        totalAssets: newSummary.totalAssets || prev.totalAssets,
-                        totalSampleDownloads: (newSummary.totalSampleDownloads > 0 ? newSummary.totalSampleDownloads : (prev.totalSampleDownloads ?? 0)),
-                        avgDownloads: (newSummary.avgDownloads > 0 ? newSummary.avgDownloads : (prev.avgDownloads ?? 0)),
-                        medianDownloads: (newSummary.medianDownloads > 0 ? newSummary.medianDownloads : (prev.medianDownloads ?? 0)),
-                    };
-                });
+                if (targetPage > 1) {
+                    // Only on pagination within the same query & filter
+                    setSummary(prev => {
+                        if (!prev || activeMode !== 'contributor' || String(prev.creatorId) !== String(newSummary.creatorId)) {
+                            return newSummary;
+                        }
+                        return {
+                            ...newSummary,
+                            totalAssets: newSummary.totalAssets || prev.totalAssets,
+                            totalSampleDownloads: (newSummary.totalSampleDownloads > 0 ? newSummary.totalSampleDownloads : (prev.totalSampleDownloads ?? 0)),
+                            avgDownloads: (newSummary.avgDownloads > 0 ? newSummary.avgDownloads : (prev.avgDownloads ?? 0)),
+                            medianDownloads: (newSummary.medianDownloads > 0 ? newSummary.medianDownloads : (prev.medianDownloads ?? 0)),
+                        };
+                    });
+                } else {
+                    // Fresh search or filter change (e.g. photos, vectors, videos) — use authentic metrics for this category
+                    setSummary(newSummary);
+                }
             } else {
                 setSummary(null);
             }
