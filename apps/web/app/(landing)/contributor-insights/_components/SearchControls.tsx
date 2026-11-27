@@ -229,36 +229,6 @@ export default function SearchControls({
                         )}
                     </div>
                 </div>
-
-                {/* Right Side: Sort, AI Filter & Assets Limit */}
-                {mode === "contributor" && (
-                    <div className="flex items-center gap-3 flex-wrap">
-                  
-
-                        {/* AI Content Selector */}
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-muted-foreground">AI:</span>
-                            <div className="inline-flex border border-border/80 bg-muted/40 rounded-none">
-                                {(["all", "only", "exclude"] as AiFilter[]).map((ai, idx) => (
-                                    <button
-                                        key={ai}
-                                        type="button"
-                                        onClick={() => onAiContentChange(ai)}
-                                        className={`px-2 py-1 text-xs capitalize transition-colors cursor-pointer rounded-none ${
-                                            idx > 0 ? "border-l border-border/80" : ""
-                                        } ${
-                                            aiContent === ai
-                                                ? "bg-purple-600 text-white font-medium"
-                                                : "text-muted-foreground hover:text-foreground"
-                                        }`}
-                                    >
-                                        {ai === "all" ? "All" : ai === "only" ? "Only" : "No AI"}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* Find Similar Modal */}
