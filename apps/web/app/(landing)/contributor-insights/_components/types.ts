@@ -37,6 +37,7 @@ export interface ContributorSummary {
     avgDownloads: number;
     medianDownloads: number;
     currentPage?: number;
+    totalPages?: number;
     hasNextPage?: boolean;
 }
 

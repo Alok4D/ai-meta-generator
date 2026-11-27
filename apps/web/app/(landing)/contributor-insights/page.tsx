@@ -294,7 +294,7 @@ export default function ContributorInsightsPage() {
                         {mode === 'contributor' && (
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/80 text-xs">
                                 <div className="text-muted-foreground">
-                                    Showing Page <strong className="text-foreground">{currentPage}</strong> • Loaded <strong className="text-foreground">{items.length}</strong> assets
+                                    Showing Page <strong className="text-foreground">{currentPage}</strong>{summary?.totalPages ? <span> of <strong className="text-foreground">{summary.totalPages}</strong></span> : ""} • Loaded <strong className="text-foreground">{items.length}</strong> assets {summary?.totalAssets ? <span>(Total: {summary.totalAssets.toLocaleString()})</span> : ""}
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -317,7 +317,7 @@ export default function ContributorInsightsPage() {
 
                                     <button
                                         type="button"
-                                        disabled={items.length < 100 || isLoading}
+                                        disabled={isLoading || (summary?.hasNextPage !== undefined ? !summary.hasNextPage : items.length < 100)}
                                         onClick={() => {
                                             executeSearch(query, mode, sortBy, fileType, aiContent, currentPage + 1);
                                             window.scrollTo({ top: 250, behavior: 'smooth' });

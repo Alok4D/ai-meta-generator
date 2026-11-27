@@ -56,11 +56,11 @@ export async function POST(req: Request) {
 
         // Build Apify Actor input
         const pageNum = Math.max(Number(page) || 1, 1);
-        const limitNum = mode === 'asset' ? 1 : Math.min(Math.max(Number(maxItems) || 100, 1), 100);
+        const pageSize = 100;
+        const targetMaxItems = mode === 'asset' ? 1 : pageNum * pageSize;
 
         const actorInput: Record<string, any> = {
-            maxItems: limitNum,
-            page: pageNum,
+            maxItems: targetMaxItems,
             sortBy: sortBy === 'creation' ? 'creation' : (sortBy === 'relevance' ? 'relevance' : 'downloads'),
             trackChanges: false,
             premium: 'all',
@@ -148,24 +148,28 @@ export async function POST(req: Request) {
         }
 
         const rawItems = await apifyRes.json();
-        const items = Array.isArray(rawItems) ? rawItems : [];
+        const allItems = Array.isArray(rawItems) ? rawItems : [];
 
         // Attempt to fetch creator's total portfolio size from Key-Value Store
-        let totalPortfolioAssets = items.length;
-        if (mode === 'contributor' && items.length > 0) {
+        let totalPortfolioAssets = allItems.length;
+        if (mode === 'contributor' && allItems.length > 0) {
             try {
                 const runsRes = await fetch(`https://api.apify.com/v2/actor-runs?limit=1&desc=true&token=${token}`).then(r => r.json());
                 const run = runsRes.data?.items?.[0];
                 if (run?.defaultKeyValueStoreId) {
                     const portfolios = await fetch(`https://api.apify.com/v2/key-value-stores/${run.defaultKeyValueStoreId}/records/PORTFOLIOS?token=${token}`).then(r => r.json()).catch(() => null);
                     if (Array.isArray(portfolios) && portfolios[0]?.portfolioSize) {
-                        totalPortfolioAssets = Number(portfolios[0].portfolioSize) || items.length;
+                        totalPortfolioAssets = Number(portfolios[0].portfolioSize) || allItems.length;
                     }
                 }
             } catch (_) {}
         }
 
-        if (items.length === 0) {
+        // Slice items specifically for the requested page
+        const startIndex = mode === 'asset' ? 0 : (pageNum - 1) * pageSize;
+        const items = mode === 'asset' ? allItems : allItems.slice(startIndex, startIndex + pageSize);
+
+        if (items.length === 0 && allItems.length === 0) {
             return NextResponse.json({
                 mode,
                 query: numericId,
@@ -173,10 +177,13 @@ export async function POST(req: Request) {
                 summary: {
                     creatorName: mode === 'contributor' ? `Contributor #${numericId}` : undefined,
                     creatorId: numericId,
-                    totalAssets: 0,
+                    totalAssets: totalPortfolioAssets,
                     sampleDownloads: 0,
                     avgDownloads: 0,
-                    medianDownloads: 0
+                    medianDownloads: 0,
+                    currentPage: pageNum,
+                    totalPages: 1,
+                    hasNextPage: false
                 },
                 message: mode === 'contributor' 
                     ? 'No assets found for this contributor with the selected filters.'
@@ -258,6 +265,12 @@ export async function POST(req: Request) {
             };
         });
 
+        const totalPages = totalPortfolioAssets > 0 ? Math.ceil(totalPortfolioAssets / pageSize) : 1;
+        const hasNextPage = mode === 'contributor' && (
+            (allItems.length >= targetMaxItems && (totalPortfolioAssets === 0 || targetMaxItems < totalPortfolioAssets)) ||
+            (pageNum < totalPages)
+        );
+
         return NextResponse.json({
             mode,
             query: numericId,
@@ -271,7 +284,8 @@ export async function POST(req: Request) {
                 coverUrl,
                 totalAssets: totalPortfolioAssets,
                 currentPage: pageNum,
-                hasNextPage: normalizedItems.length >= 100,
+                totalPages,
+                hasNextPage,
                 totalLoaded: normalizedItems.length,
                 totalSampleDownloads,
                 avgDownloads,
