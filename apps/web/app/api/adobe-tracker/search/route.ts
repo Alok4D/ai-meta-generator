@@ -77,23 +77,34 @@ export async function POST(req: Request) {
             actorInput.assetIds = [numericId];
         }
 
-        // Content types filter
+        // Content types & premium filter
         if (fileType && fileType !== 'all') {
-            const typeMap: Record<string, string> = {
-                photos: 'photo',
-                photo: 'photo',
-                vectors: 'vector',
-                vector: 'vector',
-                illustrations: 'illustration',
-                illustration: 'illustration',
-                videos: 'video',
-                video: 'video',
-                templates: 'template',
-                template: 'template',
-                '3d': '3d'
-            };
-            const mapped = typeMap[fileType.toLowerCase()] || fileType;
-            actorInput.contentTypes = [mapped];
+            const lowerType = fileType.toLowerCase();
+            if (lowerType === 'images') {
+                actorInput.contentTypes = ['photo', 'vector', 'illustration'];
+            } else if (lowerType === 'free') {
+                actorInput.premium = 'free';
+            } else if (lowerType === 'premium') {
+                actorInput.premium = 'premium';
+            } else if (lowerType === 'audio') {
+                actorInput.contentTypes = ['audio'];
+            } else {
+                const typeMap: Record<string, string> = {
+                    photos: 'photo',
+                    photo: 'photo',
+                    vectors: 'vector',
+                    vector: 'vector',
+                    illustrations: 'illustration',
+                    illustration: 'illustration',
+                    videos: 'video',
+                    video: 'video',
+                    templates: 'template',
+                    template: 'template',
+                    '3d': '3d'
+                };
+                const mapped = typeMap[lowerType] || fileType;
+                actorInput.contentTypes = [mapped];
+            }
         }
 
         // AI generated filter

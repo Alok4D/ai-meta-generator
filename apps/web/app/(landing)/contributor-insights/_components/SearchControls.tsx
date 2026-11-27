@@ -1,8 +1,17 @@
 "use client";
 
-import React from "react";
-import { Search, User, FileImage, Filter, ArrowUpDown, X, Camera, Palette, PenTool, Video, Layout, Box, Sparkles } from "lucide-react";
-import { SearchMode, FileTypeFilter, AiFilter, SortOption } from "./types";
+import React, { useState } from "react";
+import {
+    Search,
+    User,
+    FileImage,
+    X,
+    Settings,
+    Camera
+} from "lucide-react";
+import { SearchMode, FileTypeFilter, AiFilter, SortOption, ApifyKeyRecord } from "./types";
+import CategoryDropdown from "./CategoryDropdown";
+import FindSimilarModal from "./FindSimilarModal";
 
 interface SearchControlsProps {
     mode: SearchMode;
@@ -19,6 +28,8 @@ interface SearchControlsProps {
     onSortByChange: (sort: SortOption) => void;
     maxItems: number;
     onMaxItemsChange: (items: number) => void;
+    onOpenSettings: () => void;
+    selectedKey: ApifyKeyRecord | null;
 }
 
 export default function SearchControls({
@@ -35,228 +46,271 @@ export default function SearchControls({
     sortBy,
     onSortByChange,
     maxItems,
-    onMaxItemsChange
+    onMaxItemsChange,
+    onOpenSettings,
+    selectedKey
 }: SearchControlsProps) {
-
-    const typeOptions: { id: FileTypeFilter; label: string; icon: React.ReactNode }[] = [
-        { id: 'all', label: 'All', icon: null },
-        { id: 'photo', label: 'Photos', icon: <Camera className="w-3.5 h-3.5" /> },
-        { id: 'vector', label: 'Vectors', icon: <PenTool className="w-3.5 h-3.5" /> },
-        { id: 'illustration', label: 'Illustrations', icon: <Palette className="w-3.5 h-3.5" /> },
-        { id: 'video', label: 'Videos', icon: <Video className="w-3.5 h-3.5" /> },
-        { id: 'template', label: 'Templates', icon: <Layout className="w-3.5 h-3.5" /> },
-        { id: '3d', label: '3D', icon: <Box className="w-3.5 h-3.5" /> }
-    ];
+    const [isFindSimilarOpen, setIsFindSimilarOpen] = useState(false);
 
     const sortOptions: { id: SortOption; label: string }[] = [
-        { id: 'downloads', label: 'Most Downloaded' },
-        { id: 'creation', label: 'Newest' },
-        { id: 'relevance', label: 'Top Relevant' }
+        { id: "downloads", label: "Most Downloaded" },
+        { id: "creation", label: "Newest" },
+        { id: "relevance", label: "Top Relevant" }
     ];
 
+    const handleFileSelected = (file: File) => {
+        const cleanName = file.name.replace(/\.[^/.]+$/, "");
+        const idMatch = cleanName.match(/\b\d{6,15}\b/);
+        if (idMatch) {
+            onQueryChange(idMatch[0]);
+            onModeChange("asset");
+        } else {
+            const terms = cleanName
+                .replace(/[_-]+/g, " ")
+                .replace(/\b(preview|stock|adobe|vector|image|illustration|art)\b/gi, "")
+                .trim();
+            onQueryChange(terms || cleanName);
+        }
+    };
+
     return (
-        <div className="bg-card border border-border/80 rounded-2xl p-6 shadow-sm space-y-5">
-            {/* Top Row: Mode Tabs & Fetch Count */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                {/* Adobe Segmented Mode Switcher */}
-                <div className="inline-flex p-1 bg-muted/60 border border-border/60 rounded-full">
-                    <button
-                        type="button"
-                        onClick={() => onModeChange('contributor')}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                            mode === 'contributor'
-                                ? "bg-background text-foreground shadow-xs"
-                                : "text-muted-foreground hover:text-foreground"
-                        }`}
-                    >
-                        <User className="w-3.5 h-3.5 text-[#1473E6]" />
-                        <span>Contributor Profile</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={() => onModeChange('asset')}
-                        className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                            mode === 'asset'
-                                ? "bg-background text-foreground shadow-xs"
-                                : "text-muted-foreground hover:text-foreground"
-                        }`}
-                    >
-                        <FileImage className="w-3.5 h-3.5 text-[#EB1000]" />
-                        <span>File ID Lookup</span>
-                    </button>
-                </div>
-
-                {/* Quick Profile Assets Limit Selector */}
-                {mode === 'contributor' && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground self-end sm:self-auto">
-                        <span className="font-medium">Assets limit:</span>
-                        <select
-                            value={maxItems}
-                            onChange={(e) => onMaxItemsChange(Number(e.target.value))}
-                            className="bg-muted/60 border border-border/60 rounded-full px-3 py-1 text-xs text-foreground font-semibold focus:outline-none focus:border-[#1473E6] cursor-pointer"
-                        >
-                            <option value={14}>14 assets (Adobe page 1)</option>
-                            <option value={30}>30 assets</option>
-                            <option value={50}>50 assets</option>
-                            <option value={100}>100 assets (Full batch)</option>
-                        </select>
-                    </div>
-                )}
-            </div>
-
-            {/* Adobe Stock Signature Rounded Search Bar */}
-            <form onSubmit={onSubmit} className="relative flex items-center gap-3">
-                <div className="relative flex-1 group">
-                    <div className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-[#1473E6] transition-colors">
-                        <Search className="w-4 h-4" />
-                    </div>
-                    <input
-                        type="text"
-                        value={query}
-                        onChange={(e) => onQueryChange(e.target.value)}
-                        placeholder={
-                            mode === 'contributor'
-                                ? "Enter Contributor ID (e.g. 213239991) or URL (https://stock.adobe.com/contributor/...)"
-                                : "Enter Adobe Stock File ID (e.g. 2248162728) or asset link"
-                        }
-                        className="w-full pl-12 pr-11 py-3.5 bg-background border border-border/80 rounded-full text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#1473E6] focus:ring-3 focus:ring-[#1473E6]/20 transition-all shadow-xs"
+        <div className="space-y-3">
+            {/* Main Search Row: Unified Input Bar + Search Button (rounded-none) + External Gear Icon */}
+            <form onSubmit={onSubmit} className="flex items-center gap-2">
+                {/* Search Bar Input Container (Clean, no extra shadow, minimal rounded-[2px] / flat) */}
+                <div className="flex-1 flex items-stretch bg-card border border-border/80 focus-within:border-[#1473E6] rounded-none transition-colors h-11">
+                    {/* Category Dropdown (All v) */}
+                    <CategoryDropdown
+                        fileType={fileType}
+                        onFileTypeChange={onFileTypeChange}
                     />
-                    {query && (
+
+                    {/* Search Field */}
+                    <div className="flex-1 flex items-center min-w-0 px-3 gap-2">
+                        <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <input
+                            type="text"
+                            value={query}
+                            onChange={(e) => onQueryChange(e.target.value)}
+                            placeholder={
+                                mode === "contributor"
+                                    ? "Search Contributor ID (e.g. 213239991) or profile link..."
+                                    : "Search Adobe Stock File ID (e.g. 2248162728) or asset link..."
+                            }
+                            className="w-full bg-transparent border-0 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0 rounded-none"
+                        />
+                        {query && (
+                            <button
+                                type="button"
+                                onClick={() => onQueryChange("")}
+                                className="p-1 text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+                                title="Clear"
+                            >
+                                <X className="w-3.5 h-3.5" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Find Similar Icon Button (Inside Right of Input) */}
+                    <div className="flex items-center pr-2.5">
                         <button
                             type="button"
-                            onClick={() => onQueryChange("")}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full transition-colors cursor-pointer"
+                            onClick={() => setIsFindSimilarOpen(true)}
+                            title="Find similar: Drag & drop an image or audio file"
+                            className="p-1.5 text-muted-foreground hover:text-[#1473E6] transition-colors cursor-pointer rounded-none"
                         >
-                            <X className="w-4 h-4" />
+                            <Camera className="w-4 h-4" />
                         </button>
-                    )}
+                    </div>
                 </div>
 
-                {/* Adobe Blue Search Button */}
+                {/* Search Submit Button (rounded-none, sharp Adobe Blue) */}
                 <button
                     type="submit"
                     disabled={isLoading || !query.trim()}
-                    className="h-12 px-7 bg-[#1473E6] hover:bg-[#0d66d0] text-white font-bold rounded-full text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#1473E6]/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                    className="h-11 px-6 bg-[#1473E6] hover:bg-[#0d66d0] text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed rounded-none shrink-0"
                 >
                     {isLoading ? (
                         <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             <span>Scanning...</span>
                         </>
                     ) : (
                         <>
-                            <Search className="w-4 h-4" />
+                            <Search className="w-3.5 h-3.5" />
                             <span>Search</span>
                         </>
                     )}
                 </button>
+
+                {/* External Gear Icon (Placed after Search button, clean icon only) */}
+                <button
+                    type="button"
+                    onClick={onOpenSettings}
+                    title={
+                        selectedKey
+                            ? `Apify Settings: ${selectedKey.username ? "@" + selectedKey.username : selectedKey.label} (Connected)`
+                            : "Apify API Settings"
+                    }
+                    className="relative h-11 w-11 flex items-center justify-center bg-card hover:bg-muted/70 border border-border/80 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded-none shrink-0"
+                >
+                    <Settings className="w-4 h-4 hover:rotate-45 transition-transform duration-300" />
+                    {selectedKey && (
+                        <span className="absolute top-2 right-2 flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                    )}
+                </button>
             </form>
 
-            {/* Quick Presets Line */}
-            <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap pt-0.5">
-                <span className="font-semibold text-foreground/80">Demo Search:</span>
-                {mode === 'contributor' ? (
-                    <button
-                        type="button"
-                        onClick={() => onQueryChange("https://stock.adobe.com/contributor/210274732/sense")}
-                        className="bg-muted hover:bg-muted/80 text-foreground px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors cursor-pointer border border-border/60 hover:border-[#1473E6]/50"
-                    >
-                        sense (210274732)
-                    </button>
-                ) : (
-                    <>
+            {/* Sub-bar: Modes, Presets, Sort, AI & Assets Limit (Clean, rounded-none / rounded-[2px], no heavy shadows) */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-xs pt-0.5">
+                {/* Left Side: Mode Switcher & Presets */}
+                <div className="flex items-center gap-3 flex-wrap">
+                    {/* Mode Switcher */}
+                    <div className="inline-flex border border-border/80 rounded-none bg-muted/40">
                         <button
                             type="button"
-                            onClick={() => onQueryChange("2248162728")}
-                            className="bg-muted hover:bg-muted/80 text-foreground px-2.5 py-1 rounded-full text-[11px] font-mono transition-colors cursor-pointer border border-border/60 hover:border-[#1473E6]/50"
+                            onClick={() => onModeChange("contributor")}
+                            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium transition-colors cursor-pointer rounded-none ${
+                                mode === "contributor"
+                                    ? "bg-background text-foreground font-semibold"
+                                    : "text-muted-foreground hover:text-foreground"
+                            }`}
                         >
-                            Trophy Cup (#2248162728)
+                            <User className="w-3 h-3 text-[#1473E6]" />
+                            <span>Contributor</span>
                         </button>
+
                         <button
                             type="button"
-                            onClick={() => onQueryChange("2192893264")}
-                            className="bg-muted hover:bg-muted/80 text-foreground px-2.5 py-1 rounded-full text-[11px] font-mono transition-colors cursor-pointer border border-border/60 hover:border-[#1473E6]/50"
+                            onClick={() => onModeChange("asset")}
+                            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium transition-colors cursor-pointer rounded-none border-l border-border/80 ${
+                                mode === "asset"
+                                    ? "bg-background text-foreground font-semibold"
+                                    : "text-muted-foreground hover:text-foreground"
+                            }`}
                         >
-                            Microscope (#2192893264)
+                            <FileImage className="w-3 h-3 text-[#EB1000]" />
+                            <span>Asset Lookup</span>
                         </button>
-                    </>
+                    </div>
+
+                    {/* Demo Presets */}
+                    <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <span className="text-[11px]">Demo:</span>
+                        {mode === "contributor" ? (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => onQueryChange("213239991")}
+                                    className="bg-muted/40 hover:bg-muted text-foreground px-2 py-0.5 text-[11px] font-mono transition-colors cursor-pointer border border-border/60 rounded-none"
+                                >
+                                    Line World (213239991)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => onQueryChange("https://stock.adobe.com/contributor/210274732/sense")}
+                                    className="bg-muted/40 hover:bg-muted text-foreground px-2 py-0.5 text-[11px] transition-colors cursor-pointer border border-border/60 rounded-none"
+                                >
+                                    sense
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => onQueryChange("2192893264")}
+                                    className="bg-muted/40 hover:bg-muted text-foreground px-2 py-0.5 text-[11px] font-mono transition-colors cursor-pointer border border-border/60 rounded-none"
+                                >
+                                    Microscope (#2192893264)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => onQueryChange("2248162728")}
+                                    className="bg-muted/40 hover:bg-muted text-foreground px-2 py-0.5 text-[11px] font-mono transition-colors cursor-pointer border border-border/60 rounded-none"
+                                >
+                                    Trophy Cup (#2248162728)
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+
+                {/* Right Side: Sort, AI Filter & Assets Limit */}
+                {mode === "contributor" && (
+                    <div className="flex items-center gap-3 flex-wrap">
+                        {/* Sort Selector */}
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-muted-foreground">Sort:</span>
+                            <div className="inline-flex border border-border/80 bg-muted/40 rounded-none">
+                                {sortOptions.map((s, idx) => (
+                                    <button
+                                        key={s.id}
+                                        type="button"
+                                        onClick={() => onSortByChange(s.id)}
+                                        className={`px-2.5 py-1 text-xs transition-colors cursor-pointer rounded-none ${
+                                            idx > 0 ? "border-l border-border/80" : ""
+                                        } ${
+                                            sortBy === s.id
+                                                ? "bg-[#1473E6] text-white font-medium"
+                                                : "text-muted-foreground hover:text-foreground"
+                                        }`}
+                                    >
+                                        {s.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* AI Content Selector */}
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-muted-foreground">AI:</span>
+                            <div className="inline-flex border border-border/80 bg-muted/40 rounded-none">
+                                {(["all", "only", "exclude"] as AiFilter[]).map((ai, idx) => (
+                                    <button
+                                        key={ai}
+                                        type="button"
+                                        onClick={() => onAiContentChange(ai)}
+                                        className={`px-2 py-1 text-xs capitalize transition-colors cursor-pointer rounded-none ${
+                                            idx > 0 ? "border-l border-border/80" : ""
+                                        } ${
+                                            aiContent === ai
+                                                ? "bg-purple-600 text-white font-medium"
+                                                : "text-muted-foreground hover:text-foreground"
+                                        }`}
+                                    >
+                                        {ai === "all" ? "All" : ai === "only" ? "Only" : "No AI"}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Assets Limit Dropdown */}
+                        <div className="flex items-center gap-1.5">
+                            <span className="text-[11px] text-muted-foreground">Limit:</span>
+                            <select
+                                value={maxItems}
+                                onChange={(e) => onMaxItemsChange(Number(e.target.value))}
+                                className="bg-muted/40 border border-border/80 px-2 py-1 text-xs text-foreground font-medium focus:outline-none focus:border-[#1473E6] cursor-pointer rounded-none"
+                            >
+                                <option value={14}>14 (Page 1)</option>
+                                <option value={30}>30 assets</option>
+                                <option value={50}>50 assets</option>
+                                <option value={100}>100 (Full batch)</option>
+                            </select>
+                        </div>
+                    </div>
                 )}
             </div>
 
-            {/* Adobe Stock Filters Bar (Pills style) */}
-            {mode === 'contributor' && (
-                <div className="pt-4 border-t border-border/60 space-y-3.5">
-                    {/* Sort Selector Bar */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
-                            <Filter className="w-3.5 h-3.5 text-[#1473E6]" />
-                            <span>Filters & Sort</span>
-                        </div>
-
-                        {/* Sort options (Segmented pills) */}
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[11px] text-muted-foreground mr-1">Sort:</span>
-                            {sortOptions.map((s) => (
-                                <button
-                                    key={s.id}
-                                    type="button"
-                                    onClick={() => onSortByChange(s.id)}
-                                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                                        sortBy === s.id
-                                            ? "bg-[#1473E6] text-white shadow-xs font-semibold"
-                                            : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/40"
-                                    }`}
-                                >
-                                    {s.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Content Types & AI Filter (Adobe Pill Bars) */}
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                        {/* File Types Pills */}
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[11px] text-muted-foreground mr-1">Category:</span>
-                            {typeOptions.map((t) => (
-                                <button
-                                    key={t.id}
-                                    type="button"
-                                    onClick={() => onFileTypeChange(t.id)}
-                                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs transition-all cursor-pointer ${
-                                        fileType === t.id
-                                            ? "bg-[#1473E6] text-white font-bold shadow-xs border border-[#1473E6]"
-                                            : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60 hover:border-border"
-                                    }`}
-                                >
-                                    {t.icon}
-                                    <span>{t.label}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        {/* AI Content Pills */}
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-muted-foreground mr-1">AI:</span>
-                            {(['all', 'only', 'exclude'] as AiFilter[]).map((ai) => (
-                                <button
-                                    key={ai}
-                                    type="button"
-                                    onClick={() => onAiContentChange(ai)}
-                                    className={`px-2.5 py-1 rounded-full text-xs capitalize transition-all cursor-pointer ${
-                                        aiContent === ai
-                                            ? "bg-purple-600 text-white font-bold shadow-xs"
-                                            : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground border border-border/60"
-                                    }`}
-                                >
-                                    {ai === 'all' ? 'All' : ai === 'only' ? 'AI Only' : 'No AI'}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Find Similar Modal */}
+            <FindSimilarModal
+                isOpen={isFindSimilarOpen}
+                onClose={() => setIsFindSimilarOpen(false)}
+                onFileSelect={handleFileSelected}
+            />
         </div>
     );
 }

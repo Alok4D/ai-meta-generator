@@ -47,6 +47,6 @@ export interface ApifyKeyRecord {
 }
 
 export type SearchMode = 'contributor' | 'asset';
-export type FileTypeFilter = 'all' | 'photo' | 'illustration' | 'vector' | 'video' | 'template' | '3d';
+export type FileTypeFilter = 'all' | 'images' | 'photo' | 'vector' | 'illustration' | 'video' | 'audio' | 'template' | '3d' | 'free' | 'premium';
 export type AiFilter = 'all' | 'only' | 'exclude';
 export type SortOption = 'downloads' | 'creation' | 'relevance';

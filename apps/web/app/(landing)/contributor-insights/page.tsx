@@ -5,7 +5,6 @@ import Swal from "sweetalert2";
 import { Sparkles, Layers, AlertCircle, FileSearch, RefreshCw, Download } from "lucide-react";
 
 import { AdobeAssetItem, ContributorSummary, ApifyKeyRecord, SearchMode, FileTypeFilter, AiFilter, SortOption } from "./_components/types";
-import TrackerHeader from "./_components/TrackerHeader";
 import SearchControls from "./_components/SearchControls";
 import ContributorCard from "./_components/ContributorCard";
 import AssetCard from "./_components/AssetCard";
@@ -222,15 +221,8 @@ export default function ContributorInsightsPage() {
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
             {/* Main Container */}
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
-                {/* Header */}
-                <TrackerHeader
-                    keys={keys}
-                    selectedKey={selectedKey}
-                    onOpenSettings={() => setIsSettingsOpen(true)}
-                />
-
-                {/* Search & Filter Controls */}
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
+                {/* Search & Filter Controls with Integrated Category Dropdown & Gear Settings */}
                 <SearchControls
                     mode={mode}
                     onModeChange={handleModeSwitch}
@@ -246,6 +238,8 @@ export default function ContributorInsightsPage() {
                     onSortByChange={handleSortChange}
                     maxItems={maxItems}
                     onMaxItemsChange={setMaxItems}
+                    onOpenSettings={() => setIsSettingsOpen(true)}
+                    selectedKey={selectedKey}
                 />
 
                 {/* Loading State Spinner */}

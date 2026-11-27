@@ -14,6 +14,12 @@ Built with cutting-edge web technologies, this platform offers a stunning **Glas
 
 ## ✨ Recent Enhancements
 
+* **Adobe Stock Contributor Intelligence & Tracker Redesign (`/contributor-insights`)**:
+  * **Unified Adobe Stock Signature Search Bar**: Re-engineered the search header into Adobe Stock's iconic unified search bar matching the project's glassmorphism and modern dark/light design system.
+  * **Integrated Category Dropdown**: Seamless category selection attached directly to the left of the search bar (`All`, `Images`, `Photos`, `Vectors`, `Illustrations`, `Videos`, `Audio`, `Templates`, `3D`, `Free`, `Premium`) with instant active item highlighting.
+  * **"Find Similar" Reverse Asset Search Modal**: Integrated visual search trigger icon inside the search bar opening a dedicated drag-and-drop modal for images and audio files (`JPG`, `PNG`, `SVG`, `EPS`, `MP3`, `WAV`) with automatic ID and keyword extraction.
+  * **Streamlined Header & API Settings Gear**: Removed bulky top brand titles for an ultra-clean layout. Integrated the Apify API Settings trigger into a sleek gear icon on the right side of the search bar with active token indicator dots and tooltips.
+  * **Multi-Format Search Support**: Full support for Contributor ID (`213239991`), full profile URLs, asset IDs (`2192893264`), and asset links with live analytics (sample downloads, average downloads per asset, and median demand metrics).
 * **Freepik / Magnific Contributors Metadata Engine & Official CSV Export**:
   * **Dedicated Freepik/Magnific Integration**: Comprehensive metadata generation tailored specifically for Freepik and Magnific Contributors (`contributor.magnific.com`) across both single generator (`/dashboard/generator`) and batch generator (`/dashboard/batch`).
   * **Strict Platform Compliance**: Intelligent title length constraints (5–100 characters, targeting 70–85 character sweet spot) and keyword count (5–50 tags).
