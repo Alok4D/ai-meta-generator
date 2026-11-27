@@ -107,11 +107,11 @@ export default function ApiSettingsModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-lg bg-card border border-border/80 rounded-2xl shadow-2xl p-6 overflow-hidden">
+            <div className="relative w-full max-w-lg bg-card border border-border/80 rounded-none shadow-2xl p-6 overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-border/60">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                        <div className="w-9 h-9 rounded-none bg-[#1473E6]/10 border border-[#1473E6]/25 flex items-center justify-center text-[#1473E6]">
                             <Key className="w-4 h-4" />
                         </div>
                         <div>
@@ -121,7 +121,7 @@ export default function ApiSettingsModal({
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-none flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -130,17 +130,17 @@ export default function ApiSettingsModal({
                 {/* Body */}
                 <div className="mt-5 space-y-5 max-h-[70vh] overflow-y-auto pr-1">
                     {/* Info Note */}
-                    <div className="bg-primary/5 border border-primary/20 rounded-xl p-3.5 flex items-start gap-3">
-                        <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div className="bg-muted/30 border border-border/80 rounded-none p-3.5 flex items-start gap-3">
+                        <ShieldCheck className="w-5 h-5 text-[#1473E6] shrink-0 mt-0.5" />
                         <div className="text-xs text-muted-foreground leading-relaxed">
-                            <span className="font-semibold text-foreground">Free & Private: </span>
+                            <span className="font-semibold text-foreground">Free &amp; Private: </span>
                             Keys are stored securely in your browser and used to run the Adobe Stock tracker directly. 
                             Get your free personal token from{" "}
                             <a
                                 href="https://console.apify.com/settings/integrations"
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-primary font-medium hover:underline inline-flex items-center gap-0.5"
+                                className="text-[#1473E6] font-medium hover:underline inline-flex items-center gap-0.5"
                             >
                                 Apify Integrations <ExternalLink className="w-3 h-3" />
                             </a>.
@@ -160,10 +160,10 @@ export default function ApiSettingsModal({
                                         <div
                                             key={k.id}
                                             onClick={() => onSelectKey(k.id)}
-                                            className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                                            className={`p-3 rounded-none border transition-all cursor-pointer flex items-center justify-between ${
                                                 isSelected
-                                                    ? "bg-primary/10 border-primary text-foreground shadow-sm"
-                                                    : "bg-muted/40 border-border/60 hover:bg-muted/70 text-muted-foreground hover:text-foreground"
+                                                    ? "bg-[#1473E6]/10 border-[#1473E6] text-foreground shadow-xs"
+                                                    : "bg-muted/30 border-border/80 hover:bg-muted/60 text-muted-foreground hover:text-foreground"
                                             }`}
                                         >
                                             <div className="flex items-center gap-2.5 overflow-hidden">
@@ -174,12 +174,12 @@ export default function ApiSettingsModal({
                                                     <div className="flex items-center gap-2">
                                                         <span className="font-medium text-sm text-foreground truncate">{k.label}</span>
                                                         {k.username && (
-                                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                                            <span className="text-[10px] bg-muted px-1.5 py-0.5 rounded-none text-muted-foreground border border-border/60">
                                                                 @{k.username}
                                                             </span>
                                                         )}
                                                         {isSelected && (
-                                                            <span className="text-[10px] font-semibold bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
+                                                            <span className="text-[10px] font-semibold bg-[#1473E6] text-white px-1.5 py-0.5 rounded-none">
                                                                 Active
                                                             </span>
                                                         )}
@@ -195,7 +195,7 @@ export default function ApiSettingsModal({
                                                     type="button"
                                                     onClick={(e) => { e.stopPropagation(); handleTestKey(k); }}
                                                     title="Re-verify key"
-                                                    className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors"
+                                                    className="p-1.5 rounded-none text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors border border-transparent hover:border-border/80"
                                                 >
                                                     <RefreshCw className="w-3.5 h-3.5" />
                                                 </button>
@@ -203,7 +203,7 @@ export default function ApiSettingsModal({
                                                     type="button"
                                                     onClick={(e) => { e.stopPropagation(); onDeleteKey(k.id); }}
                                                     title="Remove key"
-                                                    className="p-1.5 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-background/80 transition-colors"
+                                                    className="p-1.5 rounded-none text-muted-foreground hover:text-rose-500 hover:bg-background/80 transition-colors border border-transparent hover:border-border/80"
                                                 >
                                                     <Trash2 className="w-3.5 h-3.5" />
                                                 </button>
@@ -228,12 +228,12 @@ export default function ApiSettingsModal({
                                     value={tokenInput}
                                     onChange={(e) => setTokenInput(e.target.value)}
                                     placeholder="apify_api_..."
-                                    className="w-full pl-3.5 pr-10 py-2.5 bg-background border border-border/80 rounded-xl text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                                    className="w-full pl-3.5 pr-10 py-2.5 bg-background border border-border/80 rounded-none text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#1473E6] focus:border-[#1473E6] transition-all"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowToken(!showToken)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                                 >
                                     {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
@@ -246,19 +246,19 @@ export default function ApiSettingsModal({
                                 value={labelInput}
                                 onChange={(e) => setLabelInput(e.target.value)}
                                 placeholder="Key Label (e.g. Personal Account - Optional)"
-                                className="w-full px-3.5 py-2 bg-background border border-border/80 rounded-xl text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                                className="w-full px-3.5 py-2.5 bg-background border border-border/80 rounded-none text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#1473E6] focus:border-[#1473E6] transition-all"
                             />
                         </div>
 
                         {verifyError && (
-                            <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
+                            <div className="p-2.5 rounded-none bg-destructive/10 border border-destructive/20 text-destructive text-xs flex items-center gap-2">
                                 <AlertCircle className="w-4 h-4 shrink-0" />
                                 <span>{verifyError}</span>
                             </div>
                         )}
 
                         {verifySuccess && (
-                            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
+                            <div className="p-2.5 rounded-none bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
                                 <CheckCircle2 className="w-4 h-4 shrink-0" />
                                 <span>{verifySuccess}</span>
                             </div>
@@ -267,17 +267,17 @@ export default function ApiSettingsModal({
                         <button
                             type="submit"
                             disabled={isVerifying || !tokenInput.trim()}
-                            className="w-full py-2.5 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="w-full py-2.5 px-4 bg-[#1473E6] hover:bg-[#0d66d0] text-white font-medium rounded-none text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isVerifying ? (
                                 <>
                                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                                    Verifying with Apify...
+                                    <span>Verifying with Apify...</span>
                                 </>
                             ) : (
                                 <>
                                     <Key className="w-3.5 h-3.5" />
-                                    Verify & Save API Key
+                                    <span>Verify &amp; Save API Key</span>
                                 </>
                             )}
                         </button>

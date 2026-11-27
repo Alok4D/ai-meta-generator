@@ -150,16 +150,30 @@ export async function POST(req: Request) {
         const rawItems = await apifyRes.json();
         const allItems = Array.isArray(rawItems) ? rawItems : [];
 
-        // Attempt to fetch creator's total portfolio size from Key-Value Store
+        // Attempt to fetch creator's total portfolio size and total downloads from Key-Value Store
         let totalPortfolioAssets = allItems.length;
+        let totalPortfolioDownloads = 0;
+        let portfolioAvgDownloads = 0;
+        let hasPortfolioDownloads = false;
+
         if (mode === 'contributor' && allItems.length > 0) {
             try {
-                const runsRes = await fetch(`https://api.apify.com/v2/actor-runs?limit=1&desc=true&token=${token}`).then(r => r.json());
+                const runsRes = await fetch(`https://api.apify.com/v2/acts/clearpath~adobe-stock-scraper/runs?limit=1&desc=true&token=${token}`).then(r => r.json());
                 const run = runsRes.data?.items?.[0];
                 if (run?.defaultKeyValueStoreId) {
                     const portfolios = await fetch(`https://api.apify.com/v2/key-value-stores/${run.defaultKeyValueStoreId}/records/PORTFOLIOS?token=${token}`).then(r => r.json()).catch(() => null);
-                    if (Array.isArray(portfolios) && portfolios[0]?.portfolioSize) {
-                        totalPortfolioAssets = Number(portfolios[0].portfolioSize) || allItems.length;
+                    if (Array.isArray(portfolios) && portfolios[0]) {
+                        const p = portfolios[0];
+                        if (p.portfolioSize) {
+                            totalPortfolioAssets = Number(p.portfolioSize) || allItems.length;
+                        }
+                        if (p.downloads !== undefined && p.downloads !== null) {
+                            totalPortfolioDownloads = Number(p.downloads) || 0;
+                            hasPortfolioDownloads = true;
+                        }
+                        if (p.averageDownloads !== undefined && p.averageDownloads !== null) {
+                            portfolioAvgDownloads = Math.round(Number(p.averageDownloads)) || 0;
+                        }
                     }
                 }
             } catch (_) {}
@@ -178,12 +192,13 @@ export async function POST(req: Request) {
                     creatorName: mode === 'contributor' ? `Contributor #${numericId}` : undefined,
                     creatorId: numericId,
                     totalAssets: totalPortfolioAssets,
-                    sampleDownloads: 0,
-                    avgDownloads: 0,
-                    medianDownloads: 0,
                     currentPage: pageNum,
                     totalPages: 1,
-                    hasNextPage: false
+                    hasNextPage: false,
+                    totalLoaded: 0,
+                    totalSampleDownloads: 0,
+                    avgDownloads: 0,
+                    medianDownloads: 0
                 },
                 message: mode === 'contributor' 
                     ? 'No assets found for this contributor with the selected filters.'
@@ -192,28 +207,35 @@ export async function POST(req: Request) {
         }
 
         // Extract and aggregate creator info
-        const first = items[0] || {};
+        const first = items[0] || allItems[0] || {};
         const creatorName = first.creatorName || `Contributor ${numericId}`;
         const creatorCountry = first.creatorCountry || '';
         const creatorUrl = first.creatorUrl || `https://stock.adobe.com/contributor/${numericId}`;
-        const avatarUrl = first.creatorAvatarUrl || (items[0] && (items[0].thumbnailLargeUrl || items[0].thumbnailUrl)) || null;
-        const coverUrl = (items[0] && (items[0].thumbnailLargeUrl || items[0].thumbnailUrl)) || null;
+        const avatarUrl = first.creatorAvatarUrl || (items[0] && (items[0].thumbnailLargeUrl || items[0].thumbnailUrl)) || (allItems[0] && (allItems[0].thumbnailLargeUrl || allItems[0].thumbnailUrl)) || null;
+        const coverUrl = (items[0] && (items[0].thumbnailLargeUrl || items[0].thumbnailUrl)) || (allItems[0] && (allItems[0].thumbnailLargeUrl || allItems[0].thumbnailUrl)) || null;
         
-        // Calculate downloads analytics
-        const downloadsArr = items
+        // Calculate downloads analytics over all contributor items retrieved
+        const allDownloadsArr = allItems
             .map(i => Number(i.downloads))
             .filter(d => Number.isFinite(d) && d >= 0)
             .sort((a, b) => a - b);
         
-        const totalSampleDownloads = downloadsArr.reduce((sum, d) => sum + d, 0);
-        const avgDownloads = downloadsArr.length ? Math.round(totalSampleDownloads / downloadsArr.length) : 0;
-        
+        const totalScrapedDownloads = allDownloadsArr.reduce((sum, d) => sum + d, 0);
+        // Prioritize actual profile downloads from Apify PORTFOLIOS record; fallback to cumulative downloads from all scraped items
+        const finalTotalDownloads = hasPortfolioDownloads && totalPortfolioDownloads > 0 
+            ? totalPortfolioDownloads 
+            : totalScrapedDownloads;
+
+        const effectiveAvgDownloads = portfolioAvgDownloads > 0
+            ? portfolioAvgDownloads
+            : (allDownloadsArr.length ? Math.round(finalTotalDownloads / (totalPortfolioAssets || allDownloadsArr.length)) : 0);
+
         let medianDownloads = 0;
-        if (downloadsArr.length > 0) {
-            const mid = Math.floor(downloadsArr.length / 2);
-            const val1 = downloadsArr[mid] ?? 0;
-            const val0 = downloadsArr[mid - 1] ?? val1;
-            medianDownloads = downloadsArr.length % 2 !== 0 ? val1 : Math.round((val0 + val1) / 2);
+        if (allDownloadsArr.length > 0) {
+            const mid = Math.floor(allDownloadsArr.length / 2);
+            const val1 = allDownloadsArr[mid] ?? 0;
+            const val0 = allDownloadsArr[mid - 1] ?? val1;
+            medianDownloads = allDownloadsArr.length % 2 !== 0 ? val1 : Math.round((val0 + val1) / 2);
         }
 
         // Clean & normalize items
@@ -287,8 +309,8 @@ export async function POST(req: Request) {
                 totalPages,
                 hasNextPage,
                 totalLoaded: normalizedItems.length,
-                totalSampleDownloads,
-                avgDownloads,
+                totalSampleDownloads: finalTotalDownloads,
+                avgDownloads: effectiveAvgDownloads,
                 medianDownloads
             }
         });

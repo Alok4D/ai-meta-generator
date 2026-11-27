@@ -26,7 +26,7 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
     return (
         <div
             onClick={() => onSelect(asset)}
-            className="group relative bg-card border border-border/70 hover:border-primary/50 rounded-2xl overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col cursor-pointer"
+            className="group relative bg-card border border-border/80 hover:border-[#1473E6]/60 rounded-none overflow-hidden transition-all duration-200 flex flex-col cursor-pointer"
         >
             {/* Image Preview Container */}
             <div className="relative aspect-video w-full bg-muted/40 overflow-hidden flex items-center justify-center">
@@ -34,7 +34,7 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
                     <img
                         src={asset.thumbnailUrl}
                         alt={asset.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                     />
                 ) : (
@@ -45,19 +45,19 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
 
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white">
-                    <span className="text-xs font-semibold bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-1.5 border border-white/20">
+                    <span className="text-xs font-semibold bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-none flex items-center gap-1.5 border border-white/20">
                         <Maximize2 className="w-3.5 h-3.5" />
-                        Inspect Details & Keywords
+                        Inspect Details &amp; Keywords
                     </span>
                 </div>
 
                 {/* Top Left Badges */}
                 <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-black/70 text-white backdrop-blur-md border border-white/10">
+                    <span className="px-2 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider bg-black/80 text-white backdrop-blur-md border border-white/10">
                         {asset.mediaType}
                     </span>
                     {asset.isGenerativeAi && (
-                        <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-purple-600/90 text-white backdrop-blur-md flex items-center gap-0.5 shadow-xs">
+                        <span className="px-1.5 py-0.5 rounded-none text-[10px] font-bold bg-purple-600/90 text-white backdrop-blur-md flex items-center gap-0.5">
                             <Sparkles className="w-2.5 h-2.5" /> AI
                         </span>
                     )}
@@ -65,7 +65,7 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
 
                 {/* Top Right Downloads Badge */}
                 <div className="absolute top-2.5 right-2.5">
-                    <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-black/75 text-amber-400 backdrop-blur-md border border-amber-400/30 flex items-center gap-1 shadow-md">
+                    <span className="px-2.5 py-1 rounded-none text-xs font-bold bg-black/80 text-amber-400 backdrop-blur-md border border-amber-400/30 flex items-center gap-1">
                         <Flame className="w-3.5 h-3.5 fill-amber-400" />
                         <span>{asset.downloads} DL</span>
                     </span>
@@ -77,7 +77,7 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
                 <div>
                     {/* Demand badge & Category */}
                     <div className="flex items-center justify-between text-xs mb-1.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${getDemandBadge()}`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-none border ${getDemandBadge()}`}>
                             {asset.demandTag || "Asset"}
                         </span>
                         <span className="text-[11px] text-muted-foreground truncate max-w-[130px]">
@@ -86,15 +86,15 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xs font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors" title={asset.title}>
+                    <h3 className="text-xs font-medium text-foreground line-clamp-2 leading-snug group-hover:text-[#1473E6] transition-colors" title={asset.title}>
                         {asset.title}
                     </h3>
                 </div>
 
                 {/* Card Footer: Keywords count & Date */}
-                <div className="pt-2.5 border-t border-border/50 flex items-center justify-between text-[11px] text-muted-foreground">
+                <div className="pt-2.5 border-t border-border/60 flex items-center justify-between text-[11px] text-muted-foreground">
                     <span className="flex items-center gap-1 font-mono">
-                        <Tag className="w-3 h-3 text-primary" />
+                        <Tag className="w-3 h-3 text-[#1473E6]" />
                         <span>{asset.keywords.length} keywords</span>
                     </span>
 

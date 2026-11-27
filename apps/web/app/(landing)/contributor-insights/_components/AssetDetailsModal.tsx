@@ -30,11 +30,11 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="relative w-full max-w-4xl bg-card border border-border/80 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div className="relative w-full max-w-4xl bg-card border border-border/80 rounded-none shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 px-6 border-b border-border/60">
                     <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+                        <span className="px-2.5 py-1 rounded-none text-xs font-bold uppercase tracking-wider bg-[#1473E6]/10 text-[#1473E6] border border-[#1473E6]/25">
                             {asset.mediaType}
                         </span>
                         <span className="text-xs font-mono text-muted-foreground">
@@ -44,7 +44,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
 
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-none flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -54,7 +54,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                 <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-12 gap-6">
                     {/* Left Column: Image Preview & Direct Links */}
                     <div className="md:col-span-5 flex flex-col gap-4">
-                        <div className="relative w-full aspect-video md:aspect-square bg-muted/30 border border-border/60 rounded-xl overflow-hidden flex items-center justify-center shadow-inner">
+                        <div className="relative w-full aspect-video md:aspect-square bg-muted/30 border border-border/60 rounded-none overflow-hidden flex items-center justify-center shadow-inner">
                             {asset.thumbnailUrl ? (
                                 <img
                                     src={asset.thumbnailUrl}
@@ -66,7 +66,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                             )}
 
                             {asset.isGenerativeAi && (
-                                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-600/90 text-white backdrop-blur-md flex items-center gap-1 shadow-sm">
+                                <div className="absolute top-2 left-2 px-2 py-0.5 rounded-none text-[10px] font-bold bg-purple-600/90 text-white backdrop-blur-md flex items-center gap-1 shadow-xs">
                                     <Sparkles className="w-3 h-3" /> AI Generated
                                 </div>
                             )}
@@ -77,7 +77,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                             href={asset.url || `https://stock.adobe.com/${asset.id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="w-full py-2.5 px-4 bg-muted hover:bg-muted/80 text-foreground border border-border font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                            className="w-full py-2.5 px-4 bg-muted hover:bg-muted/80 text-foreground border border-border font-semibold rounded-none text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
                         >
                             <ExternalLink className="w-3.5 h-3.5" />
                             <span>View on Adobe Stock</span>
@@ -98,7 +98,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
 
                         {/* Metric Highlights */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-2.5 text-center">
+                            <div className="bg-amber-500/10 border border-amber-500/20 rounded-none p-2.5 text-center">
                                 <div className="flex items-center justify-center gap-1 text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase mb-0.5">
                                     <Flame className="w-3 h-3 fill-amber-500" />
                                     <span>Downloads</span>
@@ -108,7 +108,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                                 </div>
                             </div>
 
-                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-2.5 text-center">
+                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-none p-2.5 text-center">
                                 <div className="flex items-center justify-center gap-1 text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase mb-0.5">
                                     <Eye className="w-3 h-3" />
                                     <span>Views</span>
@@ -118,7 +118,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                                 </div>
                             </div>
 
-                            <div className="bg-muted/50 border border-border/60 rounded-xl p-2.5 text-center">
+                            <div className="bg-muted/50 border border-border/60 rounded-none p-2.5 text-center">
                                 <div className="text-[10px] font-semibold text-muted-foreground uppercase mb-0.5">
                                     Type
                                 </div>
@@ -127,7 +127,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                                 </div>
                             </div>
 
-                            <div className="bg-muted/50 border border-border/60 rounded-xl p-2.5 text-center">
+                            <div className="bg-muted/50 border border-border/60 rounded-none p-2.5 text-center">
                                 <div className="text-[10px] font-semibold text-muted-foreground uppercase mb-0.5">
                                     Category
                                 </div>
@@ -138,7 +138,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                         </div>
 
                         {/* Contributor info line */}
-                        <div className="bg-muted/30 border border-border/50 rounded-xl p-3 flex items-center justify-between text-xs">
+                        <div className="bg-muted/30 border border-border/50 rounded-none p-3 flex items-center justify-between text-xs">
                             <div className="flex items-center gap-2">
                                 <span className="text-muted-foreground">Creator:</span>
                                 <span className="font-semibold text-foreground">{asset.creatorName}</span>
@@ -157,7 +157,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                         <div className="flex-1 flex flex-col">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-1.5">
-                                    <Tag className="w-3.5 h-3.5 text-primary" />
+                                    <Tag className="w-3.5 h-3.5 text-[#1473E6]" />
                                     <span className="text-xs font-semibold text-foreground">
                                         Keywords ({asset.keywords?.length || 0})
                                     </span>
@@ -166,7 +166,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                                 <button
                                     onClick={handleCopyAll}
                                     type="button"
-                                    className="text-xs text-primary hover:text-primary/80 transition-colors flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-lg font-medium cursor-pointer"
+                                    className="text-xs text-[#1473E6] hover:text-[#0d66d0] transition-colors flex items-center gap-1 bg-[#1473E6]/10 border border-[#1473E6]/25 px-2.5 py-1 rounded-none font-medium cursor-pointer"
                                 >
                                     {copiedAll ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                                     <span>{copiedAll ? "Copied All!" : "Copy All Keywords"}</span>
@@ -174,7 +174,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                             </div>
 
                             {/* Keywords Chips */}
-                            <div className="bg-muted/20 border border-border/60 rounded-xl p-3 flex flex-wrap gap-1.5 max-h-56 overflow-y-auto">
+                            <div className="bg-muted/20 border border-border/60 rounded-none p-3 flex flex-wrap gap-1.5 max-h-56 overflow-y-auto">
                                 {asset.keywords && asset.keywords.length > 0 ? (
                                     asset.keywords.map((kw, idx) => {
                                         const isThisCopied = copiedKeyword === kw;
@@ -184,10 +184,10 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
                                                 type="button"
                                                 onClick={() => handleCopySingleKeyword(kw)}
                                                 title="Click to copy keyword"
-                                                className={`px-2 py-1 rounded-md text-xs font-medium border transition-all cursor-pointer flex items-center gap-1 ${
+                                                className={`px-2 py-1 rounded-none text-xs font-medium border transition-all cursor-pointer flex items-center gap-1 ${
                                                     isThisCopied
-                                                        ? "bg-emerald-500 text-white border-emerald-500 scale-105"
-                                                        : "bg-background hover:bg-muted text-foreground border-border/70 shadow-2xs hover:border-primary/40"
+                                                        ? "bg-emerald-500 text-white border-emerald-500"
+                                                        : "bg-background hover:bg-muted text-foreground border-border/70 shadow-2xs hover:border-[#1473E6]/40"
                                                 }`}
                                             >
                                                 <span>{kw}</span>

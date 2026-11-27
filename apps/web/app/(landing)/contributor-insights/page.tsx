@@ -165,7 +165,23 @@ export default function ContributorInsightsPage() {
             }
 
             setItems(data.items || []);
-            setSummary(data.summary || null);
+            const newSummary = data.summary || null;
+            if (newSummary) {
+                setSummary(prev => {
+                    if (!prev || activeMode !== 'contributor' || String(prev.creatorId) !== String(newSummary.creatorId)) {
+                        return newSummary;
+                    }
+                    return {
+                        ...newSummary,
+                        totalAssets: newSummary.totalAssets || prev.totalAssets,
+                        totalSampleDownloads: (newSummary.totalSampleDownloads > 0 ? newSummary.totalSampleDownloads : (prev.totalSampleDownloads ?? 0)),
+                        avgDownloads: (newSummary.avgDownloads > 0 ? newSummary.avgDownloads : (prev.avgDownloads ?? 0)),
+                        medianDownloads: (newSummary.medianDownloads > 0 ? newSummary.medianDownloads : (prev.medianDownloads ?? 0)),
+                    };
+                });
+            } else {
+                setSummary(null);
+            }
 
             if (!data.items || data.items.length === 0) {
                 Swal.fire({
@@ -335,8 +351,8 @@ export default function ContributorInsightsPage() {
 
                 {/* Initial Blank State (Before search) */}
                 {!isLoading && !searched && (
-                    <div className="bg-muted/20 border border-border/60 border-dashed rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                    <div className="bg-muted/20 border border-border/60 border-dashed rounded-none p-12 text-center flex flex-col items-center justify-center gap-3">
+                        <div className="w-12 h-12 rounded-none bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                             <FileSearch className="w-6 h-6" />
                         </div>
                         <h3 className="font-semibold text-foreground text-base">
