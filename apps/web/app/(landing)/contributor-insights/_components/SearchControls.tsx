@@ -26,8 +26,6 @@ interface SearchControlsProps {
     onAiContentChange: (ai: AiFilter) => void;
     sortBy: SortOption;
     onSortByChange: (sort: SortOption) => void;
-    maxItems: number;
-    onMaxItemsChange: (items: number) => void;
     onOpenSettings: () => void;
     selectedKey: ApifyKeyRecord | null;
 }
@@ -45,8 +43,6 @@ export default function SearchControls({
     onAiContentChange,
     sortBy,
     onSortByChange,
-    maxItems,
-    onMaxItemsChange,
     onOpenSettings,
     selectedKey
 }: SearchControlsProps) {
@@ -260,21 +256,6 @@ export default function SearchControls({
                                     </button>
                                 ))}
                             </div>
-                        </div>
-
-                        {/* Assets Limit Dropdown */}
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-muted-foreground">Limit:</span>
-                            <select
-                                value={maxItems}
-                                onChange={(e) => onMaxItemsChange(Number(e.target.value))}
-                                className="bg-muted/40 border border-border/80 px-2 py-1 text-xs text-foreground font-medium focus:outline-none focus:border-[#1473E6] cursor-pointer rounded-none"
-                            >
-                                <option value={14}>14 (Page 1)</option>
-                                <option value={30}>30 assets</option>
-                                <option value={50}>50 assets</option>
-                                <option value={100}>100 (Full batch)</option>
-                            </select>
                         </div>
                     </div>
                 )}

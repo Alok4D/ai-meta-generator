@@ -33,7 +33,8 @@ export async function POST(req: Request) {
             sortBy = 'downloads', // 'downloads' | 'relevance' | 'creation'
             fileType = 'all',     // 'all' | 'photo' | 'illustration' | 'vector' | 'video' | 'template' | '3d'
             aiContent = 'all',    // 'all' | 'only' | 'exclude'
-            maxItems = 14,
+            maxItems = 100,
+            page = 1,
             apiKey
         } = body;
 
@@ -54,8 +55,12 @@ export async function POST(req: Request) {
         }
 
         // Build Apify Actor input
+        const pageNum = Math.max(Number(page) || 1, 1);
+        const limitNum = mode === 'asset' ? 1 : Math.min(Math.max(Number(maxItems) || 100, 1), 100);
+
         const actorInput: Record<string, any> = {
-            maxItems: mode === 'asset' ? 1 : Math.min(Math.max(Number(maxItems) || 14, 1), 100),
+            maxItems: limitNum,
+            page: pageNum,
             sortBy: sortBy === 'creation' ? 'creation' : (sortBy === 'relevance' ? 'relevance' : 'downloads'),
             trackChanges: false,
             premium: 'all',
@@ -169,6 +174,8 @@ export async function POST(req: Request) {
         const creatorName = first.creatorName || `Contributor ${numericId}`;
         const creatorCountry = first.creatorCountry || '';
         const creatorUrl = first.creatorUrl || `https://stock.adobe.com/contributor/${numericId}`;
+        const avatarUrl = first.creatorAvatarUrl || (items[0] && (items[0].thumbnailLargeUrl || items[0].thumbnailUrl)) || null;
+        const coverUrl = (items[0] && (items[0].thumbnailLargeUrl || items[0].thumbnailUrl)) || null;
         
         // Calculate downloads analytics
         const downloadsArr = items
@@ -245,6 +252,10 @@ export async function POST(req: Request) {
                 creatorId: numericId,
                 creatorCountry,
                 creatorUrl,
+                avatarUrl,
+                coverUrl,
+                currentPage: pageNum,
+                hasNextPage: normalizedItems.length >= 100,
                 totalLoaded: normalizedItems.length,
                 totalSampleDownloads,
                 avgDownloads,

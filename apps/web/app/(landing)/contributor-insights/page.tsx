@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { Sparkles, Layers, AlertCircle, FileSearch, RefreshCw, Download } from "lucide-react";
+import { Sparkles, Layers, AlertCircle, FileSearch, RefreshCw, Download, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { AdobeAssetItem, ContributorSummary, ApifyKeyRecord, SearchMode, FileTypeFilter, AiFilter, SortOption } from "./_components/types";
 import SearchControls from "./_components/SearchControls";
@@ -36,7 +36,7 @@ export default function ContributorInsightsPage() {
     const [fileType, setFileType] = useState<FileTypeFilter>("all");
     const [aiContent, setAiContent] = useState<AiFilter>("all");
     const [sortBy, setSortBy] = useState<SortOption>("downloads");
-    const [maxItems, setMaxItems] = useState<number>(14);
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
     // Data states
     const [items, setItems] = useState<AdobeAssetItem[]>([]);
@@ -123,7 +123,7 @@ export default function ContributorInsightsPage() {
         activeSort = sortBy,
         activeType = fileType,
         activeAi = aiContent,
-        activeMaxItems = maxItems
+        targetPage = 1
     ) => {
         const trimmed = targetQuery.trim();
         if (!trimmed) {
@@ -140,6 +140,7 @@ export default function ContributorInsightsPage() {
 
         setIsLoading(true);
         setSearched(true);
+        setCurrentPage(targetPage);
 
         try {
             const res = await fetch("/api/adobe-tracker/search", {
@@ -151,7 +152,8 @@ export default function ContributorInsightsPage() {
                     sortBy: activeSort,
                     fileType: activeType,
                     aiContent: activeAi,
-                    maxItems: activeMaxItems,
+                    maxItems: 100,
+                    page: targetPage,
                     apiKey: selectedKey?.token
                 })
             });
@@ -187,7 +189,7 @@ export default function ContributorInsightsPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        executeSearch();
+        executeSearch(query, mode, sortBy, fileType, aiContent, 1);
     };
 
     const handleModeSwitch = (newMode: SearchMode) => {
@@ -195,26 +197,27 @@ export default function ContributorInsightsPage() {
         setItems([]);
         setSummary(null);
         setSearched(false);
+        setCurrentPage(1);
     };
 
     const handleSortChange = (newSort: SortOption) => {
         setSortBy(newSort);
         if (searched && query.trim() && mode === 'contributor') {
-            executeSearch(query, mode, newSort, fileType, aiContent, maxItems);
+            executeSearch(query, mode, newSort, fileType, aiContent, 1);
         }
     };
 
     const handleFileTypeChange = (newType: FileTypeFilter) => {
         setFileType(newType);
         if (searched && query.trim() && mode === 'contributor') {
-            executeSearch(query, mode, sortBy, newType, aiContent, maxItems);
+            executeSearch(query, mode, sortBy, newType, aiContent, 1);
         }
     };
 
     const handleAiContentChange = (newAi: AiFilter) => {
         setAiContent(newAi);
         if (searched && query.trim() && mode === 'contributor') {
-            executeSearch(query, mode, sortBy, fileType, newAi, maxItems);
+            executeSearch(query, mode, sortBy, fileType, newAi, 1);
         }
     };
 
@@ -236,8 +239,6 @@ export default function ContributorInsightsPage() {
                     onAiContentChange={handleAiContentChange}
                     sortBy={sortBy}
                     onSortByChange={handleSortChange}
-                    maxItems={maxItems}
-                    onMaxItemsChange={setMaxItems}
                     onOpenSettings={() => setIsSettingsOpen(true)}
                     selectedKey={selectedKey}
                 />
@@ -288,6 +289,47 @@ export default function ContributorInsightsPage() {
                                 />
                             ))}
                         </div>
+
+                        {/* Pagination Bar (At the bottom of results, clean & responsive) */}
+                        {mode === 'contributor' && (
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/80 text-xs">
+                                <div className="text-muted-foreground">
+                                    Showing Page <strong className="text-foreground">{currentPage}</strong> • Loaded <strong className="text-foreground">{items.length}</strong> assets
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        disabled={currentPage <= 1 || isLoading}
+                                        onClick={() => {
+                                            executeSearch(query, mode, sortBy, fileType, aiContent, currentPage - 1);
+                                            window.scrollTo({ top: 250, behavior: 'smooth' });
+                                        }}
+                                        className="px-4 py-2 border border-border/80 bg-card hover:bg-muted text-foreground transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed rounded-none flex items-center gap-1.5 font-medium"
+                                    >
+                                        <ChevronLeft className="w-3.5 h-3.5" />
+                                        <span>Previous Page</span>
+                                    </button>
+
+                                    <span className="px-3 py-2 font-mono font-bold bg-muted/60 border border-border/80 rounded-none text-foreground">
+                                        Page {currentPage}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        disabled={items.length < 100 || isLoading}
+                                        onClick={() => {
+                                            executeSearch(query, mode, sortBy, fileType, aiContent, currentPage + 1);
+                                            window.scrollTo({ top: 250, behavior: 'smooth' });
+                                        }}
+                                        className="px-5 py-2 bg-[#1473E6] hover:bg-[#0d66d0] text-white transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed rounded-none flex items-center gap-1.5 font-medium shadow-xs"
+                                    >
+                                        <span>Next Page</span>
+                                        <ChevronRight className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
 

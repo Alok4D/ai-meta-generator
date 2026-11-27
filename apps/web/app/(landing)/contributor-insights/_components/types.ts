@@ -29,10 +29,14 @@ export interface ContributorSummary {
     creatorId: string | number;
     creatorCountry?: string;
     creatorUrl?: string;
+    avatarUrl?: string | null;
+    coverUrl?: string | null;
     totalLoaded: number;
     totalSampleDownloads: number;
     avgDownloads: number;
     medianDownloads: number;
+    currentPage?: number;
+    hasNextPage?: boolean;
 }
 
 export interface ApifyKeyRecord {
