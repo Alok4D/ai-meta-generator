@@ -194,13 +194,7 @@ export default function SearchControls({
                         <span className="text-[11px]">Demo:</span>
                         {mode === "contributor" ? (
                             <>
-                                <button
-                                    type="button"
-                                    onClick={() => onQueryChange("213239991")}
-                                    className="bg-muted/40 hover:bg-muted text-foreground px-2 py-0.5 text-[11px] font-mono transition-colors cursor-pointer border border-border/60 rounded-none"
-                                >
-                                    Line World (213239991)
-                                </button>
+                              
                                 <button
                                     type="button"
                                     onClick={() => onQueryChange("https://stock.adobe.com/contributor/210274732/sense")}
