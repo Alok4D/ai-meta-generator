@@ -16,6 +16,7 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
     const [copiedAll, setCopiedAll] = useState(false);
     const [copiedKeyword, setCopiedKeyword] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState(false);
+    const [copiedTitle, setCopiedTitle] = useState(false);
 
     if (!asset) return null;
 
@@ -23,6 +24,13 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
         navigator.clipboard.writeText(String(asset.id));
         setCopiedId(true);
         setTimeout(() => setCopiedId(false), 1500);
+    };
+
+    const handleCopyTitle = () => {
+        if (!asset.title) return;
+        navigator.clipboard.writeText(asset.title);
+        setCopiedTitle(true);
+        setTimeout(() => setCopiedTitle(false), 1500);
     };
 
     const handleCopyAll = () => {
@@ -40,12 +48,13 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200"
-            onClick={onClose}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200 select-text"
+            onMouseDown={(e) => {
+                if (e.target === e.currentTarget) onClose();
+            }}
         >
             <div
-                className="relative w-full max-w-5xl bg-card border border-border/80 rounded-none shadow-2xl overflow-hidden max-h-[92vh] flex flex-col"
-                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-5xl bg-card border border-border/80 rounded-none shadow-2xl overflow-hidden max-h-[92vh] flex flex-col select-text"
             >
                 {/* Floating Close Button */}
                 <button
@@ -58,10 +67,22 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
 
                 {/* Modal Body */}
                 <div className="flex-1 overflow-y-auto p-6 pt-10 sm:pt-7 grid grid-cols-1 md:grid-cols-12 gap-6">
-                    {/* Left Column: Image Preview & Full Technical Metadata */}
+                    {/* Left Column: Image / Video Preview & Full Technical Metadata */}
                     <div className="md:col-span-5 flex flex-col gap-4">
                         <div className="relative w-full aspect-video md:aspect-square bg-muted/30 border border-border/60 rounded-none overflow-hidden flex items-center justify-center">
-                            {asset.thumbnailUrl ? (
+                            {(asset.isVideo || asset.mediaType?.toLowerCase().includes("video")) &&
+                            (asset.videoPreviewUrl || asset.videoSmallPreviewUrl) ? (
+                                <video
+                                    src={asset.videoPreviewUrl || asset.videoSmallPreviewUrl || undefined}
+                                    poster={asset.thumbnailUrl}
+                                    autoPlay
+                                    loop
+                                    muted
+                                    playsInline
+                                    controls
+                                    className="w-full h-full object-contain"
+                                />
+                            ) : asset.thumbnailUrl ? (
                                 <img
                                     src={asset.thumbnailUrl}
                                     alt={asset.title}
@@ -181,16 +202,26 @@ export default function AssetDetailsModal({ asset, onClose }: AssetDetailsModalP
 
                         {/* Title */}
                         <div>
-                            <span className="text-xs font-semibold text-muted-foreground block mb-1">
-                                Asset Title
-                            </span>
-                            <h2 className="text-base font-semibold text-foreground leading-snug">
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="text-xs font-semibold text-muted-foreground">
+                                    Asset Title
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={handleCopyTitle}
+                                    className="text-xs text-[#1473E6] hover:text-[#0d66d0] transition-colors flex items-center gap-1 bg-[#1473E6]/10 border border-[#1473E6]/25 px-2 py-0.5 rounded-none font-medium cursor-pointer"
+                                >
+                                    {copiedTitle ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                                    <span>{copiedTitle ? "Copied!" : "Copy Title"}</span>
+                                </button>
+                            </div>
+                            <h2 className="text-base font-semibold text-foreground leading-snug select-text cursor-text">
                                 {asset.title}
                             </h2>
                         </div>
 
                         {/* Keywords Section */}
-                        <div className="flex-1 flex flex-col">
+                        <div className="flex flex-col">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-1.5">
                                     <Tag className="w-3.5 h-3.5 text-[#1473E6]" />

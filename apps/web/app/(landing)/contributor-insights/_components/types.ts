@@ -15,6 +15,8 @@ export interface AdobeAssetItem {
     height?: number;
     createdAt?: string;
     thumbnailUrl: string;
+    videoPreviewUrl?: string | null;
+    videoSmallPreviewUrl?: string | null;
     isGenerativeAi?: boolean;
     isVector?: boolean;
     isVideo?: boolean;

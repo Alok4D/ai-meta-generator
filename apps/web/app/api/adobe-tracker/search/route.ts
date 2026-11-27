@@ -24,6 +24,60 @@ function extractNumericId(input: string): string | null {
     return null;
 }
 
+async function fetchAssetViaScraperApi(assetId: string) {
+    const scraperApiKey = (process.env.SCRAPER_API_KEY || '').replace(/[^a-zA-Z0-9]/g, '');
+    if (!scraperApiKey) return null;
+
+    try {
+        const targetUrl = `https://stock.adobe.com/Ajax/MediaData/${assetId}?full=1`;
+        const scraperUrl = `https://api.scraperapi.com?api_key=${scraperApiKey}&render=true&country_code=us&url=${encodeURIComponent(targetUrl)}`;
+
+        const res = await fetch(scraperUrl, { signal: AbortSignal.timeout(45000) });
+        if (!res.ok) return null;
+
+        const rawData = await res.text();
+        const cleaned = rawData.replace(/<[^>]+>/g, '').trim();
+        const d = JSON.parse(cleaned);
+        if (!d || !d.content_id) return null;
+
+        const rawKeywords = Array.isArray(d.keywords)
+            ? d.keywords.map((k: any) => (typeof k === 'string' ? k : k?.name || '')).filter(Boolean)
+            : [];
+
+        const isVideo = Boolean(d.is_video || String(d.media_type_label || d.asset_type || '').toLowerCase().includes('video'));
+        const contentUrl = d.content_url
+            ? (d.content_url.startsWith('http') ? d.content_url : `https://stock.adobe.com${d.content_url}`)
+            : `https://stock.adobe.com/${assetId}`;
+
+        return {
+            id: d.content_id || assetId,
+            stockId: String(d.content_id || assetId),
+            title: d.title || 'Untitled Asset',
+            url: contentUrl,
+            mediaType: d.media_type_label || d.asset_type || (isVideo ? 'Video' : 'Image'),
+            fileFormat: d.format || d.file_extension || '',
+            creatorId: d.creator_id || '',
+            creatorName: d.author || 'Adobe Stock Contributor',
+            categoryName: d.category?.name || d.category_hierarchy || 'General',
+            keywords: rawKeywords,
+            downloads: Number(d.nb_downloads) || 0,
+            views: Number(d.nb_views) || 0,
+            width: Number(d.content_original_width || d.content_width) || undefined,
+            height: Number(d.content_original_height || d.content_height) || undefined,
+            createdAt: d.creation_date || undefined,
+            thumbnailUrl: d.content_thumb_large_url || d.content_thumb_extra_large_url || d.thumbnail_url || '',
+            videoPreviewUrl: d.video_preview_url || d.video_small_preview_url || null,
+            videoSmallPreviewUrl: d.video_small_preview_url || d.video_preview_url || null,
+            isGenerativeAi: Boolean(d.is_gentech),
+            isVector: String(d.media_type_label || d.asset_type || '').toLowerCase().includes('vector'),
+            isVideo,
+            isPurchasable: d.is_purchasable !== false
+        };
+    } catch {
+        return null;
+    }
+}
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -57,98 +111,132 @@ export async function POST(req: Request) {
         // Build Apify Actor input
         const pageNum = Math.max(Number(page) || 1, 1);
         const pageSize = 100;
-        const targetMaxItems = mode === 'asset' ? 1 : pageNum * pageSize;
+        const targetMaxItems = mode === 'asset' ? 10 : pageNum * pageSize;
 
-        const actorInput: Record<string, any> = {
-            maxItems: targetMaxItems,
-            sortBy: sortBy === 'creation' ? 'creation' : (sortBy === 'relevance' ? 'relevance' : 'downloads'),
-            trackChanges: false,
-            premium: 'all',
-            orientation: 'all',
-            releases: 'all',
-            isolatedOnly: false,
-            transparentOnly: false,
-            copySpaceOnly: false,
-            iconType: 'all',
-            videoDuration: 'all',
-            loopsOnly: false,
-            includeOffensive: false,
-            language: 'en_US'
-        };
+        let actorInput: Record<string, any>;
 
-        if (mode === 'contributor') {
-            actorInput.creatorIds = [numericId];
+        if (mode === 'asset') {
+            // Minimal clean payload for single asset ID lookup
+            actorInput = {
+                assetIds: [numericId],
+                maxItems: targetMaxItems,
+                language: 'en_US'
+            };
         } else {
-            actorInput.assetIds = [numericId];
-        }
+            actorInput = {
+                creatorIds: [numericId],
+                maxItems: targetMaxItems,
+                sortBy: sortBy === 'creation' ? 'newest' : (sortBy === 'relevance' ? 'relevance' : 'downloads'),
+                trackChanges: false,
+                premium: 'all',
+                orientation: 'all',
+                releases: 'all',
+                isolatedOnly: false,
+                transparentOnly: false,
+                copySpaceOnly: false,
+                iconType: 'all',
+                videoDuration: 'all',
+                loopsOnly: false,
+                includeOffensive: false,
+                language: 'en_US'
+            };
 
-        // Content types & premium filter
-        if (fileType && fileType !== 'all') {
-            const lowerType = fileType.toLowerCase();
-            if (lowerType === 'images') {
-                actorInput.contentTypes = ['photo', 'vector', 'illustration'];
-            } else if (lowerType === 'free') {
-                actorInput.premium = 'free';
-            } else if (lowerType === 'premium') {
-                actorInput.premium = 'premium';
-            } else if (lowerType === 'audio') {
-                actorInput.contentTypes = ['audio'];
-            } else {
-                const typeMap: Record<string, string> = {
-                    photos: 'photo',
-                    photo: 'photo',
-                    vectors: 'vector',
-                    vector: 'vector',
-                    illustrations: 'illustration',
-                    illustration: 'illustration',
-                    videos: 'video',
-                    video: 'video',
-                    templates: 'template',
-                    template: 'template',
-                    '3d': '3d'
-                };
-                const mapped = typeMap[lowerType] || fileType;
-                actorInput.contentTypes = [mapped];
+            // Content types & premium filter
+            if (fileType && fileType !== 'all') {
+                const lowerType = fileType.toLowerCase();
+                if (lowerType === 'images') {
+                    actorInput.contentTypes = ['photo', 'vector', 'illustration'];
+                } else if (lowerType === 'free') {
+                    actorInput.premium = 'free';
+                } else if (lowerType === 'premium') {
+                    actorInput.premium = 'premium';
+                } else if (lowerType === 'audio') {
+                    actorInput.contentTypes = ['audio'];
+                } else {
+                    const typeMap: Record<string, string> = {
+                        photos: 'photo',
+                        photo: 'photo',
+                        vectors: 'vector',
+                        vector: 'vector',
+                        illustrations: 'illustration',
+                        illustration: 'illustration',
+                        videos: 'video',
+                        video: 'video',
+                        templates: 'template',
+                        template: 'template',
+                        '3d': '3d'
+                    };
+                    const mapped = typeMap[lowerType] || fileType;
+                    actorInput.contentTypes = [mapped];
+                }
             }
-        }
 
-        // AI generated filter
-        if (aiContent === 'only') {
-            actorInput.aiGenerated = 'only';
-        } else if (aiContent === 'exclude') {
-            actorInput.aiGenerated = 'exclude';
-        } else {
-            actorInput.aiGenerated = 'all';
+            // AI generated filter
+            if (aiContent === 'only') {
+                actorInput.aiGenerated = 'only';
+            } else if (aiContent === 'exclude') {
+                actorInput.aiGenerated = 'exclude';
+            } else {
+                actorInput.aiGenerated = 'all';
+            }
         }
 
         // Run Apify Actor synchronously
         const actorEndpoint = `https://api.apify.com/v2/acts/clearpath~adobe-stock-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`;
         
-        const apifyRes = await fetch(actorEndpoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(actorInput)
-        });
+        let allItems: any[] = [];
+        let apifyRes: Response | null = null;
+        let apifyNetworkError: any = null;
 
-        if (!apifyRes.ok) {
-            const errText = await apifyRes.text();
-            let parsedErr: any = {};
-            try { parsedErr = JSON.parse(errText); } catch (_) {}
-            const msg = parsedErr.error?.message || errText || 'Apify run failed';
-            
-            if (apifyRes.status === 401) {
-                return NextResponse.json({ error: 'Apify API key is invalid or expired. Please check your API Settings.' }, { status: 401 });
-            }
-            if (apifyRes.status === 403 || msg.includes('credit') || msg.includes('limit')) {
-                return NextResponse.json({ error: 'Apify monthly usage limit reached. Please verify your Apify credit in API Settings.' }, { status: 403 });
-            }
-            return NextResponse.json({ error: msg }, { status: apifyRes.status });
+        try {
+            apifyRes = await fetch(actorEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(actorInput)
+            });
+        } catch (err) {
+            apifyNetworkError = err;
         }
 
-        const rawItems = await apifyRes.json();
-        const allItems = Array.isArray(rawItems) ? rawItems : [];
+        if (!apifyRes || !apifyRes.ok) {
+            // In asset lookup mode, try ScraperAPI fallback before returning an Apify error
+            if (mode === 'asset') {
+                const fallbackItem = await fetchAssetViaScraperApi(numericId);
+                if (fallbackItem) {
+                    allItems = [fallbackItem];
+                }
+            }
+
+            if (allItems.length === 0) {
+                if (!apifyRes) {
+                    throw apifyNetworkError || new Error('Failed to connect to Apify API');
+                }
+                const errText = await apifyRes.text();
+                let parsedErr: any = {};
+                try { parsedErr = JSON.parse(errText); } catch (_) {}
+                const msg = parsedErr.error?.message || errText || 'Apify run failed';
+                
+                if (apifyRes.status === 401) {
+                    return NextResponse.json({ error: 'Apify API key is invalid or expired. Please check your API Settings.' }, { status: 401 });
+                }
+                if (apifyRes.status === 403 || msg.includes('credit') || msg.includes('limit')) {
+                    return NextResponse.json({ error: 'Apify monthly usage limit reached. Please verify your Apify credit in API Settings.' }, { status: 403 });
+                }
+                return NextResponse.json({ error: msg }, { status: apifyRes.status });
+            }
+        } else {
+            const rawItems = await apifyRes.json();
+            allItems = Array.isArray(rawItems) ? rawItems : [];
+
+            if (mode === 'asset' && allItems.length === 0) {
+                const fallbackItem = await fetchAssetViaScraperApi(numericId);
+                if (fallbackItem) {
+                    allItems = [fallbackItem];
+                }
+            }
+        }
 
         // Attempt to fetch creator's total portfolio size and total downloads from Key-Value Store
         let totalPortfolioAssets = allItems.length;
@@ -321,6 +409,8 @@ export async function POST(req: Request) {
                 height: item.height,
                 createdAt: item.createdAt,
                 thumbnailUrl: item.thumbnailLargeUrl || item.thumbnailUrl || (item.thumbnails && item.thumbnails['500']?.url),
+                videoPreviewUrl: item.videoPreviewUrl || item.videoSmallPreviewUrl || null,
+                videoSmallPreviewUrl: item.videoSmallPreviewUrl || item.videoPreviewUrl || null,
                 isGenerativeAi: Boolean(item.isGenerativeAi || item.isFireflyGenerated),
                 isVector: Boolean(item.isVector),
                 isVideo: Boolean(item.isVideo),

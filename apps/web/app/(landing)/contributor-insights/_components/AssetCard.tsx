@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useState } from "react";
 import { Flame, Calendar } from "lucide-react";
 import { AdobeAssetItem } from "./types";
 
@@ -13,14 +13,54 @@ const ADOBE_FONT_FAMILY =
     'adobe-clean, "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Trebuchet MS", "Lucida Grande", sans-serif';
 
 export default function AssetCard({ asset, onSelect }: AssetCardProps) {
+    const [isHoveringVideo, setIsHoveringVideo] = useState(false);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+
+    const isVideo = Boolean(asset.isVideo || asset.mediaType?.toLowerCase().includes("video"));
+    const videoSrc = isVideo ? (asset.videoSmallPreviewUrl || asset.videoPreviewUrl) : null;
+
+    const handleMouseEnter = () => {
+        if (!videoSrc) return;
+        setIsHoveringVideo(true);
+        // Play on next tick once video element mounts/becomes active
+        requestAnimationFrame(() => {
+            if (videoRef.current) {
+                videoRef.current.currentTime = 0;
+                videoRef.current.play().catch(() => {});
+            }
+        });
+    };
+
+    const handleMouseLeave = () => {
+        if (!videoSrc) return;
+        setIsHoveringVideo(false);
+        if (videoRef.current) {
+            videoRef.current.pause();
+            videoRef.current.currentTime = 0;
+        }
+    };
+
     return (
         <div className="relative bg-card border border-border/80 hover:border-[#1473E6]/60 rounded-none overflow-hidden transition-all duration-200 flex flex-col">
-            {/* Clean Image Preview Container (Click image to inspect details) */}
+            {/* Clean Image / Video Preview Container (Click to inspect details; hover video to auto-play) */}
             <div
                 onClick={() => onSelect(asset)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
                 className="group relative aspect-video w-full bg-muted/40 border-b border-border/60 overflow-hidden flex items-center justify-center cursor-pointer"
             >
-                {asset.thumbnailUrl ? (
+                {videoSrc && isHoveringVideo ? (
+                    <video
+                        ref={videoRef}
+                        src={videoSrc}
+                        poster={asset.thumbnailUrl}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full h-full object-cover"
+                    />
+                ) : asset.thumbnailUrl ? (
                     <img
                         src={asset.thumbnailUrl}
                         alt={asset.title}
