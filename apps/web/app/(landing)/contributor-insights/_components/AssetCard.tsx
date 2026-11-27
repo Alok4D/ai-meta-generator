@@ -47,8 +47,18 @@ export default function AssetCard({ asset, onSelect }: AssetCardProps) {
                             )}
                         </div>
 
-                        <span className="px-2 py-0.5 rounded-none text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center gap-1 shrink-0">
-                            <Flame className="w-3 h-3 fill-amber-500" />
+                        <span
+                            style={{
+                                fontFamily:
+                                    'adobe-clean, "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Trebuchet MS", "Lucida Grande", sans-serif',
+                                fontSize: "24px",
+                                fontWeight: 300,
+                                lineHeight: "36px",
+                                letterSpacing: "2.4px"
+                            }}
+                            className="px-3 py-0.5 rounded-none bg-[#42a5f5] text-white flex items-center gap-1.5 shrink-0"
+                        >
+                            <Flame className="w-4 h-4 fill-white text-white shrink-0" />
                             <span>{asset.downloads} DL</span>
                         </span>
                     </div>
