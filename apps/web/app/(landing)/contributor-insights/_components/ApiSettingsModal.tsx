@@ -106,16 +106,16 @@ export default function ApiSettingsModal({
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="relative w-full max-w-lg bg-card border border-border/80 rounded-none shadow-2xl p-6 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+            <div className="relative w-full rounded-[2px] max-w-xl bg-card border border-border/80  shadow-xl p-6 overflow-hidden">
                 {/* Header */}
                 <div className="flex items-center justify-between pb-4 border-b border-border/60">
                     <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-none bg-background border border-border/80 flex items-center justify-center p-1.5 shrink-0">
+                        <div className="w-9 h-9 rounded-none bg-background flex items-center justify-center">
                             <img
                                 src="https://apify.com/img/apify-logo/apify-symbol-200x200.svg"
                                 alt="Apify"
-                                className="w-5 h-5 object-contain"
+                                className="w-9 h-9 object-contain"
                             />
                         </div>
                         <div>
