@@ -52,11 +52,7 @@ export default function SearchControls({
 }: SearchControlsProps) {
     const [isFindSimilarOpen, setIsFindSimilarOpen] = useState(false);
 
-    const sortOptions: { id: SortOption; label: string }[] = [
-        { id: "downloads", label: "Most Downloaded" },
-        { id: "creation", label: "Newest" },
-        { id: "relevance", label: "Top Relevant" }
-    ];
+
 
     const handleFileSelected = (file: File) => {
         const cleanName = file.name.replace(/\.[^/.]+$/, "");
@@ -241,28 +237,7 @@ export default function SearchControls({
                 {/* Right Side: Sort, AI Filter & Assets Limit */}
                 {mode === "contributor" && (
                     <div className="flex items-center gap-3 flex-wrap">
-                        {/* Sort Selector */}
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-muted-foreground">Sort:</span>
-                            <div className="inline-flex border border-border/80 bg-muted/40 rounded-none">
-                                {sortOptions.map((s, idx) => (
-                                    <button
-                                        key={s.id}
-                                        type="button"
-                                        onClick={() => onSortByChange(s.id)}
-                                        className={`px-2.5 py-1 text-xs transition-colors cursor-pointer rounded-none ${
-                                            idx > 0 ? "border-l border-border/80" : ""
-                                        } ${
-                                            sortBy === s.id
-                                                ? "bg-[#1473E6] text-white font-medium"
-                                                : "text-muted-foreground hover:text-foreground"
-                                        }`}
-                                    >
-                                        {s.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+                  
 
                         {/* AI Content Selector */}
                         <div className="flex items-center gap-1.5">
