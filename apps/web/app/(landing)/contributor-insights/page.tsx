@@ -12,6 +12,18 @@ import ResultsSkeleton from "./_components/ResultsSkeleton";
 import AssetCard from "./_components/AssetCard";
 import AssetDetailsModal from "./_components/AssetDetailsModal";
 import ApiSettingsModal from "./_components/ApiSettingsModal";
+import {
+    getFailedKeyIndices,
+    recordFailedKeyIndices,
+    clearFailedKeyIndices,
+    getFailedCustomKeyIds,
+    recordFailedCustomKeyIds,
+    removeFailedCustomKeyId,
+    clearFailedCustomKeyIds,
+    getSystemAccessToken,
+    setSystemAccessToken,
+    clearSystemAccessToken
+} from "./_lib/apify-fallback";
 
 const STORAGE_KEY = "nx-apify-keys";
 const SELECTED_KEY_STORAGE = "nx-apify-selected-key";
@@ -54,19 +66,36 @@ export default function ContributorInsightsPage() {
     const [keys, setKeys] = useState<ApifyKeyRecord[]>([]);
     const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [failedKeysCount, setFailedKeysCount] = useState(0);
+    const [failedCustomKeysCount, setFailedCustomKeysCount] = useState(0);
+    const [systemAccessTokenState, setSystemAccessTokenState] = useState<string | null>(null);
 
     // Load saved keys from localStorage on mount
     useEffect(() => {
+        const storedSystemToken = getSystemAccessToken();
+        setSystemAccessTokenState(storedSystemToken);
+        setFailedKeysCount(getFailedKeyIndices().length);
+        setFailedCustomKeysCount(getFailedCustomKeyIds().length);
+
         try {
             const savedKeysJson = localStorage.getItem(STORAGE_KEY);
             let loadedKeys: ApifyKeyRecord[] = [];
             if (savedKeysJson) {
-                loadedKeys = JSON.parse(savedKeysJson);
+                const parsed = JSON.parse(savedKeysJson);
+                if (Array.isArray(parsed)) {
+                    loadedKeys = parsed;
+                }
             }
-            if (!Array.isArray(loadedKeys) || loadedKeys.length === 0) {
-                loadedKeys = [DEFAULT_INITIAL_KEY];
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(loadedKeys));
+
+            if (storedSystemToken) {
+                if (!loadedKeys.some(k => k.id === DEFAULT_INITIAL_KEY.id)) {
+                    loadedKeys = [DEFAULT_INITIAL_KEY, ...loadedKeys];
+                }
+            } else {
+                loadedKeys = loadedKeys.filter(k => k.id !== DEFAULT_INITIAL_KEY.id);
             }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(loadedKeys));
             setKeys(loadedKeys);
 
             const savedSelectedId = localStorage.getItem(SELECTED_KEY_STORAGE);
@@ -76,34 +105,49 @@ export default function ContributorInsightsPage() {
                 const firstId = loadedKeys[0]?.id || null;
                 setSelectedKeyId(firstId);
                 if (firstId) localStorage.setItem(SELECTED_KEY_STORAGE, firstId);
+                else localStorage.removeItem(SELECTED_KEY_STORAGE);
             }
         } catch (_) {
-            setKeys([DEFAULT_INITIAL_KEY]);
-            setSelectedKeyId(DEFAULT_INITIAL_KEY.id);
+            setKeys([]);
+            setSelectedKeyId(null);
         }
     }, []);
 
-    // Save keys updates
-    const handleAddKey = (newKey: ApifyKeyRecord) => {
-        const updated = [...keys.filter(k => k.id !== newKey.id), newKey];
+    const persistKeys = (updated: ApifyKeyRecord[], nextSelectedId?: string | null) => {
         setKeys(updated);
-        setSelectedKeyId(newKey.id);
+        if (nextSelectedId !== undefined) {
+            setSelectedKeyId(nextSelectedId);
+        }
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-            localStorage.setItem(SELECTED_KEY_STORAGE, newKey.id);
+            if (nextSelectedId !== undefined) {
+                if (nextSelectedId) localStorage.setItem(SELECTED_KEY_STORAGE, nextSelectedId);
+                else localStorage.removeItem(SELECTED_KEY_STORAGE);
+            }
         } catch (_) {}
+    };
+
+    // Save keys updates
+    const handleAddKeys = (newKeys: ApifyKeyRecord[]) => {
+        if (newKeys.length === 0) return;
+        const newIds = new Set(newKeys.map(k => k.id));
+        const updated = [...keys.filter(k => !newIds.has(k.id)), ...newKeys];
+        persistKeys(updated, newKeys[0]?.id ?? null);
+    };
+
+    const handleAddKey = (newKey: ApifyKeyRecord) => {
+        handleAddKeys([newKey]);
     };
 
     const handleDeleteKey = (id: string) => {
         const updated = keys.filter(k => k.id !== id);
-        setKeys(updated);
-        const nextSelected = updated.length > 0 ? updated[0]?.id || null : null;
-        setSelectedKeyId(nextSelected);
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-            if (nextSelected) localStorage.setItem(SELECTED_KEY_STORAGE, nextSelected);
-            else localStorage.removeItem(SELECTED_KEY_STORAGE);
-        } catch (_) {}
+        const nextSelected = selectedKeyId === id
+            ? (updated.length > 0 ? updated[0]?.id || null : null)
+            : selectedKeyId;
+        persistKeys(updated, nextSelected);
+        if (id !== DEFAULT_INITIAL_KEY.id) {
+            setFailedCustomKeysCount(removeFailedCustomKeyId(id).length);
+        }
     };
 
     const handleSelectKey = (id: string) => {
@@ -115,10 +159,29 @@ export default function ContributorInsightsPage() {
 
     const handleUpdateKey = (updatedKey: ApifyKeyRecord) => {
         const updated = keys.map(k => k.id === updatedKey.id ? updatedKey : k);
-        setKeys(updated);
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        } catch (_) {}
+        persistKeys(updated);
+        if (updatedKey.health === 'active' && updatedKey.id !== DEFAULT_INITIAL_KEY.id) {
+            setFailedCustomKeysCount(removeFailedCustomKeyId(updatedKey.id).length);
+        }
+    };
+
+    const handleUnlockSystem = (accessToken: string) => {
+        setSystemAccessToken(accessToken);
+        setSystemAccessTokenState(accessToken);
+        const updated = keys.some(k => k.id === DEFAULT_INITIAL_KEY.id)
+            ? keys
+            : [DEFAULT_INITIAL_KEY, ...keys];
+        persistKeys(updated, DEFAULT_INITIAL_KEY.id);
+    };
+
+    const handleLockSystem = () => {
+        clearSystemAccessToken();
+        setSystemAccessTokenState(null);
+        const updated = keys.filter(k => k.id !== DEFAULT_INITIAL_KEY.id);
+        const nextSelected = selectedKeyId === DEFAULT_INITIAL_KEY.id
+            ? (updated[0]?.id || null)
+            : selectedKeyId;
+        persistKeys(updated, nextSelected);
     };
 
     const selectedKey = keys.find(k => k.id === selectedKeyId) || null;
@@ -148,11 +211,49 @@ export default function ContributorInsightsPage() {
             return;
         }
 
+        const isSystemKeySelected = Boolean(selectedKey && !selectedKey.token);
+        const customKeysPool = keys.filter(k => k.token && k.token.trim().length > 0);
+
+        if (!selectedKey || (isSystemKeySelected && !systemAccessTokenState)) {
+            setIsSettingsOpen(true);
+            Swal.fire({
+                icon: "info",
+                title: "Apify API Key Required",
+                text: "Please add your own Apify API key(s) or unlock system keys with the magic word in API Settings.",
+                confirmButtonColor: "#3b82f6"
+            });
+            return;
+        }
+
+        let orderedCustomKeys: { id: string; token: string }[] = [];
+        if (!isSystemKeySelected) {
+            const failedCustomIds = getFailedCustomKeyIds();
+            const prioritized = [
+                selectedKey,
+                ...customKeysPool.filter(k => k.id !== selectedKey.id)
+            ];
+            orderedCustomKeys = prioritized
+                .filter(k => k.token && k.token.trim().length > 0 && !failedCustomIds.includes(k.id))
+                .map(k => ({ id: k.id, token: k.token.trim() }));
+
+            if (orderedCustomKeys.length === 0) {
+                setIsSettingsOpen(true);
+                Swal.fire({
+                    icon: "warning",
+                    title: "All Saved Keys Failed",
+                    text: "All your saved Apify API keys have failed or reached their limit. Please add a new key or reset failed keys in API Settings.",
+                    confirmButtonColor: "#3b82f6"
+                });
+                return;
+            }
+        }
+
         setIsLoading(true);
         setSearched(true);
         setCurrentPage(targetPage);
 
         try {
+            const failedKeyIndices = isSystemKeySelected ? getFailedKeyIndices() : [];
             const res = await fetch("/api/adobe-tracker/search", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -167,11 +268,35 @@ export default function ContributorInsightsPage() {
                     endDate: activeEnd,
                     maxItems: 100,
                     page: targetPage,
-                    apiKey: selectedKey?.token
+                    customKeys: !isSystemKeySelected ? orderedCustomKeys : undefined,
+                    failedKeyIndices,
+                    systemAccessToken: isSystemKeySelected ? systemAccessTokenState : undefined
                 })
             });
 
             const data = await res.json();
+
+            if (isSystemKeySelected && Array.isArray(data.newlyFailedIndices) && data.newlyFailedIndices.length > 0) {
+                const updatedFailed = recordFailedKeyIndices(data.newlyFailedIndices);
+                setFailedKeysCount(updatedFailed.length);
+            }
+
+            if (!isSystemKeySelected && Array.isArray(data.newlyFailedCustomKeyIds) && data.newlyFailedCustomKeyIds.length > 0) {
+                const updatedCustomFailed = recordFailedCustomKeyIds(data.newlyFailedCustomKeyIds);
+                setFailedCustomKeysCount(updatedCustomFailed.length);
+                const failedSet = new Set<string>(data.newlyFailedCustomKeyIds);
+                const updatedKeys = keys.map(k => failedSet.has(k.id) ? { ...k, health: 'invalid' as const } : k);
+                persistKeys(updatedKeys);
+            }
+
+            if (!isSystemKeySelected && data.usedCustomKeyId && data.usedCustomKeyId !== selectedKeyId) {
+                handleSelectKey(data.usedCustomKeyId);
+            }
+
+            if (res.status === 403 && data.systemLocked) {
+                handleLockSystem();
+                setIsSettingsOpen(true);
+            }
 
             if (!res.ok) {
                 throw new Error(data.error || "Failed to fetch Adobe Stock data");
@@ -554,8 +679,21 @@ export default function ContributorInsightsPage() {
                     selectedKeyId={selectedKeyId}
                     onSelectKey={handleSelectKey}
                     onAddKey={handleAddKey}
+                    onAddKeys={handleAddKeys}
                     onDeleteKey={handleDeleteKey}
                     onUpdateKey={handleUpdateKey}
+                    failedKeysCount={failedKeysCount + failedCustomKeysCount}
+                    onResetFailedKeys={() => {
+                        clearFailedKeyIndices();
+                        clearFailedCustomKeyIds();
+                        setFailedKeysCount(0);
+                        setFailedCustomKeysCount(0);
+                        const restored = keys.map(k => k.token ? { ...k, health: 'active' as const } : k);
+                        persistKeys(restored);
+                    }}
+                    isSystemUnlocked={Boolean(systemAccessTokenState)}
+                    onUnlockSystem={handleUnlockSystem}
+                    onLockSystem={handleLockSystem}
                 />
             </div>
         </div>

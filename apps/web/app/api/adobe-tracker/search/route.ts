@@ -1,4 +1,24 @@
 import { NextResponse } from 'next/server';
+import { getEnvApifyKeys, isApifyKeyFailure } from '../_lib/apify-keys';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+async function verifySystemTokenWithDb(accessToken?: string): Promise<boolean> {
+    if (!accessToken || typeof accessToken !== 'string') return false;
+    try {
+        const res = await fetch(`${API_BASE}/api/system-settings/apify-magic-word/verify-token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ accessToken }),
+            cache: 'no-store'
+        });
+        if (!res.ok) return false;
+        const data = await res.json().catch(() => ({}));
+        return Boolean(data.valid);
+    } catch {
+        return false;
+    }
+}
 
 function extractNumericId(input: string): string | null {
     if (!input) return null;
@@ -119,14 +139,63 @@ export async function POST(req: Request) {
             endDate,
             maxItems = 100,
             page = 1,
-            apiKey
+            apiKey,
+            customKeys,
+            failedKeyIndices = [],
+            systemAccessToken
         } = body;
 
-        const token = (apiKey && apiKey.trim()) || process.env.APIFY_API_KEY;
-        if (!token) {
-            return NextResponse.json({
-                error: 'Apify API key is required. Please add your key in API Settings.'
-            }, { status: 400 });
+        interface CandidateKey {
+            token: string;
+            envIndex?: number;
+            customId?: string;
+        }
+
+        const customToken = apiKey && typeof apiKey === 'string' ? apiKey.trim() : '';
+        const sanitizedCustomKeys: CandidateKey[] = Array.isArray(customKeys)
+            ? customKeys
+                .filter((k: any) => k && typeof k.token === 'string' && k.token.trim().length > 0)
+                .map((k: any) => ({
+                    token: k.token.trim(),
+                    customId: typeof k.id === 'string' ? k.id : undefined
+                }))
+            : [];
+
+        const isCustomMode = sanitizedCustomKeys.length > 0 || Boolean(customToken);
+        const failedSet = new Set<number>(
+            Array.isArray(failedKeyIndices) ? failedKeyIndices.filter((n: unknown): n is number => typeof n === 'number') : []
+        );
+
+        let candidateKeys: CandidateKey[] = [];
+        if (sanitizedCustomKeys.length > 0) {
+            candidateKeys = sanitizedCustomKeys;
+        } else if (customToken) {
+            candidateKeys = [{ token: customToken }];
+        } else {
+            const isValidSystemToken = await verifySystemTokenWithDb(systemAccessToken);
+            if (!isValidSystemToken) {
+                return NextResponse.json({
+                    error: 'System API keys are locked. Please add your own Apify API key or unlock system access with the magic word in API Settings.',
+                    systemLocked: true
+                }, { status: 403 });
+            }
+
+            const allEnvKeys = getEnvApifyKeys();
+            if (allEnvKeys.length === 0) {
+                return NextResponse.json({
+                    error: 'Apify API key is required. Please add your key in API Settings.'
+                }, { status: 400 });
+            }
+            candidateKeys = allEnvKeys
+                .filter((k) => !failedSet.has(k.index))
+                .map((k) => ({ token: k.token, envIndex: k.index }));
+
+            if (candidateKeys.length === 0) {
+                return NextResponse.json({
+                    error: 'All configured Apify API keys have reached their limit or failed. Please add a custom key in API Settings or reset failed keys.',
+                    allKeysExhausted: true
+                }, { status: 403 });
+            }
         }
 
         const numericId = extractNumericId(query);
@@ -224,26 +293,75 @@ export async function POST(req: Request) {
             }
         }
 
-        // Run Apify Actor synchronously
-        const actorEndpoint = `https://api.apify.com/v2/acts/clearpath~adobe-stock-scraper/run-sync-get-dataset-items?token=${token}&timeout=120`;
-        
+        // Run Apify Actor synchronously with automatic key fallback
         let allItems: any[] = [];
-        let apifyRes: Response | null = null;
+        let activeToken = '';
+        let usedCustomKeyId: string | undefined;
+        const newlyFailedIndices: number[] = [];
+        const newlyFailedCustomKeyIds: string[] = [];
+        let lastErrorStatus = 500;
+        let lastErrorMessage = 'Failed to connect to Apify API';
         let apifyNetworkError: any = null;
 
-        try {
-            apifyRes = await fetch(actorEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(actorInput)
-            });
-        } catch (err) {
-            apifyNetworkError = err;
+        for (const candidate of candidateKeys) {
+            const actorEndpoint = `https://api.apify.com/v2/acts/clearpath~adobe-stock-scraper/run-sync-get-dataset-items?token=${candidate.token}&timeout=120`;
+            let apifyRes: Response | null = null;
+            apifyNetworkError = null;
+
+            try {
+                apifyRes = await fetch(actorEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(actorInput)
+                });
+            } catch (err) {
+                apifyNetworkError = err;
+            }
+
+            if (apifyRes && apifyRes.ok) {
+                activeToken = candidate.token;
+                usedCustomKeyId = candidate.customId;
+                const rawItems = await apifyRes.json();
+                allItems = Array.isArray(rawItems) ? rawItems : [];
+
+                if (mode === 'asset' && allItems.length === 0) {
+                    const fallbackItem = await fetchAssetViaScraperApi(numericId);
+                    if (fallbackItem) {
+                        allItems = [fallbackItem];
+                    }
+                }
+                break;
+            }
+
+            if (!apifyRes) {
+                lastErrorMessage = apifyNetworkError?.message || 'Failed to connect to Apify API';
+                break;
+            }
+
+            const errText = await apifyRes.text();
+            let parsedErr: any = {};
+            try { parsedErr = JSON.parse(errText); } catch (_) {}
+            const msg = parsedErr.error?.message || errText || 'Apify run failed';
+            lastErrorStatus = apifyRes.status;
+            lastErrorMessage = msg;
+
+            if (isApifyKeyFailure(apifyRes.status, msg)) {
+                if (typeof candidate.envIndex === 'number') {
+                    newlyFailedIndices.push(candidate.envIndex);
+                    continue;
+                }
+                if (candidate.customId) {
+                    newlyFailedCustomKeyIds.push(candidate.customId);
+                    continue;
+                }
+            }
+
+            break;
         }
 
-        if (!apifyRes || !apifyRes.ok) {
+        if (!activeToken) {
             // In asset lookup mode, try ScraperAPI fallback before returning an Apify error
             if (mode === 'asset') {
                 const fallbackItem = await fetchAssetViaScraperApi(numericId);
@@ -253,31 +371,46 @@ export async function POST(req: Request) {
             }
 
             if (allItems.length === 0) {
-                if (!apifyRes) {
-                    throw apifyNetworkError || new Error('Failed to connect to Apify API');
+                const totalFailuresRecorded = newlyFailedIndices.length + newlyFailedCustomKeyIds.length;
+                if (apifyNetworkError && totalFailuresRecorded === 0) {
+                    throw apifyNetworkError || new Error(lastErrorMessage);
                 }
-                const errText = await apifyRes.text();
-                let parsedErr: any = {};
-                try { parsedErr = JSON.parse(errText); } catch (_) {}
-                const msg = parsedErr.error?.message || errText || 'Apify run failed';
-                
-                if (apifyRes.status === 401) {
-                    return NextResponse.json({ error: 'Apify API key is invalid or expired. Please check your API Settings.' }, { status: 401 });
-                }
-                if (apifyRes.status === 403 || msg.includes('credit') || msg.includes('limit')) {
-                    return NextResponse.json({ error: 'Apify monthly usage limit reached. Please verify your Apify credit in API Settings.' }, { status: 403 });
-                }
-                return NextResponse.json({ error: msg }, { status: apifyRes.status });
-            }
-        } else {
-            const rawItems = await apifyRes.json();
-            allItems = Array.isArray(rawItems) ? rawItems : [];
 
-            if (mode === 'asset' && allItems.length === 0) {
-                const fallbackItem = await fetchAssetViaScraperApi(numericId);
-                if (fallbackItem) {
-                    allItems = [fallbackItem];
+                if (!isCustomMode && newlyFailedIndices.length === candidateKeys.length) {
+                    return NextResponse.json({
+                        error: 'All configured Apify API keys have reached their limit or failed. Please add a custom key in API Settings or reset failed keys.',
+                        newlyFailedIndices,
+                        allKeysExhausted: true
+                    }, { status: 403 });
                 }
+
+                if (isCustomMode && newlyFailedCustomKeyIds.length > 0 && newlyFailedCustomKeyIds.length === candidateKeys.length) {
+                    return NextResponse.json({
+                        error: 'All your saved Apify API keys have reached their limit or failed. Please add a new key in API Settings or reset failed keys.',
+                        newlyFailedCustomKeyIds,
+                        allCustomKeysExhausted: true
+                    }, { status: 403 });
+                }
+
+                if (lastErrorStatus === 401) {
+                    return NextResponse.json({
+                        error: 'Apify API key is invalid or expired. Please check your API Settings.',
+                        newlyFailedIndices,
+                        newlyFailedCustomKeyIds
+                    }, { status: 401 });
+                }
+                if (lastErrorStatus === 403 || lastErrorMessage.toLowerCase().includes('credit') || lastErrorMessage.toLowerCase().includes('limit')) {
+                    return NextResponse.json({
+                        error: 'Apify monthly usage limit reached. Please verify your Apify credit in API Settings.',
+                        newlyFailedIndices,
+                        newlyFailedCustomKeyIds
+                    }, { status: 403 });
+                }
+                return NextResponse.json({
+                    error: lastErrorMessage,
+                    newlyFailedIndices,
+                    newlyFailedCustomKeyIds
+                }, { status: lastErrorStatus });
             }
         }
 
@@ -287,12 +420,12 @@ export async function POST(req: Request) {
         let portfolioAvgDownloads = 0;
         let hasPortfolioDownloads = false;
 
-        if (mode === 'contributor' && allItems.length > 0) {
+        if (mode === 'contributor' && allItems.length > 0 && activeToken) {
             try {
-                const runsRes = await fetch(`https://api.apify.com/v2/acts/clearpath~adobe-stock-scraper/runs?limit=1&desc=true&token=${token}`).then(r => r.json());
+                const runsRes = await fetch(`https://api.apify.com/v2/acts/clearpath~adobe-stock-scraper/runs?limit=1&desc=true&token=${activeToken}`).then(r => r.json());
                 const run = runsRes.data?.items?.[0];
                 if (run?.defaultKeyValueStoreId) {
-                    const portfolios = await fetch(`https://api.apify.com/v2/key-value-stores/${run.defaultKeyValueStoreId}/records/PORTFOLIOS?token=${token}`).then(r => r.json()).catch(() => null);
+                    const portfolios = await fetch(`https://api.apify.com/v2/key-value-stores/${run.defaultKeyValueStoreId}/records/PORTFOLIOS?token=${activeToken}`).then(r => r.json()).catch(() => null);
                     if (Array.isArray(portfolios) && portfolios[0]) {
                         const p = portfolios[0];
                         if (p.portfolioSize) {
@@ -505,6 +638,9 @@ export async function POST(req: Request) {
             mode,
             query: numericId,
             items: normalizedItems,
+            newlyFailedIndices: newlyFailedIndices.length > 0 ? newlyFailedIndices : undefined,
+            newlyFailedCustomKeyIds: newlyFailedCustomKeyIds.length > 0 ? newlyFailedCustomKeyIds : undefined,
+            usedCustomKeyId,
             summary: {
                 creatorName,
                 creatorId: numericId,

@@ -58,6 +58,16 @@ export const adminApi = baseApi.injectEndpoints({
       },
       providesTags: ['Uploads'],
     }),
+    getMagicWord: builder.query<{ magicWord: string; updatedAt: string | null; source: string }, void>({
+      query: () => '/admin/magic-word',
+    }),
+    updateMagicWord: builder.mutation<{ magicWord: string; updatedAt: string; source: string }, { magicWord: string }>({
+      query: (body) => ({
+        url: '/admin/magic-word',
+        method: 'PUT',
+        body,
+      }),
+    }),
   }),
   overrideExisting: true,
 });
@@ -70,4 +80,6 @@ export const {
   useDeleteUserMutation,
   useGetAllGenerationsQuery,
   useGetUserGenerationStatsQuery,
+  useGetMagicWordQuery,
+  useUpdateMagicWordMutation,
 } = adminApi;

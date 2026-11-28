@@ -1,5 +1,6 @@
 import express from 'express';
 import { getOverviewStats, getAnalyticsStats, getAllUsers, updateUser, deleteUser, getAllSupportMessages, updateSupportMessageStatus, getAllGenerations, getUserGenerationStats } from './admin.controller';
+import { getAdminMagicWord, updateAdminMagicWord } from '../system-setting/systemSetting.controller';
 import { protect, admin } from '../../middlewares/auth';
 
 const router = express.Router();
@@ -18,5 +19,8 @@ router.get('/generation-stats', getUserGenerationStats);
 
 router.get('/support', getAllSupportMessages);
 router.patch('/support/:id/status', updateSupportMessageStatus);
+
+router.get('/magic-word', getAdminMagicWord);
+router.put('/magic-word', updateAdminMagicWord);
 
 export default router;

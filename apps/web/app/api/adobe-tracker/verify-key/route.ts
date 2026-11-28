@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
+import { getEnvApifyKeys } from '../_lib/apify-keys';
 
 export async function POST(req: Request) {
     try {
         const body = await req.json().catch(() => ({}));
-        const token = body.token?.trim() || process.env.APIFY_API_KEY;
+        const token = body.token?.trim() || getEnvApifyKeys()[0]?.token;
 
         if (!token) {
             return NextResponse.json({ valid: false, error: 'Apify API token is required' }, { status: 400 });
