@@ -67,7 +67,7 @@ export default function SearchControls({
                                     ? "Search Contributor ID (e.g. 213239991) or profile link..."
                                     : "Search Adobe Stock File ID (e.g. 2248162728) or asset link..."
                             }
-                            className="w-full bg-transparent border-0 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0 rounded-none"
+                            className="w-full bg-transparent border-0 py-2 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0 rounded-none selection:bg-[#1473E6] selection:text-white"
                         />
                         {query && (
                             <button

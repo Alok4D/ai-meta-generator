@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useGetMagicWordQuery, useUpdateMagicWordMutation } from "@/lib/feature/admin/adminApi";
+import { useGetMagicWordQuery, useUpdateMagicWordMutation, useGetSearchCacheTtlQuery, useUpdateSearchCacheTtlMutation } from "@/lib/feature/admin/adminApi";
 import { toast } from "sonner";
-import { Eye, EyeOff, KeyRound } from "lucide-react";
+import { Clock, Eye, EyeOff, KeyRound } from "lucide-react";
 
 export default function AdminSettingsPage() {
   const { data: magicWordData, isLoading: isLoadingMagicWord, refetch: refetchMagicWord } = useGetMagicWordQuery();
@@ -15,11 +15,21 @@ export default function AdminSettingsPage() {
   const [magicWordInput, setMagicWordInput] = useState("");
   const [showMagicWord, setShowMagicWord] = useState(false);
 
+  const { data: cacheTtlData, isLoading: isLoadingCacheTtl, refetch: refetchCacheTtl } = useGetSearchCacheTtlQuery();
+  const [updateSearchCacheTtl, { isLoading: isSavingCacheTtl }] = useUpdateSearchCacheTtlMutation();
+  const [cacheTtlInput, setCacheTtlInput] = useState("6");
+
   useEffect(() => {
     if (magicWordData?.magicWord !== undefined) {
       setMagicWordInput(magicWordData.magicWord);
     }
   }, [magicWordData]);
+
+  useEffect(() => {
+    if (cacheTtlData?.ttlHours !== undefined) {
+      setCacheTtlInput(String(cacheTtlData.ttlHours));
+    }
+  }, [cacheTtlData]);
 
   const handleSaveMagicWord = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +47,23 @@ export default function AdminSettingsPage() {
     }
   };
 
+  const handleSaveCacheTtl = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const parsed = Number(cacheTtlInput);
+    if (!Number.isFinite(parsed) || parsed < 0.1 || parsed > 720) {
+      toast.error("Cache duration must be between 0.1 and 720 hours.");
+      return;
+    }
+    try {
+      await updateSearchCacheTtl({ ttlHours: parsed }).unwrap();
+      await refetchCacheTtl();
+      toast.success("Search cache duration updated! Existing user caches will apply the new duration after their current cycle expires.");
+    } catch (err: unknown) {
+      const apiErr = err as { data?: { error?: string } };
+      toast.error(apiErr?.data?.error || "Failed to update search cache duration.");
+    }
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl">
       <div>
@@ -45,6 +72,45 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="grid gap-6">
+        <Card>
+          <form onSubmit={handleSaveCacheTtl}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Contributor Insights Search Cache Duration
+              </CardTitle>
+              <CardDescription>
+                Configure how long (in hours) search and paginated results stay cached in users&apos; IndexedDB before re-fetching from Apify. Existing cached entries keep their original duration and adopt the new setting on their next refresh.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2 max-w-xs">
+                <Label htmlFor="cacheTtlHours">Cache Duration (Hours)</Label>
+                <Input
+                  id="cacheTtlHours"
+                  type="number"
+                  step="0.5"
+                  min="0.1"
+                  max="720"
+                  value={cacheTtlInput}
+                  onChange={(e) => setCacheTtlInput(e.target.value)}
+                  placeholder={isLoadingCacheTtl ? "Loading..." : "6"}
+                  disabled={isLoadingCacheTtl}
+                />
+                {cacheTtlData?.updatedAt && (
+                  <p className="text-xs text-muted-foreground">
+                    Last updated: {new Date(cacheTtlData.updatedAt).toLocaleString()}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" disabled={isSavingCacheTtl || isLoadingCacheTtl}>
+                {isSavingCacheTtl ? "Saving..." : "Update Cache Duration"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
         <Card>
           <form onSubmit={handleSaveMagicWord}>
             <CardHeader>

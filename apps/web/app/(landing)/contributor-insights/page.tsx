@@ -12,6 +12,19 @@ import ResultsSkeleton from "./_components/ResultsSkeleton";
 import AssetCard from "./_components/AssetCard";
 import AssetDetailsModal from "./_components/AssetDetailsModal";
 import ApiSettingsModal from "./_components/ApiSettingsModal";
+import RecentSearches from "./_components/RecentSearches";
+import {
+    buildSearchCacheKey,
+    clearRecentSearches,
+    DEFAULT_CACHE_TTL_HOURS,
+    getCachedSearch,
+    getRecentSearches,
+    purgeExpiredCache,
+    RecentSearchEntry,
+    removeRecentSearch,
+    setCachedSearch,
+    upsertRecentSearch
+} from "./_lib/search-cache";
 import {
     getFailedKeyIndices,
     recordFailedKeyIndices,
@@ -27,6 +40,7 @@ import {
 
 const STORAGE_KEY = "nx-apify-keys";
 const SELECTED_KEY_STORAGE = "nx-apify-selected-key";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 // Default key entry (token will be supplied by server env if left empty)
 const DEFAULT_INITIAL_KEY: ApifyKeyRecord = {
@@ -70,6 +84,10 @@ export default function ContributorInsightsPage() {
     const [failedCustomKeysCount, setFailedCustomKeysCount] = useState(0);
     const [systemAccessTokenState, setSystemAccessTokenState] = useState<string | null>(null);
 
+    // Search Cache & Recent Searches state
+    const [cacheTtlHours, setCacheTtlHours] = useState<number>(DEFAULT_CACHE_TTL_HOURS);
+    const [recentSearches, setRecentSearches] = useState<RecentSearchEntry[]>([]);
+
     // Load saved keys from localStorage on mount
     useEffect(() => {
         const storedSystemToken = getSystemAccessToken();
@@ -111,6 +129,38 @@ export default function ContributorInsightsPage() {
             setKeys([]);
             setSelectedKeyId(null);
         }
+    }, []);
+
+    // Load active cache TTL from backend, purge expired IndexedDB entries, and load recent searches
+    useEffect(() => {
+        let active = true;
+
+        (async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/system-settings/search-cache-ttl`, {
+                    cache: "no-store"
+                });
+                if (res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    const parsed = Number(data?.ttlHours);
+                    if (active && Number.isFinite(parsed) && parsed > 0) {
+                        setCacheTtlHours(parsed);
+                    }
+                }
+            } catch {
+                // Keep default 6h TTL if backend is unreachable
+            }
+
+            await purgeExpiredCache();
+            const recent = await getRecentSearches();
+            if (active) {
+                setRecentSearches(recent);
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
     }, []);
 
     const persistKeys = (updated: ApifyKeyRecord[], nextSelectedId?: string | null) => {
@@ -186,6 +236,45 @@ export default function ContributorInsightsPage() {
 
     const selectedKey = keys.find(k => k.id === selectedKeyId) || null;
 
+    const applySearchResults = (
+        resultItems: AdobeAssetItem[],
+        newSummary: ContributorSummary | null,
+        activeMode: SearchMode,
+        targetPage: number,
+        activeDateRange: DateRangePreset,
+        emptyMessage?: string
+    ) => {
+        setItems(resultItems);
+        if (newSummary) {
+            if (targetPage > 1) {
+                setSummary(prev => {
+                    if (!prev || activeMode !== 'contributor' || String(prev.creatorId) !== String(newSummary.creatorId)) {
+                        return newSummary;
+                    }
+                    return {
+                        ...newSummary,
+                        totalAssets: newSummary.totalAssets || prev.totalAssets,
+                        totalSampleDownloads: (newSummary.totalSampleDownloads > 0 ? newSummary.totalSampleDownloads : (prev.totalSampleDownloads ?? 0)),
+                        typeDownloads: newSummary.typeDownloads || prev.typeDownloads
+                    };
+                });
+            } else {
+                setSummary(newSummary);
+            }
+        } else {
+            setSummary(null);
+        }
+
+        if (resultItems.length === 0 && activeDateRange === 'all') {
+            Swal.fire({
+                icon: "info",
+                title: "No Results",
+                text: emptyMessage || "No matching assets found for this search.",
+                confirmButtonColor: "#3b82f6"
+            });
+        }
+    };
+
     // Search Execution
     const executeSearch = async (
         targetQuery = query,
@@ -208,6 +297,52 @@ export default function ContributorInsightsPage() {
                     : "Please enter an Adobe Stock File ID or image link.",
                 confirmButtonColor: "#3b82f6"
             });
+            return;
+        }
+
+        const cacheKey = buildSearchCacheKey({
+            mode: activeMode,
+            query: trimmed,
+            sortBy: activeSort,
+            fileType: activeType,
+            aiContent: activeAi,
+            dateRange: activeDateRange,
+            startDate: activeStart,
+            endDate: activeEnd,
+            page: targetPage
+        });
+
+        const cachedEntry = await getCachedSearch(cacheKey);
+        if (cachedEntry) {
+            setIsLoading(true);
+            setSearched(true);
+            setCurrentPage(targetPage);
+
+            // Silent 1-2s artificial delay so cached loads feel identical to live fetches
+            const delayMs = 1000 + Math.floor(Math.random() * 800);
+            await new Promise((resolve) => setTimeout(resolve, delayMs));
+
+            applySearchResults(
+                cachedEntry.items || [],
+                cachedEntry.summary || null,
+                activeMode,
+                targetPage,
+                activeDateRange
+            );
+
+            const updatedRecent = await upsertRecentSearch({
+                query: trimmed,
+                displayLabel: activeMode === 'contributor' ? (cachedEntry.summary?.creatorName || trimmed) : trimmed,
+                mode: activeMode,
+                sortBy: activeSort,
+                fileType: activeType,
+                aiContent: activeAi,
+                dateRange: activeDateRange,
+                startDate: activeStart,
+                endDate: activeEnd
+            });
+            setRecentSearches(updatedRecent);
+            setIsLoading(false);
             return;
         }
 
@@ -302,38 +437,37 @@ export default function ContributorInsightsPage() {
                 throw new Error(data.error || "Failed to fetch Adobe Stock data");
             }
 
-            setItems(data.items || []);
-            const newSummary = data.summary || null;
-            if (newSummary) {
-                if (targetPage > 1) {
-                    // Only on pagination within the same query & filter
-                    setSummary(prev => {
-                        if (!prev || activeMode !== 'contributor' || String(prev.creatorId) !== String(newSummary.creatorId)) {
-                            return newSummary;
-                        }
-                        return {
-                            ...newSummary,
-                            totalAssets: newSummary.totalAssets || prev.totalAssets,
-                            totalSampleDownloads: (newSummary.totalSampleDownloads > 0 ? newSummary.totalSampleDownloads : (prev.totalSampleDownloads ?? 0)),
-                            typeDownloads: newSummary.typeDownloads || prev.typeDownloads
-                        };
-                    });
-                } else {
-                    // Fresh search or filter change (e.g. photos, vectors, videos) — use authentic metrics for this category
-                    setSummary(newSummary);
-                }
-            } else {
-                setSummary(null);
-            }
+            const resultItems: AdobeAssetItem[] = data.items || [];
+            const newSummary: ContributorSummary | null = data.summary || null;
 
-            if ((!data.items || data.items.length === 0) && activeDateRange === 'all') {
-                Swal.fire({
-                    icon: "info",
-                    title: "No Results",
-                    text: data.message || "No matching assets found for this search.",
-                    confirmButtonColor: "#3b82f6"
-                });
-            }
+            applySearchResults(
+                resultItems,
+                newSummary,
+                activeMode,
+                targetPage,
+                activeDateRange,
+                data.message
+            );
+
+            await setCachedSearch({
+                cacheKey,
+                items: resultItems,
+                summary: newSummary,
+                ttlHours: cacheTtlHours
+            });
+
+            const updatedRecent = await upsertRecentSearch({
+                query: trimmed,
+                displayLabel: activeMode === 'contributor' ? (newSummary?.creatorName || trimmed) : trimmed,
+                mode: activeMode,
+                sortBy: activeSort,
+                fileType: activeType,
+                aiContent: activeAi,
+                dateRange: activeDateRange,
+                startDate: activeStart,
+                endDate: activeEnd
+            });
+            setRecentSearches(updatedRecent);
         } catch (error: any) {
             Swal.fire({
                 icon: "error",
@@ -394,6 +528,39 @@ export default function ContributorInsightsPage() {
         if (searched && query.trim() && mode === 'contributor') {
             executeSearch(query, mode, sortBy, fileType, aiContent, 1, 'custom', startDate, endDate);
         }
+    };
+
+    const handleSelectRecentSearch = (entry: RecentSearchEntry) => {
+        setMode(entry.mode);
+        setQuery(entry.query);
+        setSortBy(entry.sortBy);
+        setFileType(entry.fileType);
+        setAiContent(entry.aiContent);
+        setDateRange(entry.dateRange);
+        setStartDate(entry.startDate);
+        setEndDate(entry.endDate);
+        setSoldOnly(false);
+        executeSearch(
+            entry.query,
+            entry.mode,
+            entry.sortBy,
+            entry.fileType,
+            entry.aiContent,
+            1,
+            entry.dateRange,
+            entry.startDate,
+            entry.endDate
+        );
+    };
+
+    const handleRemoveRecentSearch = async (id: string) => {
+        const updated = await removeRecentSearch(id);
+        setRecentSearches(updated);
+    };
+
+    const handleClearRecentSearches = async () => {
+        await clearRecentSearches();
+        setRecentSearches([]);
     };
 
     const displayedItems = soldOnly
@@ -457,7 +624,7 @@ export default function ContributorInsightsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-primary/20 selection:text-primary">
+        <div className="min-h-screen bg-background text-foreground transition-colors selection:bg-[#1473E6]/25 selection:text-foreground">
             {/* Main Container */}
             <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8 space-y-6">
                 {/* Search & Filter Controls with Integrated Category Dropdown & Gear Settings */}
@@ -476,6 +643,15 @@ export default function ContributorInsightsPage() {
                     onSortByChange={handleSortChange}
                     onOpenSettings={() => setIsSettingsOpen(true)}
                     selectedKey={selectedKey}
+                />
+
+                {/* Recent Searches Strip */}
+                <RecentSearches
+                    items={recentSearches}
+                    isLoading={isLoading}
+                    onSelect={handleSelectRecentSearch}
+                    onRemove={handleRemoveRecentSearch}
+                    onClearAll={handleClearRecentSearches}
                 />
 
                 {/* Layout-Matched Skeleton Loading */}

@@ -68,6 +68,16 @@ export const adminApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    getSearchCacheTtl: builder.query<{ ttlHours: number; updatedAt: string | null; source: string }, void>({
+      query: () => '/admin/search-cache-ttl',
+    }),
+    updateSearchCacheTtl: builder.mutation<{ ttlHours: number; updatedAt: string; source: string }, { ttlHours: number }>({
+      query: (body) => ({
+        url: '/admin/search-cache-ttl',
+        method: 'PUT',
+        body,
+      }),
+    }),
   }),
   overrideExisting: true,
 });
@@ -82,4 +92,6 @@ export const {
   useGetUserGenerationStatsQuery,
   useGetMagicWordQuery,
   useUpdateMagicWordMutation,
+  useGetSearchCacheTtlQuery,
+  useUpdateSearchCacheTtlMutation,
 } = adminApi;

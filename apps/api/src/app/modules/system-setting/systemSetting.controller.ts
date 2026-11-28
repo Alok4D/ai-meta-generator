@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import SystemSetting from './systemSetting.model';
 
 const MAGIC_WORD_KEY = 'apify_system_magic_word';
+const SEARCH_CACHE_TTL_KEY = 'contributor_search_cache_ttl_hours';
+const DEFAULT_SEARCH_CACHE_TTL_HOURS = 6;
 
 async function getEffectiveMagicWord(): Promise<{
   magicWord: string;
@@ -140,5 +142,77 @@ export const updateAdminMagicWord = async (req: Request, res: Response): Promise
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message || 'Failed to update magic word.' });
+  }
+};
+
+async function getEffectiveSearchCacheTtl(): Promise<{
+  ttlHours: number;
+  updatedAt: Date | null;
+  source: 'database' | 'default';
+}> {
+  const doc = await SystemSetting.findOne({ key: SEARCH_CACHE_TTL_KEY }).lean();
+  if (doc && doc.value !== undefined) {
+    const parsed = Number(doc.value);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return {
+        ttlHours: parsed,
+        updatedAt: doc.updatedAt || null,
+        source: 'database',
+      };
+    }
+  }
+  return {
+    ttlHours: DEFAULT_SEARCH_CACHE_TTL_HOURS,
+    updatedAt: null,
+    source: 'default',
+  };
+}
+
+export const getPublicSearchCacheTtl = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const { ttlHours, updatedAt } = await getEffectiveSearchCacheTtl();
+    res.status(200).json({ ttlHours, updatedAt });
+  } catch {
+    res.status(200).json({ ttlHours: DEFAULT_SEARCH_CACHE_TTL_HOURS, updatedAt: null });
+  }
+};
+
+export const getAdminSearchCacheTtl = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const data = await getEffectiveSearchCacheTtl();
+    res.status(200).json(data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to load search cache TTL.' });
+  }
+};
+
+export const updateAdminSearchCacheTtl = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const parsed = Number(req.body?.ttlHours);
+    if (!Number.isFinite(parsed) || parsed < 0.1 || parsed > 720) {
+      res.status(400).json({
+        error: 'Cache duration must be a number between 0.1 and 720 hours.',
+      });
+      return;
+    }
+
+    const normalized = Math.round(parsed * 100) / 100;
+    const updated = await SystemSetting.findOneAndUpdate(
+      { key: SEARCH_CACHE_TTL_KEY },
+      {
+        key: SEARCH_CACHE_TTL_KEY,
+        value: String(normalized),
+        updatedBy: req.user?._id,
+      },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+
+    res.status(200).json({
+      ttlHours: normalized,
+      updatedAt: updated.updatedAt,
+      source: 'database',
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message || 'Failed to update search cache TTL.' });
   }
 };
