@@ -142,6 +142,7 @@ export async function POST(req: Request) {
         const pageNum = Math.max(Number(page) || 1, 1);
         const pageSize = 100;
         const dateWindow = mode === 'contributor' ? resolveDateWindow(dateRange, startDate, endDate) : null;
+        const isFreeFilter = mode === 'contributor' && String(fileType).toLowerCase() === 'free';
         // When filtering by recent upload date range, fetch newest items first (min 200 to cover recent batches)
         const targetMaxItems = mode === 'asset' ? 10 : (dateWindow ? Math.max(pageNum * pageSize, 200) : pageNum * pageSize);
 
@@ -151,6 +152,15 @@ export async function POST(req: Request) {
             // Minimal clean payload for single asset ID lookup
             actorInput = {
                 assetIds: [numericId],
+                maxItems: targetMaxItems,
+                language: 'en_US'
+            };
+        } else if (isFreeFilter) {
+            // Adobe Stock Free Collection uses filters[free_collection]=1 via /search/free
+            const freeOrder = dateWindow || sortBy === 'creation' ? 'creation' : (sortBy === 'relevance' ? 'relevance' : 'nb_downloads');
+            const freeUrl = `https://stock.adobe.com/search/free?creator_id=${numericId}&filters%5Bfree_collection%5D=1&filters%5Bcontent_type%3Aimage%5D=1&filters%5Bcontent_type%3Aphoto%5D=1&filters%5Bcontent_type%3Aillustration%5D=1&filters%5Bcontent_type%3Azip_vector%5D=1&filters%5Bcontent_type%3Avideo%5D=1&filters%5Bcontent_type%3Atemplate%5D=1&filters%5Bcontent_type%3A3d%5D=1&order=${freeOrder}`;
+            actorInput = {
+                startUrls: [{ url: freeUrl }],
                 maxItems: targetMaxItems,
                 language: 'en_US'
             };
@@ -179,7 +189,8 @@ export async function POST(req: Request) {
                 if (lowerType === 'images') {
                     actorInput.contentTypes = ['photo', 'vector', 'illustration'];
                 } else if (lowerType === 'free') {
-                    actorInput.premium = 'free';
+                    // Apify schema supports 'standard' (core + free), not 'free'
+                    actorInput.premium = 'standard';
                 } else if (lowerType === 'premium') {
                     actorInput.premium = 'premium';
                 } else if (lowerType === 'audio') {
@@ -299,8 +310,14 @@ export async function POST(req: Request) {
             } catch (_) {}
         }
 
-        // Preserve creator profile info even if date-range filter leaves 0 items
+        // Preserve creator profile info even if filters leave 0 items
         const creatorSample = allItems[0] || {};
+
+        // Filter to strictly free assets when 'Free' is selected
+        if (isFreeFilter && allItems.length > 0) {
+            allItems = allItems.filter((item) => Boolean(item.isFree));
+            totalPortfolioAssets = allItems.length;
+        }
 
         // Apply upload-date window filter & rank by Most Downloaded when a date range is active
         if (mode === 'contributor' && dateWindow && allItems.length > 0) {
@@ -316,6 +333,9 @@ export async function POST(req: Request) {
                     return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
                 });
             totalPortfolioAssets = allItems.length;
+        } else if (mode === 'contributor' && sortBy === 'downloads' && allItems.length > 0) {
+            // Ensure items (e.g., Templates) are strictly ordered by downloads descending when 'Most Downloaded' is active
+            allItems = [...allItems].sort((a, b) => (Number(b.downloads) || 0) - (Number(a.downloads) || 0));
         }
 
         // Slice items specifically for the requested page

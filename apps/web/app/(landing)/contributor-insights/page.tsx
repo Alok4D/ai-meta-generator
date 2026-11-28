@@ -380,7 +380,7 @@ export default function ContributorInsightsPage() {
                 )}
 
                 {/* Empty Range / Sold-Only State with Quick Actions */}
-                {!isLoading && searched && mode === 'contributor' && displayedItems.length === 0 && (
+                {!isLoading && searched && mode === 'contributor' && displayedItems.length === 0 && (dateRange !== 'all' || soldOnly) && (
                     <div className="bg-card border border-border/80 rounded-none p-10 text-center flex flex-col items-center justify-center gap-3">
                         <p className="text-sm font-semibold text-foreground">
                             {soldOnly && items.length > 0
