@@ -1,17 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
     Search,
     User,
     FileImage,
     X,
-    Settings,
-    Camera
+    Settings
 } from "lucide-react";
 import { SearchMode, FileTypeFilter, AiFilter, SortOption, ApifyKeyRecord } from "./types";
 import CategoryDropdown from "./CategoryDropdown";
-import FindSimilarModal from "./FindSimilarModal";
 
 interface SearchControlsProps {
     mode: SearchMode;
@@ -46,25 +44,6 @@ export default function SearchControls({
     onOpenSettings,
     selectedKey
 }: SearchControlsProps) {
-    const [isFindSimilarOpen, setIsFindSimilarOpen] = useState(false);
-
-
-
-    const handleFileSelected = (file: File) => {
-        const cleanName = file.name.replace(/\.[^/.]+$/, "");
-        const idMatch = cleanName.match(/\b\d{6,15}\b/);
-        if (idMatch) {
-            onQueryChange(idMatch[0]);
-            onModeChange("asset");
-        } else {
-            const terms = cleanName
-                .replace(/[_-]+/g, " ")
-                .replace(/\b(preview|stock|adobe|vector|image|illustration|art)\b/gi, "")
-                .trim();
-            onQueryChange(terms || cleanName);
-        }
-    };
-
     return (
         <div className="space-y-3">
             {/* Main Search Row: Unified Input Bar + Search Button (rounded-none) + External Gear Icon */}
@@ -101,18 +80,6 @@ export default function SearchControls({
                                 <X className="w-3.5 h-3.5" />
                             </button>
                         )}
-                    </div>
-
-                    {/* Find Similar Icon Button (Inside Right of Input) */}
-                    <div className="flex items-center pr-2.5">
-                        <button
-                            type="button"
-                            onClick={() => setIsFindSimilarOpen(true)}
-                            title="Find similar: Drag & drop an image or audio file"
-                            className="p-1.5 text-muted-foreground hover:text-[#1473E6] transition-colors cursor-pointer rounded-none"
-                        >
-                            <Camera className="w-4 h-4" />
-                        </button>
                     </div>
                 </div>
 
@@ -224,13 +191,6 @@ export default function SearchControls({
                     </div>
                 </div>
             </div>
-
-            {/* Find Similar Modal */}
-            <FindSimilarModal
-                isOpen={isFindSimilarOpen}
-                onClose={() => setIsFindSimilarOpen(false)}
-                onFileSelect={handleFileSelected}
-            />
         </div>
     );
 }
