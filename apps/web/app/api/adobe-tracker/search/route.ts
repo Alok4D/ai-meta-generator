@@ -78,6 +78,33 @@ async function fetchAssetViaScraperApi(assetId: string) {
     }
 }
 
+function resolveDateWindow(
+    dateRange: string,
+    startDate?: string,
+    endDate?: string
+): { fromMs: number; toMs: number } | null {
+    if (!dateRange || dateRange === 'all') return null;
+
+    const now = Date.now();
+    const DAY_MS = 24 * 60 * 60 * 1000;
+
+    if (dateRange === '7d') return { fromMs: now - 7 * DAY_MS, toMs: now };
+    if (dateRange === '14d') return { fromMs: now - 14 * DAY_MS, toMs: now };
+    if (dateRange === '1m') return { fromMs: now - 30 * DAY_MS, toMs: now };
+    if (dateRange === '3m') return { fromMs: now - 90 * DAY_MS, toMs: now };
+    if (dateRange === '6m') return { fromMs: now - 180 * DAY_MS, toMs: now };
+
+    if (dateRange === 'custom') {
+        const fromMs = startDate ? new Date(`${startDate}T00:00:00`).getTime() : 0;
+        const toMs = endDate ? new Date(`${endDate}T23:59:59.999`).getTime() : now;
+        if (Number.isFinite(fromMs) && Number.isFinite(toMs) && fromMs <= toMs) {
+            return { fromMs, toMs };
+        }
+    }
+
+    return null;
+}
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -87,6 +114,9 @@ export async function POST(req: Request) {
             sortBy = 'downloads', // 'downloads' | 'relevance' | 'creation'
             fileType = 'all',     // 'all' | 'photo' | 'illustration' | 'vector' | 'video' | 'template' | '3d'
             aiContent = 'all',    // 'all' | 'only' | 'exclude'
+            dateRange = 'all',    // 'all' | '7d' | '14d' | '1m' | '3m' | '6m' | 'custom'
+            startDate,
+            endDate,
             maxItems = 100,
             page = 1,
             apiKey
@@ -111,7 +141,9 @@ export async function POST(req: Request) {
         // Build Apify Actor input
         const pageNum = Math.max(Number(page) || 1, 1);
         const pageSize = 100;
-        const targetMaxItems = mode === 'asset' ? 10 : pageNum * pageSize;
+        const dateWindow = mode === 'contributor' ? resolveDateWindow(dateRange, startDate, endDate) : null;
+        // When filtering by recent upload date range, fetch newest items first (min 200 to cover recent batches)
+        const targetMaxItems = mode === 'asset' ? 10 : (dateWindow ? Math.max(pageNum * pageSize, 200) : pageNum * pageSize);
 
         let actorInput: Record<string, any>;
 
@@ -126,7 +158,7 @@ export async function POST(req: Request) {
             actorInput = {
                 creatorIds: [numericId],
                 maxItems: targetMaxItems,
-                sortBy: sortBy === 'creation' ? 'newest' : (sortBy === 'relevance' ? 'relevance' : 'downloads'),
+                sortBy: dateWindow ? 'newest' : (sortBy === 'creation' ? 'newest' : (sortBy === 'relevance' ? 'relevance' : 'downloads')),
                 trackChanges: false,
                 premium: 'all',
                 orientation: 'all',
@@ -267,6 +299,25 @@ export async function POST(req: Request) {
             } catch (_) {}
         }
 
+        // Preserve creator profile info even if date-range filter leaves 0 items
+        const creatorSample = allItems[0] || {};
+
+        // Apply upload-date window filter & rank by Most Downloaded when a date range is active
+        if (mode === 'contributor' && dateWindow && allItems.length > 0) {
+            allItems = allItems
+                .filter((item) => {
+                    if (!item.createdAt) return false;
+                    const ts = new Date(item.createdAt).getTime();
+                    return Number.isFinite(ts) && ts >= dateWindow.fromMs && ts <= dateWindow.toMs;
+                })
+                .sort((a, b) => {
+                    const dlDiff = (Number(b.downloads) || 0) - (Number(a.downloads) || 0);
+                    if (dlDiff !== 0) return dlDiff;
+                    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+                });
+            totalPortfolioAssets = allItems.length;
+        }
+
         // Slice items specifically for the requested page
         const startIndex = mode === 'asset' ? 0 : (pageNum - 1) * pageSize;
         const items = mode === 'asset' ? allItems : allItems.slice(startIndex, startIndex + pageSize);
@@ -277,25 +328,28 @@ export async function POST(req: Request) {
                 query: numericId,
                 items: [],
                 summary: {
-                    creatorName: mode === 'contributor' ? `Contributor #${numericId}` : undefined,
+                    creatorName: mode === 'contributor' ? (creatorSample.creatorName || `Contributor #${numericId}`) : undefined,
                     creatorId: numericId,
-                    totalAssets: totalPortfolioAssets,
+                    creatorCountry: creatorSample.creatorCountry || '',
+                    creatorUrl: creatorSample.creatorUrl || `https://stock.adobe.com/contributor/${numericId}`,
+                    totalAssets: dateWindow ? 0 : totalPortfolioAssets,
                     currentPage: pageNum,
                     totalPages: 1,
                     hasNextPage: false,
                     totalLoaded: 0,
                     totalSampleDownloads: 0,
                     avgDownloads: 0,
-                    medianDownloads: 0
+                    medianDownloads: 0,
+                    typeDownloads: { photo: 0, vector: 0, illustration: 0, video: 0, audio: 0, template: 0, '3d': 0 }
                 },
                 message: mode === 'contributor' 
-                    ? 'No assets found for this contributor with the selected filters.'
+                    ? (dateWindow ? 'No uploads found in the selected date range.' : 'No assets found for this contributor with the selected filters.')
                     : 'Asset not found with ID ' + numericId
             });
         }
 
         // Extract and aggregate creator info
-        const first = items[0] || allItems[0] || {};
+        const first = items[0] || allItems[0] || creatorSample;
         const creatorName = first.creatorName || `Contributor ${numericId}`;
         const creatorCountry = first.creatorCountry || '';
         const creatorUrl = first.creatorUrl || `https://stock.adobe.com/contributor/${numericId}`;
@@ -309,9 +363,9 @@ export async function POST(req: Request) {
             .sort((a, b) => a - b);
         
         const totalScrapedDownloads = allDownloadsArr.reduce((sum, d) => sum + d, 0);
-        // If a category/mediaType filter is active (e.g. photos), calculate downloads specifically for that filter's items;
-        // if viewing 'all' without category filtering, prioritize total portfolio downloads from Apify PORTFOLIOS record.
-        const isFiltered = (fileType && fileType !== 'all') || (aiContent && aiContent !== 'all');
+        // If a category/mediaType or date-range filter is active, calculate downloads specifically for that filter's items;
+        // if viewing 'all' without filtering, prioritize total portfolio downloads from Apify PORTFOLIOS record.
+        const isFiltered = (fileType && fileType !== 'all') || (aiContent && aiContent !== 'all') || Boolean(dateWindow);
         const finalTotalDownloads = isFiltered
             ? totalScrapedDownloads
             : (hasPortfolioDownloads && totalPortfolioDownloads > 0 ? totalPortfolioDownloads : totalScrapedDownloads);

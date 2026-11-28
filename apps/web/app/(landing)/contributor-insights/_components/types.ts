@@ -68,3 +68,4 @@ export type SearchMode = 'contributor' | 'asset';
 export type FileTypeFilter = 'all' | 'images' | 'photo' | 'vector' | 'illustration' | 'video' | 'audio' | 'template' | '3d' | 'free' | 'premium';
 export type AiFilter = 'all' | 'only' | 'exclude';
 export type SortOption = 'downloads' | 'creation' | 'relevance';
+export type DateRangePreset = 'all' | '7d' | '14d' | '1m' | '3m' | '6m' | 'custom';

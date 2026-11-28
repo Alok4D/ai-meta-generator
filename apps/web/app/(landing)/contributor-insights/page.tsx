@@ -4,9 +4,10 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { Sparkles, Layers, AlertCircle, FileSearch, RefreshCw, Download, ChevronLeft, ChevronRight } from "lucide-react";
 
-import { AdobeAssetItem, ContributorSummary, ApifyKeyRecord, SearchMode, FileTypeFilter, AiFilter, SortOption } from "./_components/types";
+import { AdobeAssetItem, ContributorSummary, ApifyKeyRecord, SearchMode, FileTypeFilter, AiFilter, SortOption, DateRangePreset } from "./_components/types";
 import SearchControls from "./_components/SearchControls";
 import ContributorCard from "./_components/ContributorCard";
+import DateRangeBanner from "./_components/DateRangeBanner";
 import AssetCard from "./_components/AssetCard";
 import AssetDetailsModal from "./_components/AssetDetailsModal";
 import ApiSettingsModal from "./_components/ApiSettingsModal";
@@ -36,6 +37,10 @@ export default function ContributorInsightsPage() {
     const [fileType, setFileType] = useState<FileTypeFilter>("all");
     const [aiContent, setAiContent] = useState<AiFilter>("all");
     const [sortBy, setSortBy] = useState<SortOption>("downloads");
+    const [dateRange, setDateRange] = useState<DateRangePreset>("all");
+    const [startDate, setStartDate] = useState<string>("");
+    const [endDate, setEndDate] = useState<string>("");
+    const [soldOnly, setSoldOnly] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
     // Data states
@@ -124,7 +129,10 @@ export default function ContributorInsightsPage() {
         activeSort = sortBy,
         activeType = fileType,
         activeAi = aiContent,
-        targetPage = 1
+        targetPage = 1,
+        activeDateRange = dateRange,
+        activeStart = startDate,
+        activeEnd = endDate
     ) => {
         const trimmed = targetQuery.trim();
         if (!trimmed) {
@@ -153,6 +161,9 @@ export default function ContributorInsightsPage() {
                     sortBy: activeSort,
                     fileType: activeType,
                     aiContent: activeAi,
+                    dateRange: activeMode === 'contributor' ? activeDateRange : 'all',
+                    startDate: activeStart,
+                    endDate: activeEnd,
                     maxItems: 100,
                     page: targetPage,
                     apiKey: selectedKey?.token
@@ -189,7 +200,7 @@ export default function ContributorInsightsPage() {
                 setSummary(null);
             }
 
-            if (!data.items || data.items.length === 0) {
+            if ((!data.items || data.items.length === 0) && activeDateRange === 'all') {
                 Swal.fire({
                     icon: "info",
                     title: "No Results",
@@ -220,6 +231,8 @@ export default function ContributorInsightsPage() {
         setSummary(null);
         setSearched(false);
         setCurrentPage(1);
+        setDateRange("all");
+        setSoldOnly(false);
     };
 
     const handleSortChange = (newSort: SortOption) => {
@@ -243,7 +256,26 @@ export default function ContributorInsightsPage() {
         }
     };
 
+    const handleDateRangeChange = (preset: DateRangePreset) => {
+        setDateRange(preset);
+        if (preset !== 'custom' && searched && query.trim() && mode === 'contributor') {
+            executeSearch(query, mode, sortBy, fileType, aiContent, 1, preset, startDate, endDate);
+        }
+    };
+
+    const handleApplyCustomRange = () => {
+        if (!startDate || !endDate) return;
+        if (searched && query.trim() && mode === 'contributor') {
+            executeSearch(query, mode, sortBy, fileType, aiContent, 1, 'custom', startDate, endDate);
+        }
+    };
+
+    const displayedItems = soldOnly
+        ? items.filter((item) => Number(item.downloads) > 0)
+        : items;
+
     const downloadedItems = items.filter((item) => Number(item.downloads) > 0);
+    const totalRangeDownloads = items.reduce((sum, item) => sum + (Number(item.downloads) || 0), 0);
 
     const handleDownloadAllSoldFiles = async () => {
         if (downloadedItems.length === 0) {
@@ -338,8 +370,74 @@ export default function ContributorInsightsPage() {
                     <ContributorCard summary={summary} />
                 )}
 
+                {/* Date Range Filter Banner (Contributor Mode after Search) */}
+                {!isLoading && searched && summary && mode === 'contributor' && (
+                    <DateRangeBanner
+                        dateRange={dateRange}
+                        onDateRangeChange={handleDateRangeChange}
+                        startDate={startDate}
+                        endDate={endDate}
+                        onStartDateChange={setStartDate}
+                        onEndDateChange={setEndDate}
+                        onApplyCustomRange={handleApplyCustomRange}
+                        soldOnly={soldOnly}
+                        onSoldOnlyChange={setSoldOnly}
+                        visibleCount={displayedItems.length}
+                        totalRangeDownloads={totalRangeDownloads}
+                        isLoading={isLoading}
+                    />
+                )}
+
+                {/* Empty Range / Sold-Only State with Quick Actions */}
+                {!isLoading && searched && mode === 'contributor' && displayedItems.length === 0 && (
+                    <div className="bg-card border border-border/80 rounded-none p-10 text-center flex flex-col items-center justify-center gap-3">
+                        <p className="text-sm font-semibold text-foreground">
+                            {soldOnly && items.length > 0
+                                ? "No sold files (> 0 DL) in this upload period."
+                                : "No recent uploads found in the selected date range."}
+                        </p>
+                        <p className="text-xs text-muted-foreground max-w-md">
+                            {soldOnly && items.length > 0
+                                ? `Found ${items.length} uploads in this period, but none have downloads yet.`
+                                : "Try expanding the upload period or resetting to All Time."}
+                        </p>
+                        <div className="flex items-center gap-2 flex-wrap justify-center pt-1">
+                            {soldOnly && items.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSoldOnly(false)}
+                                    className="px-4 py-2 bg-[#1473E6] hover:bg-[#0d66d0] text-white text-xs font-semibold rounded-none cursor-pointer transition-colors"
+                                >
+                                    Show All ({items.length})
+                                </button>
+                            )}
+                            {dateRange === '7d' && (
+                                <button
+                                    type="button"
+                                    onClick={() => handleDateRangeChange('1m')}
+                                    className="px-4 py-2 bg-[#1473E6] hover:bg-[#0d66d0] text-white text-xs font-semibold rounded-none cursor-pointer transition-colors"
+                                >
+                                    Try Last 1 Month
+                                </button>
+                            )}
+                            {dateRange !== 'all' && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSoldOnly(false);
+                                        handleDateRangeChange('all');
+                                    }}
+                                    className="px-4 py-2 border border-border/80 bg-muted/40 hover:bg-muted text-foreground text-xs font-medium rounded-none cursor-pointer transition-colors"
+                                >
+                                    Reset to All Time
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+
                 {/* Results Section */}
-                {!isLoading && items.length > 0 && (
+                {!isLoading && displayedItems.length > 0 && (
                     <div className="space-y-4">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
@@ -347,7 +445,7 @@ export default function ContributorInsightsPage() {
                                     {mode === 'contributor' ? 'Portfolio Assets' : 'Matched File Details'}
                                 </h3>
                                 <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-none border border-border/60 font-medium">
-                                    {items.length} {items.length === 1 ? 'item' : 'items'}
+                                    {displayedItems.length} {displayedItems.length === 1 ? 'item' : 'items'}
                                 </span>
                             </div>
 
@@ -384,7 +482,7 @@ export default function ContributorInsightsPage() {
 
                         {/* Grid of Asset Cards */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                            {items.map((asset) => (
+                            {displayedItems.map((asset) => (
                                 <AssetCard
                                     key={asset.id}
                                     asset={asset}
