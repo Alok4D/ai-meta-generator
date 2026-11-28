@@ -8,6 +8,7 @@ import { AdobeAssetItem, ContributorSummary, ApifyKeyRecord, SearchMode, FileTyp
 import SearchControls from "./_components/SearchControls";
 import ContributorCard from "./_components/ContributorCard";
 import DateRangeBanner from "./_components/DateRangeBanner";
+import ResultsSkeleton from "./_components/ResultsSkeleton";
 import AssetCard from "./_components/AssetCard";
 import AssetDetailsModal from "./_components/AssetDetailsModal";
 import ApiSettingsModal from "./_components/ApiSettingsModal";
@@ -352,18 +353,8 @@ export default function ContributorInsightsPage() {
                     selectedKey={selectedKey}
                 />
 
-                {/* Loading State Spinner */}
-                {isLoading && (
-                    <div className="bg-card/40 border border-border/60 rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-3 backdrop-blur-sm animate-pulse">
-                        <div className="w-10 h-10 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
-                        <h3 className="font-semibold text-foreground text-base">
-                            Scraping Adobe Stock via Apify...
-                        </h3>
-                        <p className="text-xs text-muted-foreground max-w-md">
-                            Extracting verified downloads, views, and live keyword metadata. This typically takes 5–10 seconds.
-                        </p>
-                    </div>
-                )}
+                {/* Layout-Matched Skeleton Loading */}
+                {isLoading && <ResultsSkeleton mode={mode} />}
 
                 {/* Contributor Profile Summary Card */}
                 {!isLoading && summary && mode === 'contributor' && (
